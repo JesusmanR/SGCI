@@ -1,0 +1,40 @@
+{
+  "name": "sgci-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de Gestión de Control de Inventarios (SGCI) - Frontend Vue 3 PWA Mobile-First",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@vueuse/core": "^12.5.0",
+    "idb": "^8.0.2",
+    "laravel-echo": "^1.17.0",
+    "lucide-vue-next": "^0.474.0",
+    "pinia": "^2.3.1",
+    "pusher-js": "^8.4.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/test-utils": "^2.4.6",
+    "autoprefixer": "^10.4.20",
+    "happy-dom": "^17.1.4",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0",
+    "vite-plugin-pwa": "^0.21.1",
+    "vitest": "^3.0.5",
+    "vue-tsc": "^2.2.0"
+  }
+}
