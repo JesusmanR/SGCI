@@ -1,0 +1,735 @@
+// ============================================================================
+// SGCI - Sistema de Gestión de Control de Inventarios
+// Esquema Declarativo Prisma ORM v5+ para PostgreSQL
+// Arquitectura Multi-Tenant Estricta (Aislamiento Lógico por tenant_id)
+// Compatible con Eloquent ORM (Laravel 11)
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS DE DOMINIO DEL NEGOCIO
+// ============================================================================
+
+enum MetodoValoracion {
+  PEPS               // Primero en Entrar, Primero en Salir (FIFO)
+  UEPS               // Último en Entrar, Primero en Salir (LIFO)
+  PROMEDIO_PONDERADO // Costo Promedio Ponderado móvil
+}
+
+enum RolSistema {
+  SUPER_ADMIN_SAAS        // Administrador supremo de la plataforma SaaS multi-empresa
+  ADMIN_TENANT            // Administrador general de la empresa/organización (Tenant)
+  GERENTE_OPERACIONES     // Gerencia operativa, reportes estratégicos y autorizaciones
+  JEFE_ALMACEN            // Control total de depósitos, inventarios y transferencias
+  SUPERVISOR_INVENTARIO   // Supervisión de conteos, aprobaciones de ajustes y alertas
+  ALMACENISTA_OPERADOR    // Picking, packing, recepciones físicas y despachos
+  COMPRADOR_ABASTECIMIENTO // Gestión de proveedores, cotizaciones y órdenes de compra
+  AUDITOR_INVENTARIO      // Conteos ciegos, conciliaciones y auditoría forense
+  CONTADOR_COSTOS         // Valorización de inventarios, libro Kardex y reportes fiscales
+  VISOR_CONSULTA          // Lectura pasiva para servicio al cliente y directivos
+}
+
+enum TipoMovimientoKardex {
+  ENTRADA_COMPRA          // Ingreso al almacén por factura / orden de compra de proveedor
+  SALIDA_DESPACHO         // Egreso por venta o entrega a cliente
+  ENTRADA_TRANSFERENCIA   // Recepción en almacén destino desde otro almacén interno
+  SALIDA_TRANSFERENCIA    // Egreso de almacén origen hacia otro almacén interno
+  AJUSTE_POSITIVO         // Incremento por conciliación de conteo físico o hallazgo
+  AJUSTE_NEGATIVO         // Reducción por conciliación de conteo físico o faltante
+  MERMA_DANO              // Pérdida por descomposición, rotura, merma o siniestro
+  DEVOLUCION_CLIENTE      // Reingreso de mercadería devuelta por cliente
+  DEVOLUCION_PROVEEDOR    // Salida de mercadería devuelta a proveedor por falla
+}
+
+enum EstadoOrdenCompra {
+  BORRADOR          // En preparación por el área de compras
+  APROBADA          // Autorizada financieramente por gerencia
+  ENVIADA           // Notificada al proveedor formalmente
+  RECIBIDA_PARCIAL  // Entregas parciales registradas en almacén
+  RECIBIDA_COMPLETA // Totalidad de ítems ingresados al inventario
+  CANCELADA         // Anulada antes o durante el despacho
+}
+
+enum EstadoTransferencia {
+  SOLICITADA   // Pedido de transferencia emitido
+  EN_TRANSITO  // Despachada del origen y en tránsito físico
+  RECIBIDA     // Ingresada y verificada en almacén destino
+  RECHAZADA    // Rechazada por avería, discrepancia o anulación
+}
+
+enum EstadoConteoFisico {
+  PROGRAMADO      // Calendario de auditoría establecido
+  EN_PROGRESO     // Conteo físico activo en almacén
+  EN_CONCILIACION // Comparación sistema vs. físico con cálculo de variaciones
+  APLICADO        // Ajustes de Kardex generados automáticamente
+  ANULADO         // Cancelado por fuerza mayor
+}
+
+enum TipoAlertaStock {
+  STOCK_MINIMO        // Existencia por debajo del umbral mínimo de seguridad
+  STOCK_CRITICO       // Existencia en nivel de rotura inminente de stock
+  SOBRESTOCK          // Existencia supera el límite máximo planificado
+  LOTE_POR_VENCER     // Lote próximo a expirar dentro de la ventana de alerta
+  LOTE_VENCIDO        // Lote vencido con bloqueo automático de despacho
+  DISCREPANCIA_CONTEO // Discrepancia significativa detectada en auditoría física
+}
+
+// ============================================================================
+// MODELOS DEL SISTEMA
+// Regla global: id (UUID), tenant_id (UUID), created_at, updated_at,
+// deleted_at (Soft Delete), created_by (UUID), updated_by (UUID)
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// 1. TENANT (Empresa / Organización SaaS)
+// ----------------------------------------------------------------------------
+model Tenant {
+  id         String    @id @default(uuid()) @db.Uuid
+  tenant_id  String    @db.Uuid
+  code       String    @unique @db.VarChar(50)
+  name       String    @db.VarChar(200)
+  tax_id     String    @unique @db.VarChar(50) // RUC / NIT / RFC / CIF
+  email      String    @db.VarChar(255)
+  phone      String?   @db.VarChar(50)
+  address    String?   @db.Text
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime  @updatedAt @db.Timestamptz(6)
+  deleted_at DateTime? @db.Timestamptz(6)
+  created_by String?   @db.Uuid
+  updated_by String?   @db.Uuid
+
+  // Relaciones Multi-Tenant
+  users                    Usuario[]
+  user_roles               RolUsuario[]
+  refresh_tokens           RefreshToken[]
+  categories               Categoria[]
+  units_of_measure         UnidadMedida[]
+  suppliers                Proveedor[]
+  warehouses               Almacen[]
+  warehouse_locations      UbicacionAlmacen[]
+  products                 Producto[]
+  product_lots             LoteProducto[]
+  warehouse_stocks         ExistenciaAlmacen[]
+  kardex_movements         MovimientoKardex[]
+  purchase_orders          OrdenCompra[]
+  purchase_order_items     DetalleOrdenCompra[]
+  warehouse_transfers      TransferenciaAlmacen[]
+  warehouse_transfer_items DetalleTransferencia[]
+  physical_audits          ConteoFisico[]
+  physical_audit_items     DetalleConteoFisico[]
+  stock_alerts             AlertaStock[]
+
+  @@index([tenant_id])
+  @@index([is_active])
+  @@map("tenants")
+}
+
+// ----------------------------------------------------------------------------
+// 2. USUARIO (users)
+// ----------------------------------------------------------------------------
+model Usuario {
+  id            String    @id @default(uuid()) @db.Uuid
+  tenant_id     String    @db.Uuid
+  name          String    @db.VarChar(150)
+  email         String    @db.VarChar(255)
+  password_hash String    @db.VarChar(255)
+  phone         String?   @db.VarChar(50)
+  is_active     Boolean   @default(true)
+  last_login_at DateTime? @db.Timestamptz(6)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime  @updatedAt @db.Timestamptz(6)
+  deleted_at    DateTime? @db.Timestamptz(6)
+  created_by    String?   @db.Uuid
+  updated_by    String?   @db.Uuid
+
+  // Relaciones
+  tenant             Tenant             @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  roles              RolUsuario[]
+  refresh_tokens     RefreshToken[]
+  managed_warehouses Almacen[]          @relation("WarehouseManager")
+  kardex_movements   MovimientoKardex[] @relation("KardexUser")
+  read_alerts        AlertaStock[]      @relation("AlertReadBy")
+
+  @@unique([tenant_id, email])
+  @@index([tenant_id, is_active])
+  @@map("users")
+}
+
+// ----------------------------------------------------------------------------
+// 3. ROL USUARIO (user_roles - RBAC)
+// ----------------------------------------------------------------------------
+model RolUsuario {
+  id         String     @id @default(uuid()) @db.Uuid
+  tenant_id  String     @db.Uuid
+  user_id    String     @db.Uuid
+  rol        RolSistema
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at DateTime   @updatedAt @db.Timestamptz(6)
+  deleted_at DateTime?  @db.Timestamptz(6)
+  created_by String?    @db.Uuid
+  updated_by String?    @db.Uuid
+
+  tenant Tenant  @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  user   Usuario @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([tenant_id, user_id, rol])
+  @@index([tenant_id, rol])
+  @@map("user_roles")
+}
+
+// ----------------------------------------------------------------------------
+// 4. REFRESH TOKEN (refresh_tokens - Sesiones JWT)
+// ----------------------------------------------------------------------------
+model RefreshToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  tenant_id  String    @db.Uuid
+  user_id    String    @db.Uuid
+  token_hash String    @unique @db.VarChar(255)
+  expires_at DateTime  @db.Timestamptz(6)
+  revoked    Boolean   @default(false)
+  revoked_at DateTime? @db.Timestamptz(6)
+  ip_address String?   @db.VarChar(45)
+  user_agent String?   @db.Text
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime  @updatedAt @db.Timestamptz(6)
+  deleted_at DateTime? @db.Timestamptz(6)
+  created_by String?   @db.Uuid
+  updated_by String?   @db.Uuid
+
+  tenant Tenant  @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  user   Usuario @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, revoked, expires_at])
+  @@map("refresh_tokens")
+}
+
+// ----------------------------------------------------------------------------
+// 5. CATEGORIA (categories - Árbol jerárquico de categorías)
+// ----------------------------------------------------------------------------
+model Categoria {
+  id          String      @id @default(uuid()) @db.Uuid
+  tenant_id   String      @db.Uuid
+  parent_id   String?     @db.Uuid
+  code        String      @db.VarChar(50)
+  name        String      @db.VarChar(100)
+  description String?     @db.Text
+  is_active   Boolean     @default(true)
+  created_at  DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime    @updatedAt @db.Timestamptz(6)
+  deleted_at  DateTime?   @db.Timestamptz(6)
+  created_by  String?     @db.Uuid
+  updated_by  String?     @db.Uuid
+
+  tenant   Tenant      @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  parent   Categoria?  @relation("CategoryHierarchy", fields: [parent_id], references: [id], onDelete: SetNull)
+  children Categoria[] @relation("CategoryHierarchy")
+  products Producto[]
+
+  @@unique([tenant_id, code])
+  @@index([tenant_id, parent_id])
+  @@index([tenant_id, name])
+  @@map("categories")
+}
+
+// ----------------------------------------------------------------------------
+// 6. UNIDAD DE MEDIDA (units_of_measure)
+// ----------------------------------------------------------------------------
+model UnidadMedida {
+  id         String     @id @default(uuid()) @db.Uuid
+  tenant_id  String     @db.Uuid
+  code       String     @db.VarChar(20) // KG, UND, LTS, MTR, CAJ, PAQ
+  name       String     @db.VarChar(100)
+  symbol     String     @db.VarChar(10)
+  is_active  Boolean    @default(true)
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at DateTime   @updatedAt @db.Timestamptz(6)
+  deleted_at DateTime?  @db.Timestamptz(6)
+  created_by String?    @db.Uuid
+  updated_by String?    @db.Uuid
+
+  tenant   Tenant     @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  products Producto[]
+
+  @@unique([tenant_id, code])
+  @@index([tenant_id, is_active])
+  @@map("units_of_measure")
+}
+
+// ----------------------------------------------------------------------------
+// 7. PROVEEDOR (suppliers)
+// ----------------------------------------------------------------------------
+model Proveedor {
+  id              String        @id @default(uuid()) @db.Uuid
+  tenant_id       String        @db.Uuid
+  code            String        @db.VarChar(50)
+  tax_id          String        @db.VarChar(50) // RUC / NIT / RFC / CIF
+  name            String        @db.VarChar(200)
+  commercial_name String?       @db.VarChar(200)
+  email           String?       @db.VarChar(255)
+  phone           String?       @db.VarChar(50)
+  address         String?       @db.Text
+  contact_name    String?       @db.VarChar(150)
+  is_active       Boolean       @default(true)
+  created_at      DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime      @updatedAt @db.Timestamptz(6)
+  deleted_at      DateTime?     @db.Timestamptz(6)
+  created_by      String?       @db.Uuid
+  updated_by      String?       @db.Uuid
+
+  tenant          Tenant        @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  purchase_orders OrdenCompra[]
+
+  @@unique([tenant_id, code])
+  @@index([tenant_id, tax_id])
+  @@index([tenant_id, name])
+  @@map("suppliers")
+}
+
+// ----------------------------------------------------------------------------
+// 8. ALMACEN (warehouses)
+// ----------------------------------------------------------------------------
+model Almacen {
+  id                    String                 @id @default(uuid()) @db.Uuid
+  tenant_id             String                 @db.Uuid
+  code                  String                 @db.VarChar(50)
+  name                  String                 @db.VarChar(150)
+  address               String?                @db.Text
+  manager_id            String?                @db.Uuid
+  is_active             Boolean                @default(true)
+  is_default            Boolean                @default(false)
+  created_at            DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime               @updatedAt @db.Timestamptz(6)
+  deleted_at            DateTime?              @db.Timestamptz(6)
+  created_by            String?                @db.Uuid
+  updated_by            String?                @db.Uuid
+
+  tenant                Tenant                 @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  manager               Usuario?               @relation("WarehouseManager", fields: [manager_id], references: [id], onDelete: SetNull)
+  locations             UbicacionAlmacen[]
+  stocks                ExistenciaAlmacen[]
+  kardex_movements      MovimientoKardex[]
+  purchase_orders       OrdenCompra[]
+  transfers_origin      TransferenciaAlmacen[] @relation("TransferOrigin")
+  transfers_destination TransferenciaAlmacen[] @relation("TransferDestination")
+  physical_audits       ConteoFisico[]
+  stock_alerts          AlertaStock[]
+
+  @@unique([tenant_id, code])
+  @@index([tenant_id, is_active])
+  @@map("warehouses")
+}
+
+// ----------------------------------------------------------------------------
+// 9. UBICACION ALMACEN (warehouse_locations - zona, pasillo, estante, nivel)
+// ----------------------------------------------------------------------------
+model UbicacionAlmacen {
+  id                   String                @id @default(uuid()) @db.Uuid
+  tenant_id            String                @db.Uuid
+  warehouse_id         String                @db.Uuid
+  code                 String                @db.VarChar(50) // ej: Z1-P02-E03-N1
+  zona                 String                @db.VarChar(50)
+  pasillo              String                @db.VarChar(50)
+  estante              String                @db.VarChar(50)
+  nivel                String                @db.VarChar(50)
+  description          String?               @db.Text
+  is_active            Boolean               @default(true)
+  created_at           DateTime              @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime              @updatedAt @db.Timestamptz(6)
+  deleted_at           DateTime?             @db.Timestamptz(6)
+  created_by           String?               @db.Uuid
+  updated_by           String?               @db.Uuid
+
+  tenant               Tenant                @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  warehouse            Almacen               @relation(fields: [warehouse_id], references: [id], onDelete: Cascade)
+  stocks               ExistenciaAlmacen[]
+  kardex_movements     MovimientoKardex[]
+  physical_audit_items DetalleConteoFisico[]
+
+  @@unique([tenant_id, warehouse_id, code])
+  @@index([tenant_id, warehouse_id, zona, pasillo])
+  @@map("warehouse_locations")
+}
+
+// ----------------------------------------------------------------------------
+// 10. PRODUCTO (products - Maestro de Artículos / SKU)
+// ----------------------------------------------------------------------------
+model Producto {
+  id                   String                 @id @default(uuid()) @db.Uuid
+  tenant_id            String                 @db.Uuid
+  category_id          String                 @db.Uuid
+  unit_of_measure_id   String                 @db.Uuid
+  sku                  String                 @db.VarChar(100)
+  barcode              String?                @db.VarChar(100)
+  name                 String                 @db.VarChar(200)
+  description          String?                @db.Text
+  metodo_valoracion    MetodoValoracion       @default(PROMEDIO_PONDERADO)
+  stock_minimo         Decimal                @default(0) @db.Decimal(14, 4)
+  stock_maximo         Decimal                @default(0) @db.Decimal(14, 4)
+  punto_reorden        Decimal                @default(0) @db.Decimal(14, 4)
+  maneja_lotes         Boolean                @default(false)
+  perecedero           Boolean                @default(false)
+  is_active            Boolean                @default(true)
+  created_at           DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime               @updatedAt @db.Timestamptz(6)
+  deleted_at           DateTime?              @db.Timestamptz(6)
+  created_by           String?                @db.Uuid
+  updated_by           String?                @db.Uuid
+
+  tenant               Tenant                 @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  category             Categoria              @relation(fields: [category_id], references: [id], onDelete: Restrict)
+  unit_of_measure      UnidadMedida           @relation(fields: [unit_of_measure_id], references: [id], onDelete: Restrict)
+  lots                 LoteProducto[]
+  stocks               ExistenciaAlmacen[]
+  kardex_movements     MovimientoKardex[]
+  purchase_order_items DetalleOrdenCompra[]
+  transfer_items       DetalleTransferencia[]
+  physical_audit_items DetalleConteoFisico[]
+  stock_alerts         AlertaStock[]
+
+  @@unique([tenant_id, sku])
+  @@index([tenant_id, barcode])
+  @@index([tenant_id, category_id])
+  @@index([tenant_id, is_active])
+  @@map("products")
+}
+
+// ----------------------------------------------------------------------------
+// 11. LOTE PRODUCTO (product_lots - Trazabilidad y Caducidad)
+// ----------------------------------------------------------------------------
+model LoteProducto {
+  id                     String                 @id @default(uuid()) @db.Uuid
+  tenant_id              String                 @db.Uuid
+  product_id             String                 @db.Uuid
+  numero_lote            String                 @db.VarChar(100)
+  fecha_fabricacion      DateTime?              @db.Date
+  fecha_vencimiento      DateTime?              @db.Date
+  costo_unitario_entrada Decimal                @default(0) @db.Decimal(14, 4)
+  stock_inicial          Decimal                @default(0) @db.Decimal(14, 4)
+  stock_actual           Decimal                @default(0) @db.Decimal(14, 4)
+  is_active              Boolean                @default(true)
+  created_at             DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime               @updatedAt @db.Timestamptz(6)
+  deleted_at             DateTime?              @db.Timestamptz(6)
+  created_by             String?                @db.Uuid
+  updated_by             String?                @db.Uuid
+
+  tenant                 Tenant                 @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  product                Producto               @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  stocks                 ExistenciaAlmacen[]
+  kardex_movements       MovimientoKardex[]
+  transfer_items         DetalleTransferencia[]
+  physical_audit_items   DetalleConteoFisico[]
+  stock_alerts           AlertaStock[]
+
+  @@unique([tenant_id, product_id, numero_lote])
+  @@index([tenant_id, product_id, fecha_vencimiento])
+  @@index([tenant_id, fecha_vencimiento])
+  @@map("product_lots")
+}
+
+// ----------------------------------------------------------------------------
+// 12. EXISTENCIA ALMACEN (warehouse_stocks - Saldo en Almacén/Ubicación/Lote)
+// ----------------------------------------------------------------------------
+model ExistenciaAlmacen {
+  id               String            @id @default(uuid()) @db.Uuid
+  tenant_id        String            @db.Uuid
+  product_id       String            @db.Uuid
+  warehouse_id     String            @db.Uuid
+  location_id      String?           @db.Uuid
+  lot_id           String?           @db.Uuid
+  stock_actual     Decimal           @default(0) @db.Decimal(14, 4)
+  stock_reservado  Decimal           @default(0) @db.Decimal(14, 4)
+  stock_disponible Decimal           @default(0) @db.Decimal(14, 4)
+  costo_promedio   Decimal           @default(0) @db.Decimal(14, 4)
+  valor_total      Decimal           @default(0) @db.Decimal(14, 4)
+  created_at       DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime          @updatedAt @db.Timestamptz(6)
+  deleted_at       DateTime?         @db.Timestamptz(6)
+  created_by       String?           @db.Uuid
+  updated_by       String?           @db.Uuid
+
+  tenant           Tenant            @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  product          Producto          @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  warehouse        Almacen           @relation(fields: [warehouse_id], references: [id], onDelete: Cascade)
+  location         UbicacionAlmacen? @relation(fields: [location_id], references: [id], onDelete: SetNull)
+  lot              LoteProducto?     @relation(fields: [lot_id], references: [id], onDelete: SetNull)
+
+  @@index([tenant_id, product_id, warehouse_id])
+  @@index([tenant_id, warehouse_id, location_id])
+  @@index([tenant_id, lot_id])
+  @@map("warehouse_stocks")
+}
+
+// ----------------------------------------------------------------------------
+// 13. MOVIMIENTO KARDEX (kardex_movements - Libro Mayor Inmutable de Inventario)
+// ----------------------------------------------------------------------------
+model MovimientoKardex {
+  id                          String               @id @default(uuid()) @db.Uuid
+  tenant_id                   String               @db.Uuid
+  product_id                  String               @db.Uuid
+  warehouse_id                String               @db.Uuid
+  location_id                 String?              @db.Uuid
+  lot_id                      String?              @db.Uuid
+  tipo_movimiento             TipoMovimientoKardex
+  fecha_movimiento            DateTime             @default(now()) @db.Timestamptz(6)
+  cantidad                    Decimal              @db.Decimal(14, 4) // Positivo: Entrada; Negativo: Salida
+  costo_unitario              Decimal              @db.Decimal(14, 4)
+  costo_total                 Decimal              @db.Decimal(14, 4)
+  saldo_cantidad_posterior    Decimal              @db.Decimal(14, 4)
+  saldo_costo_posterior       Decimal              @db.Decimal(14, 4)
+  saldo_valor_total_posterior Decimal              @db.Decimal(14, 4)
+  referencia_origen           String               @db.VarChar(100) // ej: "OC-2026-0001", "TR-2026-0042", "CF-2026-0005"
+  tipo_documento_origen       String?              @db.VarChar(50)  // "ORDEN_COMPRA", "TRANSFERENCIA", "CONTEO_FISICO", "AJUSTE"
+  documento_origen_id         String?              @db.Uuid
+  user_id                     String?              @db.Uuid
+  notas                       String?              @db.Text
+  created_at                  DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at                  DateTime             @updatedAt @db.Timestamptz(6)
+  deleted_at                  DateTime?            @db.Timestamptz(6)
+  created_by                  String?              @db.Uuid
+  updated_by                  String?              @db.Uuid
+
+  tenant                      Tenant               @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  product                     Producto             @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  warehouse                   Almacen              @relation(fields: [warehouse_id], references: [id], onDelete: Restrict)
+  location                    UbicacionAlmacen?    @relation(fields: [location_id], references: [id], onDelete: SetNull)
+  lot                         LoteProducto?        @relation(fields: [lot_id], references: [id], onDelete: SetNull)
+  user                        Usuario?             @relation("KardexUser", fields: [user_id], references: [id], onDelete: SetNull)
+
+  // Índices compuestos de alto rendimiento para millones de registros
+  @@index([tenant_id, product_id, warehouse_id, fecha_movimiento])
+  @@index([tenant_id, fecha_movimiento])
+  @@index([tenant_id, tipo_movimiento])
+  @@index([tenant_id, referencia_origen])
+  @@index([tenant_id, documento_origen_id])
+  @@map("kardex_movements")
+}
+
+// ----------------------------------------------------------------------------
+// 14. ORDEN DE COMPRA (purchase_orders - Abastecimiento)
+// ----------------------------------------------------------------------------
+model OrdenCompra {
+  id                     String               @id @default(uuid()) @db.Uuid
+  tenant_id              String               @db.Uuid
+  supplier_id            String               @db.Uuid
+  warehouse_id           String               @db.Uuid
+  numero_orden           String               @db.VarChar(50) // ej: "OC-2026-0001"
+  estado                 EstadoOrdenCompra    @default(BORRADOR)
+  fecha_emision          DateTime             @default(now()) @db.Date
+  fecha_entrega_esperada DateTime?            @db.Date
+  subtotal               Decimal              @default(0) @db.Decimal(14, 4)
+  impuestos              Decimal              @default(0) @db.Decimal(14, 4)
+  total                  Decimal              @default(0) @db.Decimal(14, 4)
+  notas                  String?              @db.Text
+  created_at             DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime             @updatedAt @db.Timestamptz(6)
+  deleted_at             DateTime?            @db.Timestamptz(6)
+  created_by             String?              @db.Uuid
+  updated_by             String?              @db.Uuid
+
+  tenant                 Tenant               @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  supplier               Proveedor            @relation(fields: [supplier_id], references: [id], onDelete: Restrict)
+  warehouse              Almacen              @relation(fields: [warehouse_id], references: [id], onDelete: Restrict)
+  items                  DetalleOrdenCompra[]
+
+  @@unique([tenant_id, numero_orden])
+  @@index([tenant_id, estado])
+  @@index([tenant_id, supplier_id])
+  @@index([tenant_id, fecha_emision])
+  @@map("purchase_orders")
+}
+
+// ----------------------------------------------------------------------------
+// 15. DETALLE ORDEN DE COMPRA (purchase_order_items)
+// ----------------------------------------------------------------------------
+model DetalleOrdenCompra {
+  id                  String      @id @default(uuid()) @db.Uuid
+  tenant_id           String      @db.Uuid
+  purchase_order_id   String      @db.Uuid
+  product_id          String      @db.Uuid
+  cantidad_solicitada Decimal     @db.Decimal(14, 4)
+  cantidad_recibida   Decimal     @default(0) @db.Decimal(14, 4)
+  precio_unitario     Decimal     @db.Decimal(14, 4)
+  subtotal            Decimal     @db.Decimal(14, 4)
+  notas               String?     @db.Text
+  created_at          DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime    @updatedAt @db.Timestamptz(6)
+  deleted_at          DateTime?   @db.Timestamptz(6)
+  created_by          String?     @db.Uuid
+  updated_by          String?     @db.Uuid
+
+  tenant              Tenant      @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  purchase_order      OrdenCompra @relation(fields: [purchase_order_id], references: [id], onDelete: Cascade)
+  product             Producto    @relation(fields: [product_id], references: [id], onDelete: Restrict)
+
+  @@index([tenant_id, purchase_order_id])
+  @@index([tenant_id, product_id])
+  @@map("purchase_order_items")
+}
+
+// ----------------------------------------------------------------------------
+// 16. TRANSFERENCIA ALMACEN (warehouse_transfers - Movimientos Inter-Almacén)
+// ----------------------------------------------------------------------------
+model TransferenciaAlmacen {
+  id                   String                 @id @default(uuid()) @db.Uuid
+  tenant_id            String                 @db.Uuid
+  numero_transferencia String                 @db.VarChar(50) // ej: "TR-2026-0001"
+  origen_warehouse_id  String                 @db.Uuid
+  destino_warehouse_id String                 @db.Uuid
+  estado               EstadoTransferencia    @default(SOLICITADA)
+  fecha_solicitud      DateTime               @default(now()) @db.Timestamptz(6)
+  fecha_envio          DateTime?              @db.Timestamptz(6)
+  fecha_recepcion      DateTime?              @db.Timestamptz(6)
+  motivo               String?                @db.Text
+  created_at           DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime               @updatedAt @db.Timestamptz(6)
+  deleted_at           DateTime?              @db.Timestamptz(6)
+  created_by           String?                @db.Uuid
+  updated_by           String?                @db.Uuid
+
+  tenant               Tenant                 @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  origen_warehouse     Almacen                @relation("TransferOrigin", fields: [origen_warehouse_id], references: [id], onDelete: Restrict)
+  destino_warehouse    Almacen                @relation("TransferDestination", fields: [destino_warehouse_id], references: [id], onDelete: Restrict)
+  items                DetalleTransferencia[]
+
+  @@unique([tenant_id, numero_transferencia])
+  @@index([tenant_id, estado])
+  @@index([tenant_id, origen_warehouse_id])
+  @@index([tenant_id, destino_warehouse_id])
+  @@map("warehouse_transfers")
+}
+
+// ----------------------------------------------------------------------------
+// 17. DETALLE TRANSFERENCIA (warehouse_transfer_items)
+// ----------------------------------------------------------------------------
+model DetalleTransferencia {
+  id                  String               @id @default(uuid()) @db.Uuid
+  tenant_id           String               @db.Uuid
+  transfer_id         String               @db.Uuid
+  product_id          String               @db.Uuid
+  lot_id              String?              @db.Uuid
+  cantidad_solicitada Decimal              @db.Decimal(14, 4)
+  cantidad_enviada    Decimal              @default(0) @db.Decimal(14, 4)
+  cantidad_recibida   Decimal              @default(0) @db.Decimal(14, 4)
+  notas               String?              @db.Text
+  created_at          DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime             @updatedAt @db.Timestamptz(6)
+  deleted_at          DateTime?            @db.Timestamptz(6)
+  created_by          String?              @db.Uuid
+  updated_by          String?              @db.Uuid
+
+  tenant              Tenant               @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  transfer            TransferenciaAlmacen @relation(fields: [transfer_id], references: [id], onDelete: Cascade)
+  product             Producto             @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  lot                 LoteProducto?        @relation(fields: [lot_id], references: [id], onDelete: SetNull)
+
+  @@index([tenant_id, transfer_id])
+  @@index([tenant_id, product_id])
+  @@map("warehouse_transfer_items")
+}
+
+// ----------------------------------------------------------------------------
+// 18. CONTEO FISICO (physical_audits - Auditorías de Inventario)
+// ----------------------------------------------------------------------------
+model ConteoFisico {
+  id               String                @id @default(uuid()) @db.Uuid
+  tenant_id        String                @db.Uuid
+  warehouse_id     String                @db.Uuid
+  numero_conteo    String                @db.VarChar(50) // ej: "CF-2026-0001"
+  estado           EstadoConteoFisico    @default(PROGRAMADO)
+  fecha_programada DateTime              @db.Date
+  fecha_inicio     DateTime?             @db.Timestamptz(6)
+  fecha_cierre     DateTime?             @db.Timestamptz(6)
+  notas            String?               @db.Text
+  created_at       DateTime              @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime              @updatedAt @db.Timestamptz(6)
+  deleted_at       DateTime?             @db.Timestamptz(6)
+  created_by       String?               @db.Uuid
+  updated_by       String?               @db.Uuid
+
+  tenant           Tenant                @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  warehouse        Almacen               @relation(fields: [warehouse_id], references: [id], onDelete: Restrict)
+  items            DetalleConteoFisico[]
+
+  @@unique([tenant_id, numero_conteo])
+  @@index([tenant_id, warehouse_id, estado])
+  @@index([tenant_id, fecha_programada])
+  @@map("physical_audits")
+}
+
+// ----------------------------------------------------------------------------
+// 19. DETALLE CONTEO FISICO (physical_audit_items)
+// ----------------------------------------------------------------------------
+model DetalleConteoFisico {
+  id                String            @id @default(uuid()) @db.Uuid
+  tenant_id         String            @db.Uuid
+  physical_audit_id String            @db.Uuid
+  product_id        String            @db.Uuid
+  location_id       String?           @db.Uuid
+  lot_id            String?           @db.Uuid
+  cantidad_sistema  Decimal           @db.Decimal(14, 4)
+  cantidad_contada  Decimal           @db.Decimal(14, 4)
+  diferencia        Decimal           @db.Decimal(14, 4) // cantidad_contada - cantidad_sistema
+  costo_unitario    Decimal           @default(0) @db.Decimal(14, 4)
+  valor_diferencia  Decimal           @default(0) @db.Decimal(14, 4) // diferencia * costo_unitario
+  ajustado          Boolean           @default(false)
+  notas             String?           @db.Text
+  created_at        DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime          @updatedAt @db.Timestamptz(6)
+  deleted_at        DateTime?         @db.Timestamptz(6)
+  created_by        String?           @db.Uuid
+  updated_by        String?           @db.Uuid
+
+  tenant            Tenant            @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  physical_audit    ConteoFisico      @relation(fields: [physical_audit_id], references: [id], onDelete: Cascade)
+  product           Producto          @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  location          UbicacionAlmacen? @relation(fields: [location_id], references: [id], onDelete: SetNull)
+  lot               LoteProducto?     @relation(fields: [lot_id], references: [id], onDelete: SetNull)
+
+  @@index([tenant_id, physical_audit_id])
+  @@index([tenant_id, product_id])
+  @@map("physical_audit_items")
+}
+
+// ----------------------------------------------------------------------------
+// 20. ALERTA DE STOCK (stock_alerts - Monitor de Ruptura y Vencimientos)
+// ----------------------------------------------------------------------------
+model AlertaStock {
+  id              String          @id @default(uuid()) @db.Uuid
+  tenant_id       String          @db.Uuid
+  product_id      String          @db.Uuid
+  warehouse_id    String?         @db.Uuid
+  lot_id          String?         @db.Uuid
+  tipo_alerta     TipoAlertaStock
+  nivel_severidad String          @default("MEDIA") @db.VarChar(20) // BAJA, MEDIA, ALTA, CRITICA
+  mensaje         String          @db.Text
+  leida           Boolean         @default(false)
+  leida_por       String?         @db.Uuid
+  fecha_leida     DateTime?       @db.Timestamptz(6)
+  created_at      DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime        @updatedAt @db.Timestamptz(6)
+  deleted_at      DateTime?       @db.Timestamptz(6)
+  created_by      String?         @db.Uuid
+  updated_by      String?         @db.Uuid
+
+  tenant          Tenant          @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  product         Producto        @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  warehouse       Almacen?        @relation(fields: [warehouse_id], references: [id], onDelete: SetNull)
+  lot             LoteProducto?   @relation(fields: [lot_id], references: [id], onDelete: SetNull)
+  usuario_leido   Usuario?        @relation("AlertReadBy", fields: [leida_por], references: [id], onDelete: SetNull)
+
+  @@index([tenant_id, tipo_alerta, leida])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, created_at])
+  @@map("stock_alerts")
+}

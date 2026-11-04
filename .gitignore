@@ -1,0 +1,32 @@
+# Dependencias Backend (Laravel 11 / Composer)
+/backend/vendor/
+/backend/.env
+/backend/.env.backup
+/backend/.env.production
+/backend/.phpunit.result.cache
+/backend/storage/*.key
+/backend/storage/logs/*.log
+/backend/bootstrap/cache/*.php
+
+# Dependencias Frontend (Vue 3 / Vite / Node)
+/frontend/node_modules/
+/frontend/dist/
+/frontend/dist-ssr/
+/frontend/.env.local
+/frontend/.env.*.local
+/frontend/coverage/
+
+# Prisma & Base de Datos
+/database/prisma/node_modules/
+/database/prisma/.env
+
+# Sistema Operativo e IDEs
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+~$*
