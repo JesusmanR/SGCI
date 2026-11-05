@@ -72,5 +72,24 @@ return [
             ],
             'pantallas_figma' => ['42-ajustes-inventario-listado', '43-nuevo-ajuste-inventario', '45-kardex-movimientos'],
         ],
+        [
+            'metodo' => 'POST',
+            'uri' => '/api/v1/auth/restablecer-contrasena',
+            'accion' => [\App\Modulos\Autenticacion\Servicios\RestablecerContrasenaTokenService::class, 'restablecerContrasenaConToken'],
+            'roles_permitidos' => RolSistemaEnum::cases(),
+            'pantallas_sgci' => ['04-Recuperacion', '05-Confirmacion-de-recuperacion', '05b-Nueva-contrasena-por-token'],
+        ],
+        [
+            'metodo' => 'POST',
+            'uri' => '/api/v1/compras/recepciones-muelle',
+            'accion' => [\App\Modulos\Compras\Servicios\RecepcionMercaderiaKardexService::class, 'procesarRecepcionContraOrden'],
+            'roles_permitidos' => [
+                RolSistemaEnum::ADMIN_TENANT,
+                RolSistemaEnum::JEFE_ALMACEN,
+                RolSistemaEnum::COMPRADOR_ABASTECIMIENTO,
+                RolSistemaEnum::ALMACENISTA_OPERADOR,
+            ],
+            'pantallas_sgci' => ['13-Abastecimiento', '13b-Recepcion-orden-compra-muelle', '10-Libro-Kardex'],
+        ],
     ],
 ];

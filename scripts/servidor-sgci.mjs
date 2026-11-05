@@ -170,7 +170,15 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       vista: 'centro-mando',
       subVistaAcceso: '01-landing',
       mostrarModalDemo02: false,
+      mostrarModalProducto08b: false,
       mostrarModalRecepcion13b: false,
+      nuevoProdSku: 'VL-310-TITAN',
+      nuevoProdNombre: 'Válvula direccional neumática 1/2"',
+      nuevoProdUbicacion: 'A-01-R04-NA',
+      nuevoProdMin: 10,
+      nuevoProdRop: 16,
+      nuevoProdMax: 50,
+      nuevoProdStock: 28,
       rol: 'JEFE_ALMACEN',
       bodega: 'ALM-CENTRAL-01 — Bodega Central Monterrey',
       online: true,
@@ -274,23 +282,69 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
     }
 
     function crearProductoModal() {
-      const sku = prompt('Código SKU del nuevo producto:', 'VL-310-TITAN');
-      if (!sku) return;
-      const nombre = prompt('Descripción técnica:', 'Válvula direccional neumática 1/2"');
-      if (!nombre) return;
+      state.mostrarModalProducto08b = !state.mostrarModalProducto08b;
+      renderMain();
+    }
+
+    function guardarNuevoProducto08b() {
+      const sku = (state.nuevoProdSku || '').trim().toUpperCase();
+      const nombre = (state.nuevoProdNombre || '').trim();
+      const min = Number(state.nuevoProdMin || 0);
+      const rop = Number(state.nuevoProdRop || 0);
+      const max = Number(state.nuevoProdMax || 0);
+      const stock = Number(state.nuevoProdStock || 0);
+      if (!sku || !nombre) {
+        alert('Debes indicar el código SKU y la descripción técnica del producto.');
+        return;
+      }
+      if (rop < min) {
+        alert('Invariante de inventario: el Punto de Reorden (ROP) debe ser mayor o igual al Stock Mínimo.');
+        return;
+      }
       state.productos.unshift({
-        sku: sku.toUpperCase(),
+        sku,
         nombre,
-        ubicacion: 'A-01-R04-NA',
+        ubicacion: state.nuevoProdUbicacion || 'A-01-R04-NA',
         lote: 'LOTE-2026-150',
         metodo: 'PEPS',
-        min: 10,
-        rop: 16,
-        max: 50,
-        stock: 28,
+        min,
+        rop,
+        max,
+        stock,
         costo: 118.00,
-        estado: 'ÓPTIMO',
+        estado: stock <= min ? 'CRÍTICO' : (stock <= rop ? 'REORDEN' : 'ÓPTIMO'),
       });
+      state.mostrarModalProducto08b = false;
+      renderMain();
+    }
+
+    function ejecutarAccionEspecializadaModulo(modulo, refId) {
+      if (modulo === 'almacenes') {
+        alert('Transferencia ' + refId + ' recibida en ' + state.bodega + ' y conciliada en ubicación Bin.');
+      } else if (modulo === 'lotes-fefo') {
+        const loteObj = state.lotesFefo.find(l => l.lote === refId);
+        if (loteObj) {
+          loteObj.semaforo = loteObj.semaforo === 'CUARENTENA' ? 'PROXIMO_A_VENCER' : 'CUARENTENA';
+        }
+      } else if (modulo === 'conteos-auditoria') {
+        state.movimientosKardex.unshift({
+          fecha: 'HOY · ' + new Date().toTimeString().slice(0, 8) + ' UTC-6',
+          doc: refId,
+          tipo: 'AJUSTE DOBLE FIRMA',
+          lote: 'LOTE-2026-101',
+          vence: '28/12/2026',
+          entrada: '0.0000',
+          salida: '0.0000',
+          saldo: Number(state.conteoFisicoInput || 14).toFixed(4),
+          costoUnit: 148.20,
+          saldoVal: Number(state.conteoFisicoInput || 14) * 148.20,
+          operador: 'L. Mendoza + D. Ríos',
+          rolOp: 'DOBLE_FIRMA',
+        });
+        alert('Ciclo ' + refId + ' firmado con Doble Firma (JEFE_ALMACEN + AUDITOR_CONTEOS) y registrado en Libro Kardex.');
+      } else if (modulo === 'gobernanza-rbac') {
+        alert('Política RBAC Multi-Tenant verificada para el rol ' + refId + ' con aislamiento tenant_id.');
+      }
       renderMain();
     }
 
@@ -559,9 +613,31 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                 <p class="text-sm text-slate-500 mt-1">\${state.productos.length} productos activos en el tenant</p>
               </div>
               <button onclick="crearProductoModal()" class="rounded-xl bg-[#2563EB] px-5 py-3 text-xs font-bold text-white shadow hover:bg-blue-700 transition">
-                + Nuevo producto
+                + Nuevo producto (Ventana 08b)
               </button>
             </div>
+
+            \${state.mostrarModalProducto08b ? \`
+              <!-- Ventana Especializada 08b: Modal de Alta de Producto y Reglas ROP -->
+              <div class="rounded-2xl border-2 border-blue-600 bg-blue-50/40 p-6 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-700">VENTANA ESPECIALIZADA 08B (COMPLEMENTO A 08-PRODUCTOS-Y-ROP.PNG)</span>
+                    <h2 class="text-lg font-extrabold text-slate-900">Alta de Producto Maestro con Validación de Punto de Reorden (ROP ≥ Mínimo)</h2>
+                  </div>
+                  <button onclick="guardarNuevoProducto08b()" class="rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                    ✓ Guardar Producto en Catálogo
+                  </button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
+                  <label class="block"><span class="font-bold text-slate-700">SKU</span><input oninput="state.nuevoProdSku = this.value" value="\${state.nuevoProdSku}" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-mono font-bold" /></label>
+                  <label class="block sm:col-span-2"><span class="font-bold text-slate-700">Descripción técnica</span><input oninput="state.nuevoProdNombre = this.value" value="\${state.nuevoProdNombre}" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-semibold" /></label>
+                  <label class="block"><span class="font-bold text-slate-700">Ubicación Bin</span><input oninput="state.nuevoProdUbicacion = this.value" value="\${state.nuevoProdUbicacion}" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-mono" /></label>
+                  <label class="block"><span class="font-bold text-slate-700">Stock Mínimo</span><input type="number" oninput="state.nuevoProdMin = this.value" value="\${state.nuevoProdMin}" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-mono" /></label>
+                  <label class="block"><span class="font-bold text-slate-700">Punto Reorden (ROP)</span><input type="number" oninput="state.nuevoProdRop = this.value" value="\${state.nuevoProdRop}" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-mono font-bold text-blue-700" /></label>
+                </div>
+              </div>
+            \` : ''}
 
             <div class="rounded-2xl bg-white border border-slate-200/90 shadow-sm overflow-hidden">
               <div class="p-4 flex flex-wrap gap-3 border-b border-slate-100">
@@ -931,6 +1007,9 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                     </div>
                     <div class="flex items-center gap-3">
                       \${f.accionOc ? \`<button onclick="conciliarOrdenCompra('\${f.accionOc}')" class="rounded-lg bg-[#2563EB] px-3 py-1.5 text-white font-bold hover:bg-blue-700">Recibir en Muelle → Kardex</button>\` : ''}
+                      \${state.vista === 'almacenes' && f.col1.startsWith('TR-') ? \`<button onclick="ejecutarAccionEspecializadaModulo('almacenes', '\${f.col1}')" class="rounded-lg bg-[#0A1120] px-3 py-1.5 text-white font-bold hover:bg-slate-800">Confirmar Llegada (Paso 2)</button>\` : ''}
+                      \${state.vista === 'lotes-fefo' ? \`<button onclick="ejecutarAccionEspecializadaModulo('lotes-fefo', '\${f.col1}')" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 font-bold hover:bg-slate-50">Alternar Cuarentena</button>\` : ''}
+                      \${state.vista === 'conteos-auditoria' && f.col1 === 'CC-2026-028' ? \`<button onclick="ejecutarAccionEspecializadaModulo('conteos-auditoria', '\${f.col1}')" class="rounded-lg bg-[#2563EB] px-3 py-1.5 text-white font-bold hover:bg-blue-700">Firmar 2ª Aprobación → Kardex</button>\` : ''}
                       <span class="rounded-full bg-slate-100 px-3 py-1 font-mono text-[11px] font-bold text-slate-800">\${f.estado}</span>
                     </div>
                   </div>
