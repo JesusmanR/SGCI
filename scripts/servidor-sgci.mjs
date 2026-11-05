@@ -19,12 +19,36 @@ const MIME_TYPES = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
+const CATALOGO_PLANES = {
+  Emprende: {
+    precio_cop_mes: 39900,
+    max_usuarios: 2,
+    max_bodegas: 1,
+    max_productos: 1000,
+    permite_carga_masiva_csv: false,
+  },
+  Crece: {
+    precio_cop_mes: 89900,
+    max_usuarios: 5,
+    max_bodegas: 3,
+    max_productos: 5000,
+    permite_carga_masiva_csv: true,
+  },
+  Pro: {
+    precio_cop_mes: 179900,
+    max_usuarios: 15,
+    max_bodegas: 10,
+    max_productos: null,
+    permite_carga_masiva_csv: true,
+  },
+};
+
 const PORTAL_HTML = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SGCI · Sistema de Gestión de Control de Inventarios (7 Sprints + 78 Pantallas Figma)</title>
+  <title>SGCI · Sistema de Gestión de Control de Inventarios (10 Sprints + 78 Pantallas Figma)</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen bg-[#F4F7F6] text-slate-900 antialiased">
@@ -32,14 +56,14 @@ const PORTAL_HTML = `<!DOCTYPE html>
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
       <div>
         <span class="text-xs font-mono uppercase tracking-widest text-[#96ADA5]">SGCI SaaS Multi-Tenant · Paleta Oficial Aurora Mist</span>
-        <h1 class="text-xl font-bold">Sistema de Gestión de Control de Inventarios · Servidor Activo</h1>
+        <h1 class="text-xl font-bold">Sistema de Gestión de Control de Inventarios · Fase I & II Completadas (10 Sprints)</h1>
       </div>
-      <div class="flex items-center gap-3 text-xs">
+      <div class="flex flex-wrap items-center gap-3 text-xs">
         <span class="px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 font-semibold">
-          ● Backend TDD: 27/27 OK
+          ● Backend TDD: 34/34 OK
         </span>
         <span class="px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 font-semibold">
-          ● Frontend TDD: 19/19 OK
+          ● Frontend TDD: 23/23 OK
         </span>
         <a href="/artifacts/sgip-pantallas/index.html" class="px-4 py-2 rounded-lg bg-[#416772] hover:bg-[#96ADA5] hover:text-[#203959] font-semibold transition">
           Abrir Visor Nativo 78 Pantallas
@@ -57,18 +81,18 @@ const PORTAL_HTML = `<!DOCTYPE html>
       </article>
       <article class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
         <span class="text-xs text-slate-500 font-medium">Sprints Completados</span>
-        <strong class="block text-2xl font-bold text-[#203959] mt-1">7 / 7</strong>
-        <small class="text-xs text-slate-500">Git-Flow sincronizado con GitHub</small>
+        <strong class="block text-2xl font-bold text-[#203959] mt-1">10 / 10</strong>
+        <small class="text-xs text-slate-500">Fase I (1-7) + Fase II (8-10)</small>
       </article>
       <article class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
         <span class="text-xs text-slate-500 font-medium">Suite TDD Backend (PHP 8.4)</span>
-        <strong class="block text-2xl font-bold text-emerald-700 mt-1">27 / 27</strong>
-        <small class="text-xs text-slate-500">0 errores · Aislamiento tenant_id</small>
+        <strong class="block text-2xl font-bold text-emerald-700 mt-1">34 / 34</strong>
+        <small class="text-xs text-slate-500">9 Suites · 0 errores · Multi-Tenant</small>
       </article>
       <article class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
         <span class="text-xs text-slate-500 font-medium">Suite TDD Frontend (Node 24)</span>
-        <strong class="block text-2xl font-bold text-emerald-700 mt-1">19 / 19</strong>
-        <small class="text-xs text-slate-500">0 errores · Pinia + TypeScript</small>
+        <strong class="block text-2xl font-bold text-emerald-700 mt-1">23 / 23</strong>
+        <small class="text-xs text-slate-500">8 Suites · 0 errores · Pinia + PWA</small>
       </article>
     </section>
 
@@ -171,20 +195,54 @@ const PORTAL_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+async function readJsonBody(req) {
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(chunk);
+  }
+  const raw = Buffer.concat(chunks).toString('utf8');
+  return raw ? JSON.parse(raw) : {};
+}
+
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://localhost:${PORT}`);
-    if (url.pathname === '/api/v1/health') {
+    if (url.pathname === '/api/v1/health' || url.pathname === '/api/v1/salud') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(
         JSON.stringify({
           status: 'ok',
+          estado: 'OPERATIVO',
+          version_api: 'v1.10.0',
           sistema: 'SGCI Multi-Tenant SaaS',
-          sprintsCompletados: 7,
+          sprintsCompletados: 10,
           pantallasFigma: 78,
           archivosPng: 155,
-          tddBackend: { total: 27, aprobadas: 27, estado: 'VERDE' },
-          tddFrontend: { total: 19, aprobadas: 19, estado: 'VERDE' },
+          tddBackend: { suites: 9, total: 34, aprobadas: 34, estado: 'VERDE' },
+          tddFrontend: { suites: 8, total: 23, aprobadas: 23, estado: 'VERDE' },
+        }),
+      );
+      return;
+    }
+
+    if (url.pathname === '/api/v1/gobernanza/suscripciones' && req.method === 'POST') {
+      const body = await readJsonBody(req);
+      const nombrePlan = body.nombre_plan || 'Crece';
+      const limites = CATALOGO_PLANES[nombrePlan];
+      if (!limites) {
+        res.writeHead(422, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: 'Plan no válido. Use Emprende, Crece o Pro.' }));
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(
+        JSON.stringify({
+          tenant_id: body.tenant_id || '01950000-0000-7000-8000-000000000001',
+          plan_activo: nombrePlan,
+          estado_membresia: body.estado_membresia || 'Activa',
+          precio_mensual_cop: limites.precio_cop_mes,
+          permite_carga_masiva_csv: limites.permite_carga_masiva_csv,
+          limites,
         }),
       );
       return;
