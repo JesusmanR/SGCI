@@ -1,0 +1,1483 @@
+{
+  "generatedAt": "2026-11-03T16:02:32.593Z",
+  "screenCount": 78,
+  "imageCount": 155,
+  "screens": [
+    {
+      "id": "01-landing",
+      "title": "Sitio público y planes",
+      "group": "Acceso",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/01-landing.png",
+          "width": 1440,
+          "height": 3345,
+          "bytes": 785456
+        },
+        "movil": {
+          "file": "movil/01-landing.png",
+          "width": 390,
+          "height": 5383,
+          "bytes": 396792
+        }
+      }
+    },
+    {
+      "id": "02-registro",
+      "title": "Registro de empresa",
+      "group": "Acceso",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/02-registro.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 116936
+        },
+        "movil": {
+          "file": "movil/02-registro.png",
+          "width": 390,
+          "height": 861,
+          "bytes": 42190
+        }
+      }
+    },
+    {
+      "id": "03-login",
+      "title": "Inicio de sesión",
+      "group": "Acceso",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/03-login.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 115584
+        },
+        "movil": {
+          "file": "movil/03-login.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 38342
+        }
+      }
+    },
+    {
+      "id": "04-recuperar-contrasena",
+      "title": "Recuperación de contraseña",
+      "group": "Acceso",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/04-recuperar-contrasena.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 165505
+        },
+        "movil": {
+          "file": "movil/04-recuperar-contrasena.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 54828
+        }
+      }
+    },
+    {
+      "id": "05-recuperacion-enviada",
+      "title": "Enlace de recuperación enviado",
+      "group": "Acceso",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/05-recuperacion-enviada.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 161080
+        },
+        "movil": {
+          "file": "movil/05-recuperacion-enviada.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 54193
+        }
+      }
+    },
+    {
+      "id": "06-cambio-obligatorio",
+      "title": "Cambio obligatorio de contraseña",
+      "group": "Acceso",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/06-cambio-obligatorio.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 183957
+        },
+        "movil": {
+          "file": "movil/06-cambio-obligatorio.png",
+          "width": 390,
+          "height": 883,
+          "bytes": 61250
+        }
+      }
+    },
+    {
+      "id": "07-contrasenas-no-coinciden",
+      "title": "Validación: las contraseñas no coinciden",
+      "group": "Acceso",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/07-contrasenas-no-coinciden.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 179738
+        },
+        "movil": {
+          "file": "movil/07-contrasenas-no-coinciden.png",
+          "width": 390,
+          "height": 944,
+          "bytes": 65376
+        }
+      }
+    },
+    {
+      "id": "08-inicio-admin",
+      "title": "Inicio · Administrador",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/08-inicio-admin.png",
+          "width": 1440,
+          "height": 1025,
+          "bytes": 153812
+        },
+        "movil": {
+          "file": "movil/08-inicio-admin.png",
+          "width": 390,
+          "height": 1891,
+          "bytes": 103206
+        }
+      }
+    },
+    {
+      "id": "09-menu-movil",
+      "title": "Navegación móvil",
+      "group": "Administrador",
+      "images": {
+        "movil": {
+          "file": "movil/09-menu-movil.png",
+          "width": 390,
+          "height": 1891,
+          "bytes": 105110
+        }
+      }
+    },
+    {
+      "id": "10-perfil-empresa",
+      "title": "Perfil de empresa",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/10-perfil-empresa.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 119840
+        },
+        "movil": {
+          "file": "movil/10-perfil-empresa.png",
+          "width": 390,
+          "height": 1346,
+          "bytes": 74690
+        }
+      }
+    },
+    {
+      "id": "11-productos",
+      "title": "Productos e inventario",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/11-productos.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 125001
+        },
+        "movil": {
+          "file": "movil/11-productos.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 49920
+        }
+      }
+    },
+    {
+      "id": "12-catalogo",
+      "title": "Catálogo de productos",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/12-catalogo.png",
+          "width": 1440,
+          "height": 1038,
+          "bytes": 131556
+        },
+        "movil": {
+          "file": "movil/12-catalogo.png",
+          "width": 390,
+          "height": 2337,
+          "bytes": 86941
+        }
+      }
+    },
+    {
+      "id": "13-clientes",
+      "title": "Clientes",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/13-clientes.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 99349
+        },
+        "movil": {
+          "file": "movil/13-clientes.png",
+          "width": 390,
+          "height": 1482,
+          "bytes": 56473
+        }
+      }
+    },
+    {
+      "id": "14-cotizaciones",
+      "title": "Cotizaciones",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/14-cotizaciones.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 120881
+        },
+        "movil": {
+          "file": "movil/14-cotizaciones.png",
+          "width": 390,
+          "height": 1067,
+          "bytes": 57796
+        }
+      }
+    },
+    {
+      "id": "15-ventas",
+      "title": "Ventas",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/15-ventas.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 111798
+        },
+        "movil": {
+          "file": "movil/15-ventas.png",
+          "width": 390,
+          "height": 986,
+          "bytes": 49689
+        }
+      }
+    },
+    {
+      "id": "16-facturacion",
+      "title": "Nueva factura",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/16-facturacion.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 128631
+        },
+        "movil": {
+          "file": "movil/16-facturacion.png",
+          "width": 390,
+          "height": 1398,
+          "bytes": 71309
+        }
+      }
+    },
+    {
+      "id": "17-proveedores",
+      "title": "Proveedores",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/17-proveedores.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 112590
+        },
+        "movil": {
+          "file": "movil/17-proveedores.png",
+          "width": 390,
+          "height": 986,
+          "bytes": 50750
+        }
+      }
+    },
+    {
+      "id": "18-movimientos",
+      "title": "Movimientos de inventario",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/18-movimientos.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 109286
+        },
+        "movil": {
+          "file": "movil/18-movimientos.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 41554
+        }
+      }
+    },
+    {
+      "id": "19-reportes",
+      "title": "Reportes",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/19-reportes.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 101034
+        },
+        "movil": {
+          "file": "movil/19-reportes.png",
+          "width": 390,
+          "height": 1690,
+          "bytes": 65758
+        }
+      }
+    },
+    {
+      "id": "20-usuarios",
+      "title": "Usuarios vendedores",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/20-usuarios.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 92530
+        },
+        "movil": {
+          "file": "movil/20-usuarios.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 31943
+        }
+      }
+    },
+    {
+      "id": "21-suscripcion",
+      "title": "Suscripción y planes",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/21-suscripcion.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 140462
+        },
+        "movil": {
+          "file": "movil/21-suscripcion.png",
+          "width": 390,
+          "height": 2099,
+          "bytes": 97442
+        }
+      }
+    },
+    {
+      "id": "22-registrar-producto",
+      "title": "Registrar producto",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/22-registrar-producto.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 174440
+        },
+        "movil": {
+          "file": "movil/22-registrar-producto.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 44614
+        }
+      }
+    },
+    {
+      "id": "23-detalle-producto",
+      "title": "Ficha y detalle del producto",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/23-detalle-producto.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 176022
+        },
+        "movil": {
+          "file": "movil/23-detalle-producto.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 55214
+        }
+      }
+    },
+    {
+      "id": "24-centro-ayuda",
+      "title": "Centro de ayuda",
+      "group": "Administrador",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/24-centro-ayuda.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 204947
+        },
+        "movil": {
+          "file": "movil/24-centro-ayuda.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 63050
+        }
+      }
+    },
+    {
+      "id": "25-caja-abierta",
+      "title": "Caja abierta · Sin cobros",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/25-caja-abierta.png",
+          "width": 1440,
+          "height": 1212,
+          "bytes": 171262
+        },
+        "movil": {
+          "file": "movil/25-caja-abierta.png",
+          "width": 390,
+          "height": 1983,
+          "bytes": 123139
+        }
+      }
+    },
+    {
+      "id": "26-caja-venta-pendiente",
+      "title": "Caja · Venta pendiente de cobro",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/26-caja-venta-pendiente.png",
+          "width": 1440,
+          "height": 1212,
+          "bytes": 164248
+        },
+        "movil": {
+          "file": "movil/26-caja-venta-pendiente.png",
+          "width": 390,
+          "height": 1930,
+          "bytes": 116683
+        }
+      }
+    },
+    {
+      "id": "27-cobro-efectivo",
+      "title": "Cobro en efectivo y cambio",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/27-cobro-efectivo.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 184696
+        },
+        "movil": {
+          "file": "movil/27-cobro-efectivo.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 54912
+        }
+      }
+    },
+    {
+      "id": "28-cobro-tarjeta",
+      "title": "Cobro con tarjeta",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/28-cobro-tarjeta.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 186094
+        },
+        "movil": {
+          "file": "movil/28-cobro-tarjeta.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 56251
+        }
+      }
+    },
+    {
+      "id": "29-cobro-transferencia",
+      "title": "Cobro por transferencia",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/29-cobro-transferencia.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 186532
+        },
+        "movil": {
+          "file": "movil/29-cobro-transferencia.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 56341
+        }
+      }
+    },
+    {
+      "id": "30-cobro-confirmado",
+      "title": "Cobro confirmado y resumen de caja",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/30-cobro-confirmado.png",
+          "width": 1440,
+          "height": 1294,
+          "bytes": 184175
+        },
+        "movil": {
+          "file": "movil/30-cobro-confirmado.png",
+          "width": 390,
+          "height": 2083,
+          "bytes": 130805
+        }
+      }
+    },
+    {
+      "id": "31-cierre-caja",
+      "title": "Cierre de caja · Arqueo",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/31-cierre-caja.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 191502
+        },
+        "movil": {
+          "file": "movil/31-cierre-caja.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 58145
+        }
+      }
+    },
+    {
+      "id": "32-cierre-diferencia",
+      "title": "Cierre · Diferencia de efectivo sin justificar",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/32-cierre-diferencia.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 194550
+        },
+        "movil": {
+          "file": "movil/32-cierre-diferencia.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 55859
+        }
+      }
+    },
+    {
+      "id": "33-cierre-justificado",
+      "title": "Cierre · Motivo de la diferencia",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/33-cierre-justificado.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 196659
+        },
+        "movil": {
+          "file": "movil/33-cierre-justificado.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 59121
+        }
+      }
+    },
+    {
+      "id": "34-caja-cerrada",
+      "title": "Caja cerrada y resumen del arqueo",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/34-caja-cerrada.png",
+          "width": 1440,
+          "height": 1592,
+          "bytes": 211273
+        },
+        "movil": {
+          "file": "movil/34-caja-cerrada.png",
+          "width": 390,
+          "height": 2670,
+          "bytes": 160792
+        }
+      }
+    },
+    {
+      "id": "35-apertura-caja",
+      "title": "Abrir sesión de caja y base inicial",
+      "group": "Caja",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/35-apertura-caja.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 180343
+        },
+        "movil": {
+          "file": "movil/35-apertura-caja.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 67268
+        }
+      }
+    },
+    {
+      "id": "36-ordenes-compra",
+      "title": "Órdenes de compra",
+      "group": "Compras e inventario",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/36-ordenes-compra.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 139633
+        },
+        "movil": {
+          "file": "movil/36-ordenes-compra.png",
+          "width": 390,
+          "height": 1086,
+          "bytes": 80118
+        }
+      }
+    },
+    {
+      "id": "37-nueva-orden",
+      "title": "Nueva orden de compra",
+      "group": "Compras e inventario",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/37-nueva-orden.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 164857
+        },
+        "movil": {
+          "file": "movil/37-nueva-orden.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 59767
+        }
+      }
+    },
+    {
+      "id": "38-recepcion-mercancia",
+      "title": "Recepción de mercancía",
+      "group": "Compras e inventario",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/38-recepcion-mercancia.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 163421
+        },
+        "movil": {
+          "file": "movil/38-recepcion-mercancia.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 61982
+        }
+      }
+    },
+    {
+      "id": "39-recepcion-parcial",
+      "title": "Recepción parcial · Cantidades recibidas",
+      "group": "Compras e inventario",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/39-recepcion-parcial.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 164072
+        },
+        "movil": {
+          "file": "movil/39-recepcion-parcial.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 62572
+        }
+      }
+    },
+    {
+      "id": "40-recepcion-confirmada",
+      "title": "Recepción confirmada · Stock actualizado",
+      "group": "Compras e inventario",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/40-recepcion-confirmada.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 145320
+        },
+        "movil": {
+          "file": "movil/40-recepcion-confirmada.png",
+          "width": 390,
+          "height": 1167,
+          "bytes": 84679
+        }
+      }
+    },
+    {
+      "id": "41-compras-sin-resultados",
+      "title": "Compras · Búsqueda sin resultados",
+      "group": "Compras e inventario",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/41-compras-sin-resultados.png",
+          "width": 1440,
+          "height": 1051,
+          "bytes": 151871
+        },
+        "movil": {
+          "file": "movil/41-compras-sin-resultados.png",
+          "width": 390,
+          "height": 1365,
+          "bytes": 96411
+        }
+      }
+    },
+    {
+      "id": "42-historial-inventario",
+      "title": "Historial de inventario de la sesión",
+      "group": "Compras e inventario",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/42-historial-inventario.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 137546
+        },
+        "movil": {
+          "file": "movil/42-historial-inventario.png",
+          "width": 390,
+          "height": 1150,
+          "bytes": 77811
+        }
+      }
+    },
+    {
+      "id": "43-nuevo-ajuste",
+      "title": "Ajuste de inventario con motivo",
+      "group": "Compras e inventario",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/43-nuevo-ajuste.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 174313
+        },
+        "movil": {
+          "file": "movil/43-nuevo-ajuste.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 61979
+        }
+      }
+    },
+    {
+      "id": "44-ajuste-revision",
+      "title": "Revisión del ajuste antes de confirmar",
+      "group": "Compras e inventario",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/44-ajuste-revision.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 174555
+        },
+        "movil": {
+          "file": "movil/44-ajuste-revision.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 58885
+        }
+      }
+    },
+    {
+      "id": "45-ajuste-confirmado",
+      "title": "Ajuste confirmado y trazabilidad",
+      "group": "Compras e inventario",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/45-ajuste-confirmado.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 147839
+        },
+        "movil": {
+          "file": "movil/45-ajuste-confirmado.png",
+          "width": 390,
+          "height": 1292,
+          "bytes": 87444
+        }
+      }
+    },
+    {
+      "id": "46-impuestos-recargo",
+      "title": "Impuestos y ganancia · Recargo sobre costo",
+      "group": "Impuestos y precios",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/46-impuestos-recargo.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 139693
+        },
+        "movil": {
+          "file": "movil/46-impuestos-recargo.png",
+          "width": 390,
+          "height": 1453,
+          "bytes": 84000
+        }
+      }
+    },
+    {
+      "id": "47-impuestos-margen",
+      "title": "Impuestos y ganancia · Margen sobre venta",
+      "group": "Impuestos y precios",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/47-impuestos-margen.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 139571
+        },
+        "movil": {
+          "file": "movil/47-impuestos-margen.png",
+          "width": 390,
+          "height": 1453,
+          "bytes": 84296
+        }
+      }
+    },
+    {
+      "id": "48-lista-precios",
+      "title": "Lista de precios vigente e importación CSV",
+      "group": "Impuestos y precios",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/48-lista-precios.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 133435
+        },
+        "movil": {
+          "file": "movil/48-lista-precios.png",
+          "width": 390,
+          "height": 1090,
+          "bytes": 67519
+        }
+      }
+    },
+    {
+      "id": "49-revision-lista",
+      "title": "Revisión de lista de precios antes de aplicar",
+      "group": "Impuestos y precios",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/49-revision-lista.png",
+          "width": 1440,
+          "height": 1073,
+          "bytes": 149956
+        },
+        "movil": {
+          "file": "movil/49-revision-lista.png",
+          "width": 390,
+          "height": 1542,
+          "bytes": 85333
+        }
+      }
+    },
+    {
+      "id": "50-precios-aplicados",
+      "title": "Precios aplicados y confirmación",
+      "group": "Impuestos y precios",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/50-precios-aplicados.png",
+          "width": 1440,
+          "height": 1057,
+          "bytes": 139145
+        },
+        "movil": {
+          "file": "movil/50-precios-aplicados.png",
+          "width": 390,
+          "height": 1171,
+          "bytes": 72744
+        }
+      }
+    },
+    {
+      "id": "51-precios-bajo-costo",
+      "title": "Revisión de precios · Alerta por debajo del costo",
+      "group": "Impuestos y precios",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/51-precios-bajo-costo.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 122412
+        },
+        "movil": {
+          "file": "movil/51-precios-bajo-costo.png",
+          "width": 390,
+          "height": 1368,
+          "bytes": 71353
+        }
+      }
+    },
+    {
+      "id": "52-error-importacion",
+      "title": "Error de validación del archivo CSV",
+      "group": "Impuestos y precios",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/52-error-importacion.png",
+          "width": 1440,
+          "height": 1057,
+          "bytes": 138377
+        },
+        "movil": {
+          "file": "movil/52-error-importacion.png",
+          "width": 390,
+          "height": 1153,
+          "bytes": 71889
+        }
+      }
+    },
+    {
+      "id": "53-estado-vacio",
+      "title": "Estado vacío · Primer producto",
+      "group": "Estados del sistema",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/53-estado-vacio.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 118253
+        },
+        "movil": {
+          "file": "movil/53-estado-vacio.png",
+          "width": 390,
+          "height": 906,
+          "bytes": 59652
+        }
+      }
+    },
+    {
+      "id": "54-estado-carga",
+      "title": "Estado de carga",
+      "group": "Estados del sistema",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/54-estado-carga.png",
+          "width": 1440,
+          "height": 1043,
+          "bytes": 117846
+        },
+        "movil": {
+          "file": "movil/54-estado-carga.png",
+          "width": 390,
+          "height": 988,
+          "bytes": 45455
+        }
+      }
+    },
+    {
+      "id": "55-estado-error",
+      "title": "Error de conexión y reintento",
+      "group": "Estados del sistema",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/55-estado-error.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 117889
+        },
+        "movil": {
+          "file": "movil/55-estado-error.png",
+          "width": 390,
+          "height": 906,
+          "bytes": 59605
+        }
+      }
+    },
+    {
+      "id": "56-prueba-vencida",
+      "title": "Empresa con prueba vencida",
+      "group": "Estados del sistema",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/56-prueba-vencida.png",
+          "width": 1440,
+          "height": 1039,
+          "bytes": 126520
+        },
+        "movil": {
+          "file": "movil/56-prueba-vencida.png",
+          "width": 390,
+          "height": 1010,
+          "bytes": 68004
+        }
+      }
+    },
+    {
+      "id": "57-empresa-desactivada",
+      "title": "Empresa desactivada",
+      "group": "Estados del sistema",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/57-empresa-desactivada.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 127029
+        },
+        "movil": {
+          "file": "movil/57-empresa-desactivada.png",
+          "width": 390,
+          "height": 1010,
+          "bytes": 69184
+        }
+      }
+    },
+    {
+      "id": "58-estado-contrasena",
+      "title": "Vista de cambio obligatorio de contraseña",
+      "group": "Estados del sistema",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/58-estado-contrasena.png",
+          "width": 1440,
+          "height": 1152,
+          "bytes": 132170
+        },
+        "movil": {
+          "file": "movil/58-estado-contrasena.png",
+          "width": 390,
+          "height": 1189,
+          "bytes": 73777
+        }
+      }
+    },
+    {
+      "id": "59-conexion-restablecida",
+      "title": "Conexión restablecida después del error",
+      "group": "Estados del sistema",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/59-conexion-restablecida.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 112862
+        },
+        "movil": {
+          "file": "movil/59-conexion-restablecida.png",
+          "width": 390,
+          "height": 906,
+          "bytes": 54572
+        }
+      }
+    },
+    {
+      "id": "60-inicio-vendedor",
+      "title": "Inicio · Vendedor",
+      "group": "Vendedor",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/60-inicio-vendedor.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 127162
+        },
+        "movil": {
+          "file": "movil/60-inicio-vendedor.png",
+          "width": 390,
+          "height": 1659,
+          "bytes": 83682
+        }
+      }
+    },
+    {
+      "id": "61-catalogo-vendedor",
+      "title": "Catálogo · Vendedor",
+      "group": "Vendedor",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/61-catalogo-vendedor.png",
+          "width": 1440,
+          "height": 1038,
+          "bytes": 124502
+        },
+        "movil": {
+          "file": "movil/61-catalogo-vendedor.png",
+          "width": 390,
+          "height": 2337,
+          "bytes": 87283
+        }
+      }
+    },
+    {
+      "id": "62-precios-vendedor",
+      "title": "Lista de precios · Solo consulta",
+      "group": "Vendedor",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/62-precios-vendedor.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 107265
+        },
+        "movil": {
+          "file": "movil/62-precios-vendedor.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 43811
+        }
+      }
+    },
+    {
+      "id": "63-clientes-vendedor",
+      "title": "Clientes · Vendedor",
+      "group": "Vendedor",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/63-clientes-vendedor.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 89904
+        },
+        "movil": {
+          "file": "movil/63-clientes-vendedor.png",
+          "width": 390,
+          "height": 1482,
+          "bytes": 54763
+        }
+      }
+    },
+    {
+      "id": "64-cotizaciones-vendedor",
+      "title": "Cotizaciones · Vendedor",
+      "group": "Vendedor",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/64-cotizaciones-vendedor.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 113074
+        },
+        "movil": {
+          "file": "movil/64-cotizaciones-vendedor.png",
+          "width": 390,
+          "height": 1067,
+          "bytes": 57796
+        }
+      }
+    },
+    {
+      "id": "65-facturacion-vendedor",
+      "title": "Facturación · Vendedor",
+      "group": "Vendedor",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/65-facturacion-vendedor.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 121866
+        },
+        "movil": {
+          "file": "movil/65-facturacion-vendedor.png",
+          "width": 390,
+          "height": 1398,
+          "bytes": 71151
+        }
+      }
+    },
+    {
+      "id": "66-caja-vendedor",
+      "title": "Caja · Vendedor",
+      "group": "Vendedor",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/66-caja-vendedor.png",
+          "width": 1440,
+          "height": 1529,
+          "bytes": 200876
+        },
+        "movil": {
+          "file": "movil/66-caja-vendedor.png",
+          "width": 390,
+          "height": 2588,
+          "bytes": 155929
+        }
+      }
+    },
+    {
+      "id": "67-ventas-vendedor",
+      "title": "Mis ventas",
+      "group": "Vendedor",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/67-ventas-vendedor.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 102327
+        },
+        "movil": {
+          "file": "movil/67-ventas-vendedor.png",
+          "width": 390,
+          "height": 986,
+          "bytes": 48780
+        }
+      }
+    },
+    {
+      "id": "68-lector-codigos",
+      "title": "Lector QR y códigos de barras",
+      "group": "Vendedor",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/68-lector-codigos.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 102345
+        },
+        "movil": {
+          "file": "movil/68-lector-codigos.png",
+          "width": 390,
+          "height": 1063,
+          "bytes": 52009
+        }
+      }
+    },
+    {
+      "id": "69-lector-resultado",
+      "title": "Lector · Producto identificado",
+      "group": "Vendedor",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/69-lector-resultado.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 111225
+        },
+        "movil": {
+          "file": "movil/69-lector-resultado.png",
+          "width": 390,
+          "height": 1131,
+          "bytes": 60851
+        }
+      }
+    },
+    {
+      "id": "70-panel-superadmin",
+      "title": "Panel de control · SuperAdmin",
+      "group": "SuperAdmin",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/70-panel-superadmin.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 119021
+        },
+        "movil": {
+          "file": "movil/70-panel-superadmin.png",
+          "width": 390,
+          "height": 1492,
+          "bytes": 74729
+        }
+      }
+    },
+    {
+      "id": "71-empresas-clientes",
+      "title": "Directorio de empresas clientes",
+      "group": "SuperAdmin",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/71-empresas-clientes.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 103334
+        },
+        "movil": {
+          "file": "movil/71-empresas-clientes.png",
+          "width": 390,
+          "height": 1015,
+          "bytes": 55032
+        }
+      }
+    },
+    {
+      "id": "72-suscripciones-plataforma",
+      "title": "Suscripciones de la plataforma",
+      "group": "SuperAdmin",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/72-suscripciones-plataforma.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 103458
+        },
+        "movil": {
+          "file": "movil/72-suscripciones-plataforma.png",
+          "width": 390,
+          "height": 984,
+          "bytes": 50732
+        }
+      }
+    },
+    {
+      "id": "73-facturas-membresias",
+      "title": "Facturación de membresías",
+      "group": "SuperAdmin",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/73-facturas-membresias.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 88287
+        },
+        "movil": {
+          "file": "movil/73-facturas-membresias.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 36649
+        }
+      }
+    },
+    {
+      "id": "74-accesos-contrasenas",
+      "title": "Accesos y contraseñas de clientes",
+      "group": "SuperAdmin",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/74-accesos-contrasenas.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 86009
+        },
+        "movil": {
+          "file": "movil/74-accesos-contrasenas.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 34418
+        }
+      }
+    },
+    {
+      "id": "75-restablecimiento-acceso",
+      "title": "Confirmación de restablecimiento de acceso",
+      "group": "SuperAdmin",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/75-restablecimiento-acceso.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 90112
+        },
+        "movil": {
+          "file": "movil/75-restablecimiento-acceso.png",
+          "width": 390,
+          "height": 844,
+          "bytes": 38641
+        }
+      }
+    },
+    {
+      "id": "76-inicio-emprende",
+      "title": "Inicio · Plan Emprende",
+      "group": "Variantes de plan",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/76-inicio-emprende.png",
+          "width": 1440,
+          "height": 1025,
+          "bytes": 155150
+        },
+        "movil": {
+          "file": "movil/76-inicio-emprende.png",
+          "width": 390,
+          "height": 1891,
+          "bytes": 102812
+        }
+      }
+    },
+    {
+      "id": "77-precios-emprende",
+      "title": "Precios · Plan Emprende sin importación masiva",
+      "group": "Variantes de plan",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/77-precios-emprende.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 136676
+        },
+        "movil": {
+          "file": "movil/77-precios-emprende.png",
+          "width": 390,
+          "height": 1074,
+          "bytes": 67320
+        }
+      }
+    },
+    {
+      "id": "78-inventario-sin-movimientos",
+      "title": "Inventario · Historial vacío",
+      "group": "Estados del sistema",
+      "images": {
+        "escritorio": {
+          "file": "escritorio/78-inventario-sin-movimientos.png",
+          "width": 1440,
+          "height": 1024,
+          "bytes": 145221
+        },
+        "movil": {
+          "file": "movil/78-inventario-sin-movimientos.png",
+          "width": 390,
+          "height": 1268,
+          "bytes": 90109
+        }
+      }
+    }
+  ]
+}

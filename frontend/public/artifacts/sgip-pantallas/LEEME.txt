@@ -1,0 +1,7 @@
+SGIP - Biblioteca visual
+78 pantallas y estados / 155 PNG.
+Abre index.html para revisar las imágenes.
+Escritorio: 1440 px de ancho. Móvil: 390 px.
+Los modales se capturan en su viewport; las pantallas de contenido usan página completa.
+El prototipo usa datos de demostración y no procesa pagos ni cambia credenciales reales.
+No se eliminaron ni reemplazaron exportaciones anteriores.
