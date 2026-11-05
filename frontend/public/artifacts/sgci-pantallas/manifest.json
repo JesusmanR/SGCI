@@ -1,5 +1,157 @@
 {
+  "revision": "menu-visible-expandido-contraido",
+  "generatedAt": "2026-11-05T19:34:19.163349+00:00",
   "screens": [
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/01-Centro-de-mando-MENU-EXPANDIDO.png",
+      "title": "Centro de mando · Menú expandido",
+      "note": "",
+      "state": "EXPANDIDO",
+      "module": "Centro-de-mando"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/01-Centro-de-mando-MENU-CONTRAIDO.png",
+      "title": "Centro de mando · Menú contraído",
+      "note": "",
+      "state": "CONTRAIDO",
+      "module": "Centro-de-mando"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/02-Productos-y-ROP-MENU-EXPANDIDO.png",
+      "title": "Productos y ROP · Menú expandido",
+      "note": "",
+      "state": "EXPANDIDO",
+      "module": "Productos-y-ROP"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/02-Productos-y-ROP-MENU-CONTRAIDO.png",
+      "title": "Productos y ROP · Menú contraído",
+      "note": "",
+      "state": "CONTRAIDO",
+      "module": "Productos-y-ROP"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/03-Almacenes-MENU-EXPANDIDO.png",
+      "title": "Almacenes · Menú expandido",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "EXPANDIDO",
+      "module": "Almacenes"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/03-Almacenes-MENU-CONTRAIDO.png",
+      "title": "Almacenes · Menú contraído",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "CONTRAIDO",
+      "module": "Almacenes"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/04-Libro-Kardex-MENU-EXPANDIDO.png",
+      "title": "Libro Kardex · Menú expandido",
+      "note": "",
+      "state": "EXPANDIDO",
+      "module": "Libro-Kardex"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/04-Libro-Kardex-MENU-CONTRAIDO.png",
+      "title": "Libro Kardex · Menú contraído",
+      "note": "",
+      "state": "CONTRAIDO",
+      "module": "Libro-Kardex"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/05-Lotes-y-FEFO-MENU-EXPANDIDO.png",
+      "title": "Lotes y FEFO · Menú expandido",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "EXPANDIDO",
+      "module": "Lotes-y-FEFO"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/05-Lotes-y-FEFO-MENU-CONTRAIDO.png",
+      "title": "Lotes y FEFO · Menú contraído",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "CONTRAIDO",
+      "module": "Lotes-y-FEFO"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/06-Conteos-y-auditoria-MENU-EXPANDIDO.png",
+      "title": "Conteos y auditoría · Menú expandido",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "EXPANDIDO",
+      "module": "Conteos-y-auditoria"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/06-Conteos-y-auditoria-MENU-CONTRAIDO.png",
+      "title": "Conteos y auditoría · Menú contraído",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "CONTRAIDO",
+      "module": "Conteos-y-auditoria"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/07-Abastecimiento-MENU-EXPANDIDO.png",
+      "title": "Abastecimiento · Menú expandido",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "EXPANDIDO",
+      "module": "Abastecimiento"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/07-Abastecimiento-MENU-CONTRAIDO.png",
+      "title": "Abastecimiento · Menú contraído",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "CONTRAIDO",
+      "module": "Abastecimiento"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/08-Analitica-MENU-EXPANDIDO.png",
+      "title": "Analítica · Menú expandido",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "EXPANDIDO",
+      "module": "Analitica"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/08-Analitica-MENU-CONTRAIDO.png",
+      "title": "Analítica · Menú contraído",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "CONTRAIDO",
+      "module": "Analitica"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/09-Gobernanza-RBAC-MENU-EXPANDIDO.png",
+      "title": "Gobernanza RBAC · Menú expandido",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "EXPANDIDO",
+      "module": "Gobernanza-RBAC"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/09-Gobernanza-RBAC-MENU-CONTRAIDO.png",
+      "title": "Gobernanza RBAC · Menú contraído",
+      "note": "Vista general del módulo; no flujo especializado completo.",
+      "state": "CONTRAIDO",
+      "module": "Gobernanza-RBAC"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/10-Inicio-MENU-MOVIL-ABIERTO.png",
+      "title": "Inicio · Menú móvil abierto",
+      "note": "Menú lateral de navegación visible sobre la vista móvil.",
+      "state": "MOVIL-ABIERTO"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/11-Escanear-MENU-MOVIL-ABIERTO.png",
+      "title": "Escanear · Menú móvil abierto",
+      "note": "Menú lateral de navegación visible sobre la vista móvil.",
+      "state": "MOVIL-ABIERTO"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/12-Conteos-MENU-MOVIL-ABIERTO.png",
+      "title": "Conteos · Menú móvil abierto",
+      "note": "Menú lateral de navegación visible sobre la vista móvil.",
+      "state": "MOVIL-ABIERTO"
+    },
+    {
+      "file": "00-MENU-EXPANDIDO-Y-CONTRAIDO/13-Cola-offline-MENU-MOVIL-ABIERTO.png",
+      "title": "Cola offline · Menú móvil abierto",
+      "note": "Menú lateral de navegación visible sobre la vista móvil.",
+      "state": "MOVIL-ABIERTO"
+    },
     {
       "file": "01-Escritorio-1440/01-Landing.png",
       "title": "01 Landing",
@@ -8,12 +160,12 @@
     {
       "file": "01-Escritorio-1440/02-Demostracion.png",
       "title": "02 Demostracion",
-      "note": "Captura de la demostración animada, no un archivo de vídeo."
+      "note": "Captura de la animación, no vídeo."
     },
     {
       "file": "01-Escritorio-1440/03-Inicio-de-sesion.png",
       "title": "03 Inicio de sesion",
-      "note": "Acceso por correo y Google demostrativo, sin OAuth real."
+      "note": "Autenticación y Google demostrativos."
     },
     {
       "file": "01-Escritorio-1440/04-Recuperacion.png",
@@ -23,7 +175,7 @@
     {
       "file": "01-Escritorio-1440/05-Confirmacion-de-recuperacion.png",
       "title": "05 Confirmacion de recuperacion",
-      "note": "Estado demostrativo; no se envía correo real."
+      "note": "Estado simulado; no envía correo real."
     },
     {
       "file": "01-Escritorio-1440/06-Creacion-de-cuenta.png",
@@ -43,7 +195,7 @@
     {
       "file": "01-Escritorio-1440/09-Almacenes.png",
       "title": "09 Almacenes",
-      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+      "note": "Vista general de módulo, no flujo especializado completo."
     },
     {
       "file": "01-Escritorio-1440/10-Libro-Kardex.png",
@@ -53,27 +205,27 @@
     {
       "file": "01-Escritorio-1440/11-Lotes-y-FEFO.png",
       "title": "11 Lotes y FEFO",
-      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+      "note": "Vista general de módulo, no flujo especializado completo."
     },
     {
       "file": "01-Escritorio-1440/12-Conteos-y-auditoria.png",
       "title": "12 Conteos y auditoria",
-      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+      "note": "Vista general de módulo, no flujo especializado completo."
     },
     {
       "file": "01-Escritorio-1440/13-Abastecimiento.png",
       "title": "13 Abastecimiento",
-      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+      "note": "Vista general de módulo, no flujo especializado completo."
     },
     {
       "file": "01-Escritorio-1440/14-Analitica.png",
       "title": "14 Analitica",
-      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+      "note": "Vista general de módulo, no flujo especializado completo."
     },
     {
       "file": "01-Escritorio-1440/15-Gobernanza-RBAC.png",
       "title": "15 Gobernanza RBAC",
-      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+      "note": "Vista general de módulo, no flujo especializado completo."
     },
     {
       "file": "02-Movil-390/01-Landing.png",
@@ -83,12 +235,12 @@
     {
       "file": "02-Movil-390/02-Demostracion.png",
       "title": "02 Demostracion",
-      "note": "Captura de la demostración animada, no un archivo de vídeo."
+      "note": "Captura de la animación, no vídeo."
     },
     {
       "file": "02-Movil-390/03-Inicio-de-sesion.png",
       "title": "03 Inicio de sesion",
-      "note": "Acceso por correo y Google demostrativo, sin OAuth real."
+      "note": "Autenticación y Google demostrativos."
     },
     {
       "file": "02-Movil-390/04-Recuperacion.png",
@@ -98,7 +250,7 @@
     {
       "file": "02-Movil-390/05-Confirmacion-de-recuperacion.png",
       "title": "05 Confirmacion de recuperacion",
-      "note": "Estado demostrativo; no se envía correo real."
+      "note": "Estado simulado; no envía correo real."
     },
     {
       "file": "02-Movil-390/06-Creacion-de-cuenta.png",
@@ -123,8 +275,7 @@
     {
       "file": "02-Movil-390/10-Cola-offline.png",
       "title": "10 Cola offline",
-      "note": "Cola offline simulada, no persistencia IndexedDB real."
+      "note": "Cola simulada, sin persistencia IndexedDB real."
     }
-  ],
-  "errors": []
+  ]
 }

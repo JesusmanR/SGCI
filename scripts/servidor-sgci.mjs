@@ -34,55 +34,75 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 </head>
 <body class="min-h-screen bg-[#F5F7FB] text-slate-900 antialiased">
   <div class="flex min-h-screen flex-col lg:flex-row">
-    <!-- Barra Lateral Exacta SGCI (#0A1120) · Pantallas 07 a 15 -->
-    <aside class="flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[248px] lg:min-h-screen shrink-0 select-none">
+    <!-- Barra Lateral Exacta SGCI (#0A1120) · Menú Expandido (248px) / Contraído (76px) -->
+    <aside id="sidebar-principal" class="flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[248px] lg:min-h-screen shrink-0 select-none transition-all duration-200">
       <div>
-        <!-- Logo SGCI 3 Barras Cyan -->
-        <div class="flex items-center gap-3 px-6 py-6 border-b border-slate-800/80">
-          <div class="flex h-9 w-9 items-end justify-center gap-1 rounded-xl bg-[#0F1D3A] border border-cyan-500/30 p-2 shadow-inner">
-            <span class="w-1 h-2.5 rounded-full bg-cyan-400"></span>
-            <span class="w-1 h-4 rounded-full bg-cyan-400"></span>
-            <span class="w-1 h-5 rounded-full bg-cyan-300"></span>
+        <!-- Cabecera SGCI + Botón Contraer/Expandir Menú (Idéntico a 00-MENU-EXPANDIDO-Y-CONTRAIDO) -->
+        <div id="sidebar-header" class="flex items-center justify-between gap-2 px-5 py-5 border-b border-slate-800/80">
+          <div id="sidebar-brand" class="flex items-center gap-3 min-w-0">
+            <div class="flex h-9 w-9 shrink-0 items-end justify-center gap-1 rounded-xl bg-[#0F1D3A] border border-cyan-500/30 p-2 shadow-inner">
+              <span class="w-1 h-2.5 rounded-full bg-cyan-400"></span>
+              <span class="w-1 h-4 rounded-full bg-cyan-400"></span>
+              <span class="w-1 h-5 rounded-full bg-cyan-300"></span>
+            </div>
+            <div id="sidebar-brand-text" class="truncate">
+              <span class="block text-base font-extrabold tracking-tight text-white leading-none">SGCI</span>
+              <span class="block text-[9px] font-semibold tracking-[0.16em] text-slate-400 uppercase mt-1">CONTROL DE INVENTARIOS</span>
+            </div>
           </div>
-          <div>
-            <span class="block text-base font-extrabold tracking-tight text-white leading-none">SGCI</span>
-            <span class="block text-[9px] font-semibold tracking-[0.16em] text-slate-400 uppercase mt-1">CONTROL DE INVENTARIOS</span>
-          </div>
+          <button onclick="alternarMenuLateral()" id="btn-toggle-sidebar" title="Contraer / Expandir menú lateral" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-700/80 bg-slate-900/90 text-slate-300 hover:text-white hover:border-cyan-400/50 transition text-xs font-mono">
+            |◁
+          </button>
         </div>
 
         <!-- Grupo OPERACIÓN -->
         <div class="px-3 pt-5">
-          <span class="px-3 text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase">OPERACIÓN</span>
+          <span id="lbl-grupo-op" class="px-3 text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase block">OPERACIÓN</span>
           <nav id="nav-operacion" class="mt-2 space-y-1"></nav>
         </div>
 
         <!-- Grupo ADMINISTRACIÓN -->
-        <div class="px-3 pt-6">
-          <span class="px-3 text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase">ADMINISTRACIÓN</span>
+        <div class="px-3 pt-5">
+          <span id="lbl-grupo-adm" class="px-3 text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase block">ADMINISTRACIÓN</span>
           <nav id="nav-admin" class="mt-2 space-y-1"></nav>
         </div>
 
         <!-- Grupo PANTALLAS OFICIALES Y PWA MÓVIL -->
-        <div class="px-3 pt-6">
-          <span class="px-3 text-[10px] font-bold tracking-[0.14em] text-cyan-400/80 uppercase">PANTALLAS Y MÓVIL PWA</span>
+        <div class="px-3 pt-5">
+          <span id="lbl-grupo-pan" class="px-3 text-[10px] font-bold tracking-[0.14em] text-cyan-400/80 uppercase block">PANTALLAS Y MÓVIL PWA</span>
           <nav id="nav-pantallas" class="mt-2 space-y-1"></nav>
         </div>
       </div>
 
-      <!-- Perfil Usuario Laura Mendoza · JEFE_ALMACEN -->
-      <div class="border-t border-slate-800/80 p-4 flex items-center justify-between bg-[#080E1A]">
-        <div class="flex items-center gap-3">
-          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400 text-[#0A1120] font-extrabold text-xs">
-            LM
-          </div>
-          <div>
-            <strong class="block text-xs font-bold text-white leading-tight">Laura Mendoza</strong>
-            <span id="sidebar-rol-label" class="block text-[10px] font-mono text-slate-400">JEFE_ALMACEN</span>
+      <!-- Bloque Inferior: Operación Conectada + Perfil Laura Mendoza -->
+      <div class="space-y-2">
+        <div class="px-3">
+          <div id="card-op-conectada" class="rounded-xl border border-cyan-500/20 bg-[#0D182C] px-3.5 py-2.5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5 min-w-0" id="card-op-text">
+              <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-400"></span>
+              <div class="truncate">
+                <strong class="block text-[11px] font-bold text-white leading-tight">Operación conectada</strong>
+                <span class="block text-[10px] text-slate-400">Todos los sistemas activos</span>
+              </div>
+            </div>
+            <span class="text-cyan-400 text-xs shrink-0">📡</span>
           </div>
         </div>
-        <button onclick="seleccionarVista('landing')" title="Ver Landing / Acceso SGCI (Pantallas 01-06)" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-slate-800">
-          ↗
-        </button>
+
+        <div id="sidebar-footer" class="border-t border-slate-800/80 p-4 flex items-center justify-between bg-[#080E1A]">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-white font-extrabold text-xs">
+              LM
+            </div>
+            <div id="sidebar-user-text" class="truncate">
+              <strong class="block text-xs font-bold text-white leading-tight">Laura Mendoza</strong>
+              <span id="sidebar-rol-label" class="block text-[10px] font-mono text-slate-400">JEFE_ALMACEN</span>
+            </div>
+          </div>
+          <button onclick="seleccionarVista('landing')" title="Cerrar sesión / Ir a Landing (Pantallas 01-06)" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-slate-800 shrink-0">
+            ✕
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -163,11 +183,13 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
     const MENU_PANTALLAS = [
       { id: 'pwa-movil', label: 'App Móvil PWA (390px)', icon: '📱', screen: 'M07-M10' },
       { id: 'landing', label: 'Landing y Login (01–06)', icon: '🔐', screen: '01-06' },
-      { id: 'galeria-25', label: '25 Pantallas SGCI (PNGs)', icon: '🖼️', screen: '25 PNG' },
+      { id: 'galeria-25', label: '47 Capturas SGCI (Menú)', icon: '🖼️', screen: '47 PNG' },
     ];
 
     let state = {
       vista: 'centro-mando',
+      menuContraido: false,
+      menuMovilAbierto: false,
       subVistaAcceso: '01-landing',
       mostrarModalDemo02: false,
       mostrarModalProducto08b: false,
@@ -223,22 +245,68 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 
     function renderItemMenu(item) {
       const activo = state.vista === item.id;
+      if (state.menuContraido) {
+        return \`
+          <button onclick="seleccionarVista('\${item.id}')" title="\${item.label}" class="relative mx-auto flex h-11 w-11 items-center justify-center rounded-xl text-sm font-semibold transition \${activo ? 'bg-[#2563EB] text-white shadow-sm border-l-4 border-l-cyan-400' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white'}">
+            <span>\${item.icon}</span>
+            \${item.badge ? \`<span class="absolute -top-1 -right-1 rounded-full bg-rose-600 text-white text-[9px] font-bold px-1.5">\${item.badge}</span>\` : ''}
+          </button>
+        \`;
+      }
       return \`
-        <button onclick="seleccionarVista('\${item.id}')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition \${activo ? 'bg-[#2563EB] text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white'}">
-          <span class="flex items-center gap-3">
+        <button onclick="seleccionarVista('\${item.id}')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition \${activo ? 'bg-[#2563EB] text-white shadow-sm border-l-4 border-l-cyan-400' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white'}">
+          <span class="flex items-center gap-3 truncate">
             <span class="text-sm">\${item.icon}</span>
-            <span>\${item.label}</span>
+            <span class="truncate">\${item.label}</span>
           </span>
-          \${item.badge ? \`<span class="rounded-full bg-rose-600 text-white text-[10px] font-bold px-1.5 py-0.2">\${item.badge}</span>\` : ''}
+          \${item.badge ? \`<span class="rounded-full bg-rose-900/80 border border-rose-500/40 text-rose-200 text-[10px] font-bold px-1.5 py-0.2">\${item.badge}</span>\` : ''}
         </button>
       \`;
     }
 
+    function alternarMenuLateral() {
+      state.menuContraido = !state.menuContraido;
+      renderSidebar();
+    }
+
     function renderSidebar() {
+      const aside = document.getElementById('sidebar-principal');
+      const brandText = document.getElementById('sidebar-brand-text');
+      const btnToggle = document.getElementById('btn-toggle-sidebar');
+      const lblOp = document.getElementById('lbl-grupo-op');
+      const lblAdm = document.getElementById('lbl-grupo-adm');
+      const lblPan = document.getElementById('lbl-grupo-pan');
+      const cardOpText = document.getElementById('card-op-text');
+      const userText = document.getElementById('sidebar-user-text');
+      const footer = document.getElementById('sidebar-footer');
+
+      if (state.menuContraido) {
+        aside.className = 'flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[76px] lg:min-h-screen shrink-0 select-none transition-all duration-200';
+        brandText.classList.add('hidden');
+        btnToggle.textContent = '|▷';
+        lblOp.classList.add('hidden');
+        lblAdm.classList.add('hidden');
+        lblPan.classList.add('hidden');
+        cardOpText.classList.add('hidden');
+        userText.classList.add('hidden');
+        footer.className = 'border-t border-slate-800/80 p-3 flex flex-col items-center gap-2 bg-[#080E1A]';
+      } else {
+        aside.className = 'flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[248px] lg:min-h-screen shrink-0 select-none transition-all duration-200';
+        brandText.classList.remove('hidden');
+        btnToggle.textContent = '|◁';
+        lblOp.classList.remove('hidden');
+        lblAdm.classList.remove('hidden');
+        lblPan.classList.remove('hidden');
+        cardOpText.classList.remove('hidden');
+        userText.classList.remove('hidden');
+        footer.className = 'border-t border-slate-800/80 p-4 flex items-center justify-between bg-[#080E1A]';
+      }
+
       document.getElementById('nav-operacion').innerHTML = MENU_OPERACION.map(renderItemMenu).join('');
       document.getElementById('nav-admin').innerHTML = MENU_ADMIN.map(renderItemMenu).join('');
       document.getElementById('nav-pantallas').innerHTML = MENU_PANTALLAS.map(renderItemMenu).join('');
-      document.getElementById('sidebar-rol-label').textContent = state.rol;
+      const rolEl = document.getElementById('sidebar-rol-label');
+      if (rolEl) rolEl.textContent = state.rol;
     }
 
     function seleccionarVista(v) {
@@ -1048,18 +1116,90 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- Dispositivo Móvil 390px Centrado -->
-            <div class="mx-auto w-[390px] max-w-full rounded-[32px] border-[6px] border-[#0A1120] bg-[#F5F7FB] shadow-2xl overflow-hidden flex flex-col min-h-[760px] justify-between">
-              <!-- Cabecera Móvil Oscura -->
-              <div class="bg-[#0A1120] text-white px-5 py-4 flex items-center justify-between">
-                <div>
-                  <span class="block text-[10px] font-mono text-slate-400 uppercase">INDUSTRIAS ALFA · ALM-CENTRAL-01</span>
-                  <strong class="text-sm font-extrabold">
-                    \${state.tabMovil === 'inicio' ? 'Operación de bodega' : (state.tabMovil === 'escanear' ? 'Escáner óptico' : (state.tabMovil === 'conteos' ? 'Conteo cíclico' : 'Cola offline'))}
-                  </strong>
+            <!-- Dispositivo Móvil 390px Centrado con Menú Desplegable Móvil (10-13 MENU-MOVIL-ABIERTO) -->
+            <div class="relative mx-auto w-[390px] max-w-full rounded-[32px] border-[6px] border-[#0A1120] bg-[#F5F7FB] shadow-2xl overflow-hidden flex flex-col min-h-[760px] justify-between">
+              <!-- Cabecera Móvil Oscura con Botón Menú Hamburguesa ☰ -->
+              <div class="bg-[#0A1120] text-white px-4 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <button onclick="state.menuMovilAbierto = true; renderMain()" title="Abrir menú desplegable móvil" class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800/90 text-white hover:bg-slate-700 font-bold text-base">
+                    ☰
+                  </button>
+                  <div>
+                    <span class="block text-[10px] font-mono text-slate-400 uppercase">INDUSTRIAS ALFA · ALM-CENTRAL-01</span>
+                    <strong class="text-sm font-extrabold">
+                      \${state.tabMovil === 'inicio' ? 'Operación de bodega' : (state.tabMovil === 'escanear' ? 'Escáner óptico' : (state.tabMovil === 'conteos' ? 'Conteo cíclico' : 'Cola offline'))}
+                    </strong>
+                  </div>
                 </div>
                 <span class="h-3.5 w-3.5 rounded-full bg-emerald-400 border-2 border-white"></span>
               </div>
+
+              \${state.menuMovilAbierto ? \`
+                <!-- Drawer Menú Desplegable Móvil (Réplica exacta de 10..13-MENU-MOVIL-ABIERTO.png) -->
+                <div class="absolute inset-0 z-30 flex">
+                  <div class="w-[305px] bg-[#0A1120] text-white flex flex-col justify-between h-full shadow-2xl border-r border-slate-800">
+                    <div>
+                      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div class="flex h-9 w-9 items-end justify-center gap-1 rounded-xl bg-[#0F1D3A] border border-cyan-500/30 p-2">
+                            <span class="w-1 h-2.5 rounded-full bg-cyan-400"></span>
+                            <span class="w-1 h-4 rounded-full bg-cyan-400"></span>
+                            <span class="w-1 h-5 rounded-full bg-cyan-300"></span>
+                          </div>
+                          <div>
+                            <strong class="block text-sm font-extrabold leading-none">SGCI</strong>
+                            <span class="block text-[8px] font-bold tracking-[0.16em] text-slate-400 uppercase mt-1">CONTROL DE INVENTARIOS</span>
+                          </div>
+                        </div>
+                        <button onclick="state.menuMovilAbierto = false; renderMain()" class="h-9 w-9 rounded-xl bg-slate-800/90 text-slate-300 hover:text-white font-bold">✕</button>
+                      </div>
+                      <div class="px-3 pt-4">
+                        <span class="px-3 text-[10px] font-bold tracking-widest text-slate-500 uppercase">OPERACIÓN</span>
+                        <div class="mt-2 space-y-1 text-xs">
+                          \${MENU_OPERACION.map(m => \`
+                            <button onclick="state.menuMovilAbierto = false; seleccionarVista('\${m.id}')" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800">
+                              <span class="flex items-center gap-3"><span>\${m.icon}</span><span>\${m.label}</span></span>
+                              \${m.badge ? \`<span class="rounded-full bg-rose-900/80 text-rose-200 text-[10px] font-bold px-1.5">\${m.badge}</span>\` : ''}
+                            </button>
+                          \`).join('')}
+                        </div>
+                      </div>
+                      <div class="px-3 pt-4">
+                        <span class="px-3 text-[10px] font-bold tracking-widest text-slate-500 uppercase">ADMINISTRACIÓN</span>
+                        <div class="mt-2 space-y-1 text-xs">
+                          \${MENU_ADMIN.map(m => \`
+                            <button onclick="state.menuMovilAbierto = false; seleccionarVista('\${m.id}')" class="w-full flex items-center justify-between px-3 py-2 rounded-xl \${m.id === 'gobernanza-rbac' ? 'bg-[#2563EB] text-white font-bold border-l-4 border-l-cyan-400' : 'text-slate-300 hover:bg-slate-800'}">
+                              <span class="flex items-center gap-3"><span>\${m.icon}</span><span>\${m.label}</span></span>
+                            </button>
+                          \`).join('')}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="space-y-2">
+                      <div class="px-3">
+                        <div class="rounded-xl border border-cyan-500/20 bg-[#0D182C] px-3 py-2 flex items-center justify-between text-xs">
+                          <div>
+                            <strong class="block text-[11px] font-bold text-white">● Operación conectada</strong>
+                            <span class="block text-[10px] text-slate-400">Todos los sistemas activos</span>
+                          </div>
+                          <span class="text-cyan-400">📡</span>
+                        </div>
+                      </div>
+                      <div class="border-t border-slate-800 p-4 flex items-center justify-between bg-[#080E1A]">
+                        <div class="flex items-center gap-3">
+                          <div class="h-9 w-9 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-xs">LM</div>
+                          <div>
+                            <strong class="block text-xs font-bold">Laura Mendoza</strong>
+                            <span class="block text-[10px] font-mono text-slate-400">JEFE_ALMACEN</span>
+                          </div>
+                        </div>
+                        <button onclick="state.menuMovilAbierto = false; renderMain()" class="text-slate-400 text-xs">✕</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div onclick="state.menuMovilAbierto = false; renderMain()" class="flex-1 bg-slate-950/60 backdrop-blur-xs"></div>
+                </div>
+              \` : ''}
 
               <!-- Cuerpo Móvil según Pestaña -->
               <div class="flex-1 p-5 space-y-4">
@@ -1629,8 +1769,9 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
         return;
       }
 
-      // GALERÍA DE LAS 25 PANTALLAS OFICIALES DE SGCI (Cargadas de C:\\Users\\sxepc\\Downloads\\SGCI\\SGCI-pantallas)
+      // GALERÍA DE LAS 47 CAPTURAS OFICIALES DE SGCI (22 Menú Expandido/Contraído + 15 Escritorio + 10 Móvil)
       const items = state.pantallasManifest.filter(s => {
+        if (state.filtroGaleria === 'Menu') return s.file.startsWith('00-MENU-EXPANDIDO-Y-CONTRAIDO');
         if (state.filtroGaleria === 'Escritorio') return s.file.startsWith('01-Escritorio-1440');
         if (state.filtroGaleria === 'Movil') return s.file.startsWith('02-Movil-390');
         return true;
@@ -1640,13 +1781,18 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
         <div class="space-y-6">
           <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span class="text-[11px] font-extrabold tracking-[0.14em] text-blue-600 uppercase">BIBLIOTECA VISUAL OFICIAL · RUTA SGCI-PANTALLAS</span>
-              <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-1">25 Pantallas Oficiales de SGCI (15 Escritorio 1440px + 10 Móvil 390px)</h1>
-              <p class="text-sm text-slate-500 mt-1">Cargadas directamente desde <code>C:\\Users\\sxepc\\Downloads\\SGCI\\SGCI-pantallas</code></p>
+              <span class="text-[11px] font-extrabold tracking-[0.14em] text-blue-600 uppercase">BIBLIOTECA VISUAL OFICIAL · 47 CAPTURAS CON MENÚ DESPLEGABLE</span>
+              <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-1">47 Pantallas Oficiales SGCI (22 Menú Expandido/Contraído + 15 Escritorio + 10 Móvil)</h1>
+              <p class="text-sm text-slate-500 mt-1">Cargadas desde <code>C:\\Users\\sxepc\\Downloads\\SGCI\\SGCI-pantallas</code> · Puedes contraer el menú real con el botón <code>|◁</code> junto al logo SGCI.</p>
             </div>
-            <div class="flex gap-2">
-              \${['Todos', 'Escritorio', 'Movil'].map(f => \`
-                <button onclick="state.filtroGaleria = '\${f}'; renderMain()" class="rounded-xl px-4 py-2 text-xs font-bold transition \${state.filtroGaleria === f ? 'bg-[#2563EB] text-white' : 'bg-white border border-slate-200 text-slate-700'}">\${f}</button>
+            <div class="flex flex-wrap gap-2">
+              \${[
+                { id: 'Todos', label: 'Todas (47)' },
+                { id: 'Menu', label: '00 · Menú Expandido/Contraído (22)' },
+                { id: 'Escritorio', label: '01 · Escritorio 1440px (15)' },
+                { id: 'Movil', label: '02 · Móvil 390px (10)' },
+              ].map(f => \`
+                <button onclick="state.filtroGaleria = '\${f.id}'; renderMain()" class="rounded-xl px-4 py-2 text-xs font-bold transition \${state.filtroGaleria === f.id ? 'bg-[#2563EB] text-white' : 'bg-white border border-slate-200 text-slate-700'}">\${f.label}</button>
               \`).join('')}
             </div>
           </div>
@@ -1704,7 +1850,7 @@ const server = createServer(async (req, res) => {
           sistema: 'SGCI · Control de Inventarios',
           tenant_demo: 'Industrias Alfa S.A.S. (8f2a...c91d)',
           bodega_activa: 'ALM-CENTRAL-01 — Bodega Central Monterrey',
-          pantallasOficialesSgci: 25,
+          pantallasOficialesSgci: 47,
           tddBackend: { suites: 10, total: 36, aprobadas: 36, estado: 'VERDE' },
           tddFrontend: { suites: 10, total: 28, aprobadas: 28, estado: 'VERDE' },
         }),

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { filtrarRutasPorRol, type DefinicionRutaSgci } from '../../router/index';
 import { useSesionMultiTenantStore } from '../../stores/useSesionMultiTenantStore';
 import type { RolUsuarioSaas } from '../../modulos/gobernanza/almacen/useGobernanzaSaasStore';
@@ -18,10 +18,15 @@ const emit = defineEmits<{
 }>();
 
 const sesionStore = useSesionMultiTenantStore();
+const menuContraido = ref<boolean>(false);
 
 const rutasVisibles = computed<DefinicionRutaSgci[]>(() =>
   filtrarRutasPorRol(sesionStore.rolActivo),
 );
+
+function alternarMenuLateral(): void {
+  menuContraido.value = !menuContraido.value;
+}
 
 function manejarCambioTenant(event: Event): void {
   const select = event.target as HTMLSelectElement;
@@ -37,18 +42,19 @@ function manejarCambioRol(rol: RolUsuarioSaas): void {
 
 <template>
   <aside
-    class="flex w-full flex-col justify-between border-r border-slate-800 bg-[#0A1120] text-white lg:w-72 lg:min-h-screen"
+    class="flex w-full flex-col justify-between border-r border-slate-800 bg-[#0A1120] text-white transition-all duration-200 lg:min-h-screen"
+    :class="menuContraido ? 'lg:w-20' : 'lg:w-72'"
   >
-    <div class="p-5 space-y-5">
-      <!-- Marca Institucional SGCI · Pantallas Oficiales SGCI (07-15) -->
+    <div class="p-4 space-y-5">
+      <!-- Marca Institucional SGCI + Botón Menú Expandido/Contraído (00-MENU-EXPANDIDO-Y-CONTRAIDO) -->
       <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-        <div class="flex items-center gap-3">
-          <div class="flex h-9 w-9 items-end justify-center gap-1 rounded-xl bg-[#0F1D3A] border border-cyan-500/30 p-2">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="flex h-9 w-9 shrink-0 items-end justify-center gap-1 rounded-xl bg-[#0F1D3A] border border-cyan-500/30 p-2">
             <span class="w-1 h-2.5 rounded-full bg-cyan-400"></span>
             <span class="w-1 h-4 rounded-full bg-cyan-400"></span>
             <span class="w-1 h-5 rounded-full bg-cyan-300"></span>
           </div>
-          <div>
+          <div v-if="!menuContraido" class="truncate">
             <h1 class="text-base font-extrabold text-white leading-none">
               SGCI
             </h1>
@@ -57,16 +63,14 @@ function manejarCambioRol(rol: RolUsuarioSaas): void {
             </span>
           </div>
         </div>
-        <span
-          class="rounded-full px-2.5 py-1 text-[11px] font-bold"
-          :class="
-            sesionStore.conectadoRed
-              ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/40'
-              : 'bg-amber-500/20 text-amber-200 border border-amber-400/40'
-          "
+        <button
+          type="button"
+          title="Contraer o expandir menú lateral"
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 font-mono text-xs text-slate-300 hover:border-cyan-400 hover:text-white"
+          @click="alternarMenuLateral"
         >
-          {{ sesionStore.conectadoRed ? '● Online' : '⚡ Offline' }}
-        </span>
+          {{ menuContraido ? '|▷' : '|◁' }}
+        </button>
       </div>
 
       <!-- Selector de Empresa Multi-Tenant (Aislamiento tenant_id) -->

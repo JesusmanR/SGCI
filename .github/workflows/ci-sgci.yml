@@ -29,12 +29,12 @@ jobs:
           grep -q "tenant_id" database/prisma/schema.prisma
           echo "Esquema Prisma con aislamiento Multi-Tenant verificado."
 
-      - name: Verificar integración de las 25 pantallas oficiales SGCI (15 Escritorio + 10 Móvil)
+      - name: Verificar integración de las 47 capturas oficiales SGCI (22 Menú + 15 Escritorio + 10 Móvil)
         run: |
           test -f frontend/public/artifacts/sgci-pantallas/manifest.json
           TOTAL_SGCI_PNG=$(find frontend/public/artifacts/sgci-pantallas -name "*.png" | wc -l)
           echo "Total de archivos PNG en biblioteca oficial SGCI-pantallas: $TOTAL_SGCI_PNG"
-          if [ "$TOTAL_SGCI_PNG" -lt 25 ]; then
+          if [ "$TOTAL_SGCI_PNG" -lt 47 ]; then
             echo "Error: Faltan capturas PNG de la biblioteca oficial SGCI-pantallas."
             exit 1
           fi

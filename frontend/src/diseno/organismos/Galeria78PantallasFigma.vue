@@ -8,7 +8,7 @@ export interface PantallaOficialSgci {
 }
 
 const pantallas = ref<PantallaOficialSgci[]>([]);
-const filtroFormato = ref<'Todos' | 'Escritorio' | 'Movil'>('Todos');
+const filtroFormato = ref<'Todos' | 'Menu' | 'Escritorio' | 'Movil'>('Todos');
 const busqueda = ref<string>('');
 
 const PANTALLAS_SGCI_CANONICAS: PantallaOficialSgci[] = [
@@ -61,6 +61,7 @@ const pantallasFiltradas = computed<PantallaOficialSgci[]>(() => {
   return pantallas.value.filter((s) => {
     const matchFormato =
       filtroFormato.value === 'Todos' ||
+      (filtroFormato.value === 'Menu' && s.file.startsWith('00-MENU-EXPANDIDO-Y-CONTRAIDO')) ||
       (filtroFormato.value === 'Escritorio' && s.file.startsWith('01-Escritorio-1440')) ||
       (filtroFormato.value === 'Movil' && s.file.startsWith('02-Movil-390'));
     const matchTexto =
@@ -79,19 +80,19 @@ const pantallasFiltradas = computed<PantallaOficialSgci[]>(() => {
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
           <span class="font-mono text-xs font-bold uppercase tracking-widest text-cyan-400">
-            SGCI · CONTROL DE INVENTARIOS · 25 PANTALLAS OFICIALES
+            SGCI · CONTROL DE INVENTARIOS · 47 CAPTURAS OFICIALES CON MENÚ DESPLEGABLE
           </span>
           <h2 class="mt-1 text-2xl font-extrabold">
-            Biblioteca Visual Oficial SGCI (15 Escritorio 1440px + 10 Móvil 390px)
+            Biblioteca Visual Oficial SGCI (22 Menú Expandido/Contraído + 15 Escritorio + 10 Móvil)
           </h2>
           <p class="mt-1 text-xs text-slate-300">
             Cargadas desde <code>C:\Users\sxepc\Downloads\SGCI\SGCI-pantallas</code> (`Industrias
             Alfa S.A.S.` · `ALM-CENTRAL-01 — Bodega Central Monterrey`).
           </p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <button
-            v-for="modo in ['Todos', 'Escritorio', 'Movil'] as const"
+            v-for="modo in ['Todos', 'Menu', 'Escritorio', 'Movil'] as const"
             :key="modo"
             type="button"
             class="rounded-xl px-4 py-2 text-xs font-bold transition"
