@@ -18,7 +18,7 @@ return [
     'prefijo' => '/api/v1',
     'middlewares_globales' => [
         'jwt.auth',
-        \App\Modulos\Tenants\Middleware\VerificarContextoTenantMiddleware::class,
+        \App\Modulos\Autenticacion\Middlewares\VerificarContextoTenantMiddleware::class,
     ],
     'endpoints' => [
         [
@@ -34,7 +34,7 @@ return [
             'accion' => [OperacionesApiV1Controller::class, 'actualizarPlanSuscripcion'],
             'roles_permitidos' => [
                 RolSistemaEnum::SUPER_ADMIN_SAAS,
-                RolSistemaEnum::ADMIN_EMPRESA,
+                RolSistemaEnum::ADMIN_TENANT,
             ],
             'pantallas_figma' => ['66-admin-empresas', '67-planes-suscripcion'],
         ],
@@ -43,10 +43,10 @@ return [
             'uri' => '/api/v1/offline/sincronizar-lote',
             'accion' => [OperacionesApiV1Controller::class, 'sincronizarColaOffline'],
             'roles_permitidos' => [
-                RolSistemaEnum::ADMIN_EMPRESA,
-                RolSistemaEnum::JEFE_BODEGA,
-                RolSistemaEnum::OPERADOR_PISO,
-                RolSistemaEnum::AUDITOR_CONTEOS,
+                RolSistemaEnum::ADMIN_TENANT,
+                RolSistemaEnum::JEFE_ALMACEN,
+                RolSistemaEnum::ALMACENISTA_OPERADOR,
+                RolSistemaEnum::AUDITOR_INVENTARIO,
             ],
             'pantallas_figma' => ['55-sin-conexion-pendientes', '59-error-critico-reintento'],
         ],
@@ -55,9 +55,9 @@ return [
             'uri' => '/api/v1/facturacion/cobros',
             'accion' => [OperacionesApiV1Controller::class, 'registrarCobroFactura'],
             'roles_permitidos' => [
-                RolSistemaEnum::ADMIN_EMPRESA,
+                RolSistemaEnum::ADMIN_TENANT,
                 RolSistemaEnum::CONTADOR_COSTOS,
-                RolSistemaEnum::VENDEDOR_MOSTRADOR,
+                RolSistemaEnum::VISOR_CONSULTA,
             ],
             'pantallas_figma' => ['21-facturacion-listado', '28-registrar-pago', '35-arqueo-caja'],
         ],
@@ -66,9 +66,9 @@ return [
             'uri' => '/api/v1/inventario/ajustes',
             'accion' => [OperacionesApiV1Controller::class, 'aplicarAjusteInventario'],
             'roles_permitidos' => [
-                RolSistemaEnum::ADMIN_EMPRESA,
-                RolSistemaEnum::JEFE_BODEGA,
-                RolSistemaEnum::AUDITOR_CONTEOS,
+                RolSistemaEnum::ADMIN_TENANT,
+                RolSistemaEnum::JEFE_ALMACEN,
+                RolSistemaEnum::AUDITOR_INVENTARIO,
             ],
             'pantallas_figma' => ['42-ajustes-inventario-listado', '43-nuevo-ajuste-inventario', '45-kardex-movimientos'],
         ],

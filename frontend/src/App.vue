@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import BarraLateralNavegacionAurora from './diseno/organismos/BarraLateralNavegacionAurora.vue';
+import VistaDashboardEjecutivoFigma from './diseno/organismos/VistaDashboardEjecutivoFigma.vue';
+import VistaCatalogoProveedoresClientesFigma from './diseno/organismos/VistaCatalogoProveedoresClientesFigma.vue';
 import TablaKardexAlmacen from './diseno/organismos/TablaKardexAlmacen.vue';
 import MapaUbicacionesRack from './diseno/organismos/MapaUbicacionesRack.vue';
 import TablaControlLotesFefo from './diseno/organismos/TablaControlLotesFefo.vue';
@@ -10,36 +13,52 @@ import VistaEstadosSistemaNotificacionesFigma from './diseno/organismos/VistaEst
 import VistaFacturacionCajaFigma from './diseno/organismos/VistaFacturacionCajaFigma.vue';
 import VistaGobernanzaReportesFigma from './diseno/organismos/VistaGobernanzaReportesFigma.vue';
 import Galeria78PantallasFigma from './diseno/organismos/Galeria78PantallasFigma.vue';
+import { useSesionMultiTenantStore } from './stores/useSesionMultiTenantStore';
 import { useAuditoriaConteosStore } from './modulos/conteos/almacen/useAuditoriaConteosStore';
 import { usePreciosImpuestosStore } from './modulos/precios/almacen/usePreciosImpuestosStore';
 import { useFacturacionCajaStore } from './modulos/caja/almacen/useFacturacionCajaStore';
-import { useGobernanzaSaasStore } from './modulos/gobernanza/almacen/useGobernanzaSaasStore';
+import {
+  useGobernanzaSaasStore,
+  type RolUsuarioSaas,
+} from './modulos/gobernanza/almacen/useGobernanzaSaasStore';
 import { useSincronizacionOfflineStore } from './modulos/offline/almacen/useSincronizacionOfflineStore';
 import type { MovimientoKardex } from './compartido/tipos/entidadBase';
-
-type ModuloActivo =
-  | 'galeria-figma'
-  | 'gobernanza-reportes'
-  | 'ajustes-conteos'
-  | 'impuestos-precios'
-  | 'facturacion-caja'
-  | 'estados-alertas'
-  | 'kardex-peps';
 
 const TENANT_DEMO = '11111111-1111-4111-8111-111111111111';
 const ALMACEN_DEMO = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const OPERADOR_DEMO = '99999999-9999-4999-8999-999999999999';
 
-const moduloSeleccionado = ref<ModuloActivo>('galeria-figma');
+const moduloSeleccionado = ref<string>('dashboard-ejecutivo');
 
+const sesionStore = useSesionMultiTenantStore();
 const storeConteos = useAuditoriaConteosStore();
 const storePrecios = usePreciosImpuestosStore();
 const storeCaja = useFacturacionCajaStore();
 const storeGobernanza = useGobernanzaSaasStore();
 const storeOffline = useSincronizacionOfflineStore();
 
+function sincronizarContextoTenant(tenantId: string): void {
+  storeConteos.establecerContextoTenant(tenantId, sesionStore.empresaActiva.bodegaPrincipalId);
+  storePrecios.establecerTenantActivo(tenantId);
+  storeCaja.establecerTenantActivo(tenantId);
+  storeGobernanza.establecerTenantActivo(tenantId);
+  storeOffline.establecerTenantActivo(tenantId);
+}
+
+function sincronizarRolActivo(rol: RolUsuarioSaas): void {
+  storeGobernanza.cambiarRolActivo(rol);
+  if (rol === 'superadmin') {
+    moduloSeleccionado.value = 'gobernanza-reportes';
+  }
+}
+
+function sincronizarEstadoRed(): void {
+  storeOffline.cambiarEstadoConexion(sesionStore.conectadoRed);
+}
+
 onMounted(() => {
-  storeConteos.establecerContextoTenant(TENANT_DEMO, ALMACEN_DEMO);
+  sincronizarContextoTenant(TENANT_DEMO);
+
   storeConteos.cargarProductosIniciales([
     {
       id: 'prod-1',
@@ -47,7 +66,7 @@ onMounted(() => {
       sku: 'PRD-001',
       nombre: 'Teclado Mecánico Pro',
       almacenId: ALMACEN_DEMO,
-      bodegaNombre: 'Bodega principal',
+      bodegaNombre: 'Bodega Central Bogotá',
       stockActual: 24,
       stockMinimo: 10,
       costoUnitarioBase: 54,
@@ -63,7 +82,7 @@ onMounted(() => {
       sku: 'PRD-002',
       nombre: 'Monitor IPS 27"',
       almacenId: ALMACEN_DEMO,
-      bodegaNombre: 'Bodega principal',
+      bodegaNombre: 'Bodega Central Bogotá',
       stockActual: 5,
       stockMinimo: 8,
       costoUnitarioBase: 165,
@@ -75,7 +94,6 @@ onMounted(() => {
     },
   ]);
 
-  storePrecios.establecerTenantActivo(TENANT_DEMO);
   storePrecios.cargarProductosIniciales([
     {
       id: 'prod-1',
@@ -108,12 +126,13 @@ onMounted(() => {
       updated_by: OPERADOR_DEMO,
     },
   ]);
+
   storePrecios.cargarNotificacionesIniciales([
     {
       id: 'notif-1',
       tenant_id: TENANT_DEMO,
       titulo: 'Stock bajo en Monitor IPS 27"',
-      detalle: 'Quedan 5 uds. en Bodega principal (mínimo 8).',
+      detalle: 'Quedan 5 uds. en Bodega Central Bogotá (mínimo 8).',
       tono: 'low',
       vistaDestino: 'orders',
       leida: false,
@@ -125,7 +144,6 @@ onMounted(() => {
     },
   ]);
 
-  storeCaja.establecerTenantActivo(TENANT_DEMO);
   storeCaja.cargarProductosFacturables([
     {
       id: 'prod-1',
@@ -142,9 +160,6 @@ onMounted(() => {
       updated_by: OPERADOR_DEMO,
     },
   ]);
-
-  storeGobernanza.establecerTenantActivo(TENANT_DEMO);
-  storeOffline.establecerTenantActivo(TENANT_DEMO);
 });
 
 const movimientosKardexDemo: MovimientoKardex[] = [
@@ -164,7 +179,7 @@ const movimientosKardexDemo: MovimientoKardex[] = [
     saldo_costo_unitario: 54,
     saldo_valor_total: 1296,
     referencia_documento: 'OC-0024',
-    motivo: 'Recepción inicial en Bodega principal',
+    motivo: 'Recepción inicial en Bodega Central Bogotá',
     operador_nombre: 'Alex Morgan',
     created_at: '2026-11-04T10:00:00.000Z',
     updated_at: '2026-11-04T10:00:00.000Z',
@@ -176,148 +191,68 @@ const movimientosKardexDemo: MovimientoKardex[] = [
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F4F7F6] text-slate-900">
-    <!-- Barra Superior Institucional Aurora Mist (#203959) -->
-    <header class="border-b border-[#416772]/40 bg-[#203959] px-6 py-4 text-white shadow-sm">
-      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
-        <div>
-          <span class="font-mono text-xs font-semibold tracking-wider text-[#96ADA5] uppercase">
-            SGCI · Multi-Tenant SaaS · Paleta Aurora Mist
-          </span>
-          <h1 class="text-lg font-bold text-white">
-            Sistema de Gestión de Control de Inventarios (10 Sprints + 78 Pantallas Figma)
-          </h1>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button
-            type="button"
-            class="min-h-[44px] rounded-lg px-3.5 py-2 text-xs font-semibold transition"
-            :class="
-              moduloSeleccionado === 'galeria-figma'
-                ? 'bg-[#96ADA5] text-[#203959]'
-                : 'bg-[#416772] text-white hover:bg-[#416772]/80'
-            "
-            @click="moduloSeleccionado = 'galeria-figma'"
-          >
-            78 Pantallas Figma
-          </button>
-          <button
-            type="button"
-            class="min-h-[44px] rounded-lg px-3.5 py-2 text-xs font-semibold transition"
-            :class="
-              moduloSeleccionado === 'gobernanza-reportes'
-                ? 'bg-[#96ADA5] text-[#203959]'
-                : 'bg-[#416772] text-white hover:bg-[#416772]/80'
-            "
-            @click="moduloSeleccionado = 'gobernanza-reportes'"
-          >
-            Sprint 8-9 · Gobernanza y PWA
-          </button>
-          <button
-            type="button"
-            class="min-h-[44px] rounded-lg px-3.5 py-2 text-xs font-semibold transition"
-            :class="
-              moduloSeleccionado === 'ajustes-conteos'
-                ? 'bg-[#96ADA5] text-[#203959]'
-                : 'bg-[#416772] text-white hover:bg-[#416772]/80'
-            "
-            @click="moduloSeleccionado = 'ajustes-conteos'"
-          >
-            Sprint 5 · Ajustes
-          </button>
-          <button
-            type="button"
-            class="min-h-[44px] rounded-lg px-3.5 py-2 text-xs font-semibold transition"
-            :class="
-              moduloSeleccionado === 'impuestos-precios'
-                ? 'bg-[#96ADA5] text-[#203959]'
-                : 'bg-[#416772] text-white hover:bg-[#416772]/80'
-            "
-            @click="moduloSeleccionado = 'impuestos-precios'"
-          >
-            Sprint 6 · Precios e IVA
-          </button>
-          <button
-            type="button"
-            class="min-h-[44px] rounded-lg px-3.5 py-2 text-xs font-semibold transition"
-            :class="
-              moduloSeleccionado === 'estados-alertas'
-                ? 'bg-[#96ADA5] text-[#203959]'
-                : 'bg-[#416772] text-white hover:bg-[#416772]/80'
-            "
-            @click="moduloSeleccionado = 'estados-alertas'"
-          >
-            Sprint 6 · Estados y Alertas
-          </button>
-          <button
-            type="button"
-            class="min-h-[44px] rounded-lg px-3.5 py-2 text-xs font-semibold transition"
-            :class="
-              moduloSeleccionado === 'facturacion-caja'
-                ? 'bg-[#96ADA5] text-[#203959]'
-                : 'bg-[#416772] text-white hover:bg-[#416772]/80'
-            "
-            @click="moduloSeleccionado = 'facturacion-caja'"
-          >
-            Sprint 7 · Caja POS
-          </button>
-          <button
-            type="button"
-            class="min-h-[44px] rounded-lg px-3.5 py-2 text-xs font-semibold transition"
-            :class="
-              moduloSeleccionado === 'kardex-peps'
-                ? 'bg-[#96ADA5] text-[#203959]'
-                : 'bg-[#416772] text-white hover:bg-[#416772]/80'
-            "
-            @click="moduloSeleccionado = 'kardex-peps'"
-          >
-            Sprint 1-4 · Kardex / Almacenes
-          </button>
-        </div>
-      </div>
-    </header>
+  <div class="flex min-h-screen flex-col bg-[#F4F7F6] text-slate-900 lg:flex-row">
+    <!-- Barra Lateral Institucional Aurora Mist (#203959) -->
+    <BarraLateralNavegacionAurora
+      :ruta-activa-id="moduloSeleccionado"
+      :notificaciones-pendientes="storePrecios.notificacionesNoLeidas"
+      :operaciones-offline-pendientes="storeOffline.totalPendientes"
+      @seleccionar-ruta="moduloSeleccionado = $event"
+      @cambiar-tenant="sincronizarContextoTenant"
+      @cambiar-rol="sincronizarRolActivo"
+      @alternar-conexion="sincronizarEstadoRed"
+    />
 
-    <!-- Contenido Principal -->
-    <main class="mx-auto max-w-7xl p-6">
-      <Galeria78PantallasFigma v-if="moduloSeleccionado === 'galeria-figma'" />
-      <VistaGobernanzaReportesFigma v-else-if="moduloSeleccionado === 'gobernanza-reportes'" />
-      <VistaAjustesInventarioFigma v-else-if="moduloSeleccionado === 'ajustes-conteos'" />
-      <VistaImpuestosPreciosFigma v-else-if="moduloSeleccionado === 'impuestos-precios'" />
-      <VistaEstadosSistemaNotificacionesFigma
-        v-else-if="moduloSeleccionado === 'estados-alertas'"
-      />
-      <VistaFacturacionCajaFigma v-else-if="moduloSeleccionado === 'facturacion-caja'" />
-      <div v-else class="space-y-8">
-        <TablaKardexAlmacen
-          :movimientos="movimientosKardexDemo"
-          metodo-valoracion="PEPS"
-          nombre-almacen="Bodega principal"
-          sku-producto="PRD-001"
+    <!-- Área Principal Operativa -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <div class="mx-auto max-w-7xl space-y-6">
+        <VistaDashboardEjecutivoFigma
+          v-if="moduloSeleccionado === 'dashboard-ejecutivo'"
+          @ir-a-modulo="moduloSeleccionado = $event"
         />
-        <MapaUbicacionesRack
-          nombre-almacen="Bodega principal"
-          codigo-almacen="BOD-01"
-          :ubicaciones="[
-            {
-              id: 'bin-1',
-              codigo_bin: 'ZONA-A-P01-R01-N01',
-              zona: 'A',
-              pasillo: '01',
-              estante: '01',
-              nivel: '01',
-              capacidad_maxima: 100,
-              unidades_ocupadas: 65,
-              sku_principal: 'PRD-001',
-            },
-          ]"
+        <VistaCatalogoProveedoresClientesFigma
+          v-else-if="moduloSeleccionado === 'catalogo-proveedores-clientes'"
         />
-        <TablaControlLotesFefo :lotes="[]" />
-        <PanelRecepcionOrdenCompra
-          numero-orden="OC-0024"
-          nombre-proveedor="TechSource Global"
-          nombre-almacen-destino="Bodega principal"
-          :renglones="[]"
+        <Galeria78PantallasFigma v-else-if="moduloSeleccionado === 'galeria-figma'" />
+        <VistaGobernanzaReportesFigma v-else-if="moduloSeleccionado === 'gobernanza-reportes'" />
+        <VistaAjustesInventarioFigma v-else-if="moduloSeleccionado === 'ajustes-conteos'" />
+        <VistaImpuestosPreciosFigma v-else-if="moduloSeleccionado === 'impuestos-precios'" />
+        <VistaEstadosSistemaNotificacionesFigma
+          v-else-if="moduloSeleccionado === 'estados-alertas'"
         />
+        <VistaFacturacionCajaFigma v-else-if="moduloSeleccionado === 'facturacion-caja'" />
+        <div v-else class="space-y-8">
+          <TablaKardexAlmacen
+            :movimientos="movimientosKardexDemo"
+            metodo-valoracion="PEPS"
+            nombre-almacen="Bodega Central Bogotá"
+            sku-producto="PRD-001"
+          />
+          <MapaUbicacionesRack
+            nombre-almacen="Bodega Central Bogotá"
+            codigo-almacen="BOD-01"
+            :ubicaciones="[
+              {
+                id: 'bin-1',
+                codigo_bin: 'ZONA-A-P01-R01-N01',
+                zona: 'A',
+                pasillo: '01',
+                estante: '01',
+                nivel: '01',
+                capacidad_maxima: 100,
+                unidades_ocupadas: 65,
+                sku_principal: 'PRD-001',
+              },
+            ]"
+          />
+          <TablaControlLotesFefo :lotes="[]" />
+          <PanelRecepcionOrdenCompra
+            numero-orden="OC-0024"
+            nombre-proveedor="TechSource Global"
+            nombre-almacen-destino="Bodega Central Bogotá"
+            :renglones="[]"
+          />
+        </div>
       </div>
     </main>
   </div>
