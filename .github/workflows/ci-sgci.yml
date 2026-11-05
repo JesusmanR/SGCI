@@ -1,0 +1,90 @@
+name: CI/CD SGCI — Quality Gates, TDD & Multi-Tenant Security
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feat/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  auditoria-arquitectura-prisma-figma:
+    name: 1. Esquema Prisma, Multi-Tenant & 78 Pantallas Figma
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio SGCI
+        uses: actions/checkout@v4
+
+      - name: Verificar esquema declarativo Prisma y aislamiento tenant_id
+        run: |
+          test -f database/prisma/schema.prisma
+          grep -q "tenant_id" database/prisma/schema.prisma
+          echo "Esquema Prisma con aislamiento Multi-Tenant verificado."
+
+      - name: Verificar integración de las 78 pantallas Figma (155 PNGs)
+        run: |
+          test -f frontend/public/artifacts/sgip-pantallas/manifest.json
+          TOTAL_PNG=$(find frontend/public/artifacts/sgip-pantallas -name "*.png" | wc -l)
+          echo "Total de archivos PNG en biblioteca Figma: $TOTAL_PNG"
+          if [ "$TOTAL_PNG" -lt 155 ]; then
+            echo "Error: Faltan capturas PNG de la biblioteca oficial de Figma."
+            exit 1
+          fi
+
+  backend-laravel-tdd:
+    name: 2. Backend PHP 8.2 / Laravel 11 — Linter & TDD (PHPUnit/Pest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout del repositorio SGCI
+        uses: actions/checkout@v4
+
+      - name: Configurar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_pgsql, dom, xml
+          coverage: none
+
+      - name: Validar sintaxis estricta PHP 8.2 en Módulos y Pruebas
+        run: |
+          find app tests -name "*.php" -print0 | xargs -0 -n1 php -l
+
+      - name: Instalar dependencias Composer (Autoload PSR-4)
+        run: |
+          composer install --no-interaction --prefer-dist --no-scripts --ignore-platform-reqs
+
+      - name: Ejecutar Suite TDD de los 7 Sprints (PHPUnit)
+        run: |
+          ./vendor/bin/phpunit --configuration phpunit.xml --testdox
+
+  frontend-vue-vitest-tdd:
+    name: 3. Frontend Vue 3 + TypeScript + Pinia — Typecheck & Vitest TDD
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout del repositorio SGCI
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias Frontend
+        run: npm install --no-audit --no-fund
+
+      - name: Ejecutar Suite TDD de los 7 Sprints (Vitest)
+        run: npx vitest run

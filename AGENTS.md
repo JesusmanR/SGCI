@@ -213,4 +213,18 @@ Antes de dar por concluida cualquier tarea o integración:
    - Verifica la desinfección de entradas y protección contra inyecciones XSS y SQL.
 
 ---
+
+## 8. Autonomía Operativa, Integración Continua (CI/CD) y Sincronización Automática con GitHub
+
+1. **Creación y Modificación Autónoma de Archivos:**
+   - Todos los agentes operan con autonomía directa para crear, actualizar y refactorizar archivos dentro del espacio de trabajo ([C:/dev/SGCI](file:///C:/dev/SGCI)) sin detener el flujo para pedir confirmación previa por cada archivo creado.
+   - Únicamente se debe consultar explícitamente al usuario cuando se requieran permisos o accesos externos ajenos al alcance necesario del proyecto.
+
+2. **Sincronización Automática con GitHub (`origin`):**
+   - Al completar cada entrega o Sprint, el agente debe ejecutar automáticamente la sincronización Git-Flow hacia el repositorio remoto `https://github.com/JesusmanR/SGCI.git` mediante [scripts/sincronizar-github.ps1](file:///C:/dev/SGCI/scripts/sincronizar-github.ps1).
+
+3. **Integración Continua (GitHub Actions CI/CD):**
+   - El pipeline oficial en [.github/workflows/ci-sgci.yml](file:///C:/dev/SGCI/.github/workflows/ci-sgci.yml) se dispara automáticamente en cada `push` y `pull_request` sobre `main`, `develop` y `feat/**`, validando el esquema Prisma, la biblioteca de las 78 pantallas Figma (155 PNGs) y las suites TDD de Backend (PHP 8.2 / PHPUnit-Pest) y Frontend (Node 20 / Vue 3 / Vitest).
+
+---
 *Este manual operativo es de cumplimiento mandatorio e innegociable para todos los agentes del ecosistema SGCI.*

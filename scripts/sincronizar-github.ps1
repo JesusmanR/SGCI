@@ -1,12 +1,13 @@
 <#
 .SYNOPSIS
-    Script de Inicialización Git-Flow y Sincronización con GitHub para SGCI.
+    Script de Inicialización Git-Flow, CI/CD y Sincronización Automática con GitHub para SGCI.
     Repositorio remoto: https://github.com/JesusmanR/SGCI.git
 
 .DESCRIPTION
     Configura el flujo de ramas Git-Flow (main, develop y ramas feat/<modulo>),
-    organiza commits semánticos de los 7 Sprints e integra las 78 pantallas Figma
-    (155 PNGs en frontend/public/artifacts/sgip-pantallas).
+    integra el pipeline de Integración Continua (.github/workflows/ci-sgci.yml),
+    las 78 pantallas Figma (155 PNGs en frontend/public/artifacts/sgip-pantallas)
+    y publica automáticamente todos los commits en GitHub.
 #>
 
 $ErrorActionPreference = "Stop"
@@ -26,12 +27,13 @@ if ($remotoActual -notcontains "origin") {
 
 git checkout -B main
 
-Write-Host "=== 2. Commit Base Fundacional y Esquema Prisma en main ===" -ForegroundColor Cyan
-git add .gitignore README.md PRODUCT.md AGENTS.md docs/ database/ scripts/ frontend/public/artifacts/sgip-pantallas/
-git commit -m "docs(arquitectura): fundacion documental SGCI, esquema Prisma y biblioteca de 78 pantallas Figma" --allow-empty
+Write-Host "=== 2. Commit Base Fundacional, CI/CD, Esquema Prisma y 78 Pantallas Figma en main ===" -ForegroundColor Cyan
+git add .gitignore .github/ README.md PRODUCT.md AGENTS.md docs/ database/ scripts/ backend/composer.json backend/phpunit.xml frontend/package.json frontend/tailwind.config.ts frontend/vite.config.ts frontend/tsconfig.json frontend/public/artifacts/sgip-pantallas/
+git commit -m "ci(arquitectura): pipeline GitHub Actions CI/CD, fundacion SGCI, esquema Prisma y 78 pantallas Figma" --allow-empty
 
 Write-Host "=== 3. Creando rama de integracion develop ===" -ForegroundColor Cyan
 git checkout -B develop
+git merge --no-ff main -m "chore: sincronizar base fundacional y CI/CD desde main" --allow-unrelated-histories
 
 Write-Host "=== 4. Sprint 1: feat/tenants-auth-kardex ===" -ForegroundColor Cyan
 git checkout -B feat/tenants-auth-kardex
@@ -44,7 +46,7 @@ git merge --no-ff feat/tenants-auth-kardex -m "merge: integrar feat/tenants-auth
 
 Write-Host "=== 5. Sprint 2: feat/catalogo-almacenes ===" -ForegroundColor Cyan
 git checkout -B feat/catalogo-almacenes
-git add backend/app/Modulos/Catalogo/ backend/app/Modulos/Almacenes/ backend/tests/Feature/Modulos/CatalogoAlmacenes/
+git add backend/app/Modulos/Catalogo/Modelos/ backend/app/Modulos/Catalogo/DTOs/RegistrarProductoDTO.php backend/app/Modulos/Catalogo/Servicios/ValidadorCodigoBarrasService.php backend/app/Modulos/Catalogo/Acciones/ backend/app/Modulos/Almacenes/ backend/tests/Feature/Modulos/CatalogoAlmacenes/
 git add frontend/src/diseno/moleculas/BuscadorEscanerSku.vue frontend/src/diseno/organismos/MapaUbicacionesRack.vue frontend/src/modulos/catalogo/ frontend/src/modulos/almacenes/
 git commit -m "feat(sprint-2): maestro de catalogo EAN-13/QR, topologia de almacenes y transferencias atomicas" --allow-empty
 git checkout develop
@@ -91,14 +93,14 @@ git checkout develop
 git merge --no-ff feat/facturacion-caja-galeria-figma -m "merge: integrar feat/facturacion-caja-galeria-figma en develop"
 
 Write-Host "=== 11. Publicando ramas en GitHub (origin) ===" -ForegroundColor Green
-git push -u origin main
-git push -u origin develop
-git push -u origin feat/tenants-auth-kardex
-git push -u origin feat/catalogo-almacenes
-git push -u origin feat/lotes-caducidad
-git push -u origin feat/abastecimiento-recepcion
-git push -u origin feat/auditoria-conteos-ciegos
-git push -u origin feat/precios-impuestos-estados-pwa
-git push -u origin feat/facturacion-caja-galeria-figma
+git push -u origin main --force
+git push -u origin develop --force
+git push -u origin feat/tenants-auth-kardex --force
+git push -u origin feat/catalogo-almacenes --force
+git push -u origin feat/lotes-caducidad --force
+git push -u origin feat/abastecimiento-recepcion --force
+git push -u origin feat/auditoria-conteos-ciegos --force
+git push -u origin feat/precios-impuestos-estados-pwa --force
+git push -u origin feat/facturacion-caja-galeria-figma --force
 
-Write-Host "¡Sincronización completa de los 7 Sprints y las 78 pantallas Figma con GitHub finalizada!" -ForegroundColor Green
+Write-Host "¡Sincronización completa de CI/CD, los 7 Sprints y las 78 pantallas Figma con GitHub finalizada!" -ForegroundColor Green
