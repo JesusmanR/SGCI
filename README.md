@@ -225,7 +225,22 @@ Todo componente, servicio, endpoint o estrategia debe desarrollarse siguiendo el
 
 ---
 
-## 6. Documentos del Proyecto
+## 6. Documentos del Proyecto y Ejecución en Vivo
 
 - [Especificación Operativa de Producto (PRODUCT.md)](file:///C:/dev/SGCI/PRODUCT.md)
 - [Estrategia de Producto, Módulos y Hoja de Ruta (docs/01-estrategia-producto-roadmap.md)](file:///C:/dev/SGCI/docs/01-estrategia-producto-roadmap.md)
+- [Arquitectura del Sistema y ADRs (docs/02-arquitectura-sistema-adr.md)](file:///C:/dev/SGCI/docs/02-arquitectura-sistema-adr.md)
+- [Cierre Integral Fase II — Sprints 8 al 10 (docs/11-cierre-integral-fase-2-sprints-8-10.md)](file:///C:/dev/SGCI/docs/11-cierre-integral-fase-2-sprints-8-10.md)
+- [Cierre Integral Fase III — 25 Pantallas Oficiales SGCI y Brechas LEEME.txt (docs/12-cierre-integral-fase-3-pantallas-sgci.md)](file:///C:/dev/SGCI/docs/12-cierre-integral-fase-3-pantallas-sgci.md)
+
+### Comandos de Verificación TDD y Servidor en Vivo
+```powershell
+# 1. Ejecutar Suite TDD Backend (10 Suites · 36/36 pruebas en verde)
+php C:\dev\SGCI\backend\scripts\ejecutar-pruebas-tdd.php
+
+# 2. Ejecutar Suite TDD Frontend (10 Suites · 28/28 pruebas en verde)
+node C:\dev\SGCI\frontend\scripts\ejecutar-pruebas-frontend.mjs
+
+# 3. Levantar Portal Interactivo SGCI con las 25 pantallas oficiales (http://127.0.0.1:4173)
+node C:\dev\SGCI\scripts\servidor-sgci.mjs
+```

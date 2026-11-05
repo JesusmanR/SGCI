@@ -40,7 +40,7 @@ jobs:
           fi
 
   backend-laravel-tdd:
-    name: 2. Backend PHP 8.2+ / Laravel 11 — Linter & TDD (34/34 Pruebas)
+    name: 2. Backend PHP 8.2+ / Laravel 11 — Linter & TDD (36/36 Pruebas)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -60,12 +60,12 @@ jobs:
         run: |
           find app tests -name "*.php" -print0 | xargs -0 -n1 php -l
 
-      - name: Ejecutar Suite TDD de los 10 Sprints (34/34 Pruebas)
+      - name: Ejecutar Suite TDD de las 10 Suites Backend (36/36 Pruebas)
         run: |
           php scripts/ejecutar-pruebas-tdd.php
 
   frontend-vue-vitest-tdd:
-    name: 3. Frontend Vue 3 + TypeScript + Pinia — TDD (26/26 Pruebas)
+    name: 3. Frontend Vue 3 + TypeScript + Pinia — TDD (28/28 Pruebas)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -79,5 +79,5 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Ejecutar Suite TDD Frontend de los 10 Sprints (26/26 Pruebas)
+      - name: Ejecutar Suite TDD Frontend de las 10 Suites (28/28 Pruebas)
         run: node scripts/ejecutar-pruebas-frontend.mjs

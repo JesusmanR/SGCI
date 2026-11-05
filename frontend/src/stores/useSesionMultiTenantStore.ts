@@ -21,12 +21,12 @@ export const useSesionMultiTenantStore = defineStore('sesionMultiTenant', () => 
   const empresasRegistradas = ref<EmpresaTenant[]>([
     {
       id: '11111111-1111-4111-8111-111111111111',
-      nombre: 'Comercializadora Aurora S.A.S.',
-      nit: '901.452.881-3',
-      subdominio: 'aurora.sgci.co',
+      nombre: 'Industrias Alfa S.A.S.',
+      nit: 'IND-ALFA · 8f2a...c91d',
+      subdominio: 'alfa.sgci.io',
       plan: 'Crece',
       estadoMembresia: 'Activa',
-      bodegaPrincipalNombre: 'Bodega Central Bogotá',
+      bodegaPrincipalNombre: 'ALM-CENTRAL-01 — Bodega Central Monterrey',
       bodegaPrincipalId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     },
     {
@@ -53,8 +53,8 @@ export const useSesionMultiTenantStore = defineStore('sesionMultiTenant', () => 
 
   const tenantIdSeleccionado = ref<string>('11111111-1111-4111-8111-111111111111');
   const rolActivo = ref<RolUsuarioSaas>('admin');
-  const usuarioNombre = ref<string>('Alex Morgan');
-  const usuarioCargo = ref<string>('Administrador General');
+  const usuarioNombre = ref<string>('Laura Mendoza');
+  const usuarioCargo = ref<string>('JEFE_ALMACEN');
   const conectadoRed = ref<boolean>(true);
 
   const empresaActiva = computed<EmpresaTenant>(() => {

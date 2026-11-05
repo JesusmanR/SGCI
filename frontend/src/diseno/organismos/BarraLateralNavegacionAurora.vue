@@ -37,18 +37,25 @@ function manejarCambioRol(rol: RolUsuarioSaas): void {
 
 <template>
   <aside
-    class="flex w-full flex-col justify-between border-r border-[#416772]/40 bg-[#203959] text-white lg:w-72 lg:min-h-screen"
+    class="flex w-full flex-col justify-between border-r border-slate-800 bg-[#0A1120] text-white lg:w-72 lg:min-h-screen"
   >
     <div class="p-5 space-y-5">
-      <!-- Marca Institucional SGCI · Paleta Aurora Mist -->
-      <div class="flex items-center justify-between border-b border-[#416772]/50 pb-4">
-        <div>
-          <span class="font-mono text-[11px] font-bold tracking-widest text-[#96ADA5] uppercase">
-            SGCI · Multi-Tenant SaaS
-          </span>
-          <h1 class="text-base font-bold text-white leading-tight mt-0.5">
-            Control de Inventarios
-          </h1>
+      <!-- Marca Institucional SGCI · Pantallas Oficiales SGCI (07-15) -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="flex h-9 w-9 items-end justify-center gap-1 rounded-xl bg-[#0F1D3A] border border-cyan-500/30 p-2">
+            <span class="w-1 h-2.5 rounded-full bg-cyan-400"></span>
+            <span class="w-1 h-4 rounded-full bg-cyan-400"></span>
+            <span class="w-1 h-5 rounded-full bg-cyan-300"></span>
+          </div>
+          <div>
+            <h1 class="text-base font-extrabold text-white leading-none">
+              SGCI
+            </h1>
+            <span class="block font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase mt-1">
+              CONTROL DE INVENTARIOS
+            </span>
+          </div>
         </div>
         <span
           class="rounded-full px-2.5 py-1 text-[11px] font-bold"
