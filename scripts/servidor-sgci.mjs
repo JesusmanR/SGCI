@@ -168,6 +168,9 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 
     let state = {
       vista: 'centro-mando',
+      subVistaAcceso: '01-landing',
+      mostrarModalDemo02: false,
+      mostrarModalRecepcion13b: false,
       rol: 'JEFE_ALMACEN',
       bodega: 'ALM-CENTRAL-01 — Bodega Central Monterrey',
       online: true,
@@ -878,8 +881,45 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                   <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-600">OPERACIÓN EN TIEMPO REAL · \${state.bodega}</span>
                   <h2 class="text-base font-extrabold text-slate-900 mt-0.5">\${cfg.tablaTitulo}</h2>
                 </div>
-                <span class="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-bold text-blue-700">Rol: \${state.rol}</span>
+                <div class="flex items-center gap-2">
+                  \${state.vista === 'abastecimiento' ? \`<button onclick="state.mostrarModalRecepcion13b = !state.mostrarModalRecepcion13b; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-3.5 py-1.5 text-[11px] font-bold hover:bg-slate-800">📥 Ventana 13b · Recepción de Orden de Compra en Muelle</button>\` : ''}
+                  <span class="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-bold text-blue-700">Rol: \${state.rol}</span>
+                </div>
               </div>
+
+              \${state.vista === 'abastecimiento' && state.mostrarModalRecepcion13b ? \`
+                <!-- Ventana Faltante 13b: Recepción de Orden de Compra en Muelle (Documentada en LEEME.txt) -->
+                <div class="rounded-2xl border-2 border-blue-600 bg-blue-50/40 p-5 space-y-4">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-700">VENTANA ESPECIALIZADA 13B (COMPLEMENTO A 13-ABASTECIMIENTO.PNG)</span>
+                      <h3 class="text-lg font-extrabold text-slate-900">Recepción Física de Orden de Compra en Muelle (OC-2026-0119)</h3>
+                      <p class="text-xs text-slate-600">Cotejo ciego de bultos recibidos vs facturados, control de averías y asiento automático ENTRADA COMPRA en Kardex.</p>
+                    </div>
+                    <button onclick="conciliarOrdenCompra('OC-2026-0119'); state.mostrarModalRecepcion13b = false; renderMain()" class="rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                      ✓ Confirmar Recepción e Impactar Kardex
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                    <div class="rounded-xl bg-white p-3 border border-slate-200">
+                      <span class="text-[10px] font-bold text-slate-400 uppercase block">PROVEEDOR</span>
+                      <strong class="text-slate-900">Nortek Suministros</strong>
+                    </div>
+                    <div class="rounded-xl bg-white p-3 border border-slate-200">
+                      <span class="text-[10px] font-bold text-slate-400 uppercase block">SKU / LOTE INGRESO</span>
+                      <strong class="font-mono text-slate-900">RB-220-INOX · LOTE-2026-101</strong>
+                    </div>
+                    <div class="rounded-xl bg-white p-3 border border-slate-200">
+                      <span class="text-[10px] font-bold text-slate-400 uppercase block">CANTIDAD SOLICITADA / AVERÍAS</span>
+                      <strong class="font-mono text-emerald-700">40.0000 PZA · 0 Averías</strong>
+                    </div>
+                    <div class="rounded-xl bg-white p-3 border border-slate-200">
+                      <span class="text-[10px] font-bold text-slate-400 uppercase block">COSTO UNITARIO CPP</span>
+                      <strong class="font-mono text-slate-900">$ 148.20 USD ($ 5,928.00)</strong>
+                    </div>
+                  </div>
+                </div>
+              \` : ''}
 
               <div class="divide-y divide-slate-100 text-xs">
                 \${cfg.filas.map(f => \`
@@ -911,14 +951,20 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                 <span class="text-[11px] font-extrabold tracking-[0.14em] text-blue-600 uppercase">TERMINAL MÓVIL DE PASILLO · PWA 390PX (PANTALLAS M07 A M10)</span>
                 <h1 class="text-2xl font-extrabold text-slate-900 mt-1">Simulador Interactivo de Operación Móvil en Bodega</h1>
               </div>
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-1.5">
                 \${[
-                  { id: 'inicio', label: '07 · Inicio Bodega' },
-                  { id: 'escanear', label: '08 · Escáner EAN-13/QR' },
-                  { id: 'conteos', label: '09 · Conteo Ciego (B-02-05)' },
-                  { id: 'cola', label: '10 · Cola Offline (' + state.colaOffline.length + ')' },
+                  { id: 'm01', label: '01 · Landing' },
+                  { id: 'm02', label: '02 · Demo' },
+                  { id: 'm03', label: '03 · Login' },
+                  { id: 'm04', label: '04 · Recuperar' },
+                  { id: 'm05', label: '05 · Correo' },
+                  { id: 'm06', label: '06 · Cuenta' },
+                  { id: 'inicio', label: '07 · Inicio' },
+                  { id: 'escanear', label: '08 · Escanear' },
+                  { id: 'conteos', label: '09 · Conteos' },
+                  { id: 'cola', label: '10 · Cola (' + state.colaOffline.length + ')' },
                 ].map(t => \`
-                  <button onclick="state.tabMovil = '\${t.id}'; renderMain()" class="rounded-xl px-3.5 py-2 text-xs font-bold transition \${state.tabMovil === t.id ? 'bg-[#2563EB] text-white' : 'bg-white border border-slate-200 text-slate-700'}">\${t.label}</button>
+                  <button onclick="state.tabMovil = '\${t.id}'; renderMain()" class="rounded-xl px-3 py-1.5 text-[11px] font-bold transition \${state.tabMovil === t.id ? 'bg-[#2563EB] text-white' : 'bg-white border border-slate-200 text-slate-700'}">\${t.label}</button>
                 \`).join('')}
               </div>
             </div>
@@ -938,6 +984,80 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 
               <!-- Cuerpo Móvil según Pestaña -->
               <div class="flex-1 p-5 space-y-4">
+                \${['m01', 'm02', 'm03', 'm04', 'm05', 'm06'].includes(state.tabMovil) ? \`
+                  <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                      <button onclick="state.tabMovil = 'm01'; renderMain()" class="text-xs font-semibold text-slate-500">&lt; Volver al inicio</button>
+                      <span class="rounded-full bg-blue-50 text-blue-700 px-2.5 py-0.5 text-[10px] font-bold uppercase">Móvil 390px · \${state.tabMovil.toUpperCase()}</span>
+                    </div>
+                    \${state.tabMovil === 'm01' ? \`
+                      <div class="text-center space-y-3 py-2">
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-white border border-slate-200 px-3 py-1 text-[10px] font-bold text-slate-700">● Nueva generación de control de inventarios</span>
+                        <h2 class="text-3xl font-extrabold text-slate-900 leading-tight">Inventario preciso.<br><span class="text-[#2563EB]">Operación sin límites.</span></h2>
+                        <p class="text-xs text-slate-500">Centraliza almacenes, automatiza el Kardex y toma decisiones en tiempo real.</p>
+                        <button onclick="state.tabMovil = 'm03'; renderMain()" class="w-full rounded-xl bg-[#2563EB] py-3 text-xs font-extrabold text-white shadow">Probar SGCI gratis ›</button>
+                        <button onclick="state.tabMovil = 'm02'; renderMain()" class="w-full rounded-xl bg-white border border-slate-200 py-2.5 text-xs font-bold text-slate-800">▶ Ver cómo funciona · 38 SEG</button>
+                      </div>
+                    \` : ''}
+                    \${state.tabMovil === 'm02' ? \`
+                      <div class="rounded-2xl bg-[#0A1120] text-white p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                          <span class="text-[10px] font-bold text-cyan-400">● DEMO GUIADA · 00:38</span>
+                          <button onclick="state.tabMovil = 'm01'; renderMain()" class="text-xs text-slate-400">✕</button>
+                        </div>
+                        <strong class="block text-sm font-extrabold">Del escaneo al Kardex, en tiempo real</strong>
+                        <div class="rounded-xl bg-white text-slate-900 p-4 text-center space-y-1">
+                          <span class="font-mono text-[11px] font-bold text-blue-600">AC-100-FLEX</span>
+                          <strong class="block text-xs font-extrabold">Entrada registrada</strong>
+                          <span class="inline-block rounded-full bg-emerald-50 text-emerald-700 px-2.5 py-1 text-[10px] font-bold mt-2">✓ Kardex actualizado · Stock 29.0000 PZA</span>
+                        </div>
+                      </div>
+                    \` : ''}
+                    \${state.tabMovil === 'm03' ? \`
+                      <div class="rounded-2xl bg-white border border-slate-200 p-4 space-y-3">
+                        <span class="text-[10px] font-extrabold text-blue-600 uppercase">ACCESO SEGURO</span>
+                        <h3 class="text-xl font-extrabold text-slate-900">Bienvenido de nuevo</h3>
+                        <button class="w-full rounded-xl border border-slate-200 py-2.5 text-xs font-bold text-slate-800">G Continuar con Google</button>
+                        <label class="block text-xs"><span class="font-bold text-slate-700">Código de organización</span><input value="IND-ALFA" readonly class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-mono font-bold" /></label>
+                        <label class="block text-xs"><span class="font-bold text-slate-700">Correo electrónico</span><input value="laura@industriasalfa.com" readonly class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold" /></label>
+                        <div class="flex justify-between text-[11px]">
+                          <span>☑ Recordarme</span>
+                          <button onclick="state.tabMovil = 'm04'; renderMain()" class="font-bold text-blue-600">¿Olvidaste tu contraseña?</button>
+                        </div>
+                        <button onclick="state.tabMovil = 'inicio'; renderMain()" class="w-full rounded-xl bg-[#2563EB] py-3 text-xs font-extrabold text-white">Ingresar a SGCI ›</button>
+                      </div>
+                    \` : ''}
+                    \${state.tabMovil === 'm04' ? \`
+                      <div class="rounded-2xl bg-white border border-slate-200 p-4 space-y-3">
+                        <span class="text-[10px] font-extrabold text-blue-600 uppercase">RESTABLECER CONTRASEÑA</span>
+                        <h3 class="text-xl font-extrabold text-slate-900">Recupera tu acceso</h3>
+                        <p class="text-xs text-slate-500">Te enviaremos un enlace seguro a tu correo.</p>
+                        <input value="laura@industriasalfa.com" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-xs" />
+                        <button onclick="state.tabMovil = 'm05'; renderMain()" class="w-full rounded-xl bg-[#2563EB] py-3 text-xs font-extrabold text-white">Enviar enlace de recuperación ›</button>
+                      </div>
+                    \` : ''}
+                    \${state.tabMovil === 'm05' ? \`
+                      <div class="rounded-2xl bg-white border border-slate-200 p-5 text-center space-y-3">
+                        <div class="mx-auto h-12 w-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">✓</div>
+                        <span class="text-[10px] font-extrabold text-blue-600 uppercase">ENLACE ENVIADO</span>
+                        <h3 class="text-xl font-extrabold text-slate-900">Revisa tu bandeja de entrada</h3>
+                        <p class="text-xs text-slate-500">Enviamos instrucciones a <strong>laura@industriasalfa.com</strong>. Disponible durante 20 minutos.</p>
+                        <button onclick="state.tabMovil = 'm03'; renderMain()" class="w-full rounded-xl bg-[#2563EB] py-3 text-xs font-extrabold text-white">Volver a iniciar sesión</button>
+                      </div>
+                    \` : ''}
+                    \${state.tabMovil === 'm06' ? \`
+                      <div class="rounded-2xl bg-white border border-slate-200 p-4 space-y-3 text-xs">
+                        <span class="text-[10px] font-extrabold text-blue-600 uppercase">NUEVA ORGANIZACIÓN</span>
+                        <h3 class="text-xl font-extrabold text-slate-900">Crea tu espacio de trabajo</h3>
+                        <input value="Laura Mendoza" placeholder="Nombre completo" class="w-full rounded-xl border border-slate-200 px-3 py-2" />
+                        <input value="Industrias Alfa" placeholder="Organización" class="w-full rounded-xl border border-slate-200 px-3 py-2" />
+                        <input value="laura@industriasalfa.com" placeholder="Correo electrónico" class="w-full rounded-xl border border-slate-200 px-3 py-2" />
+                        <button onclick="state.tabMovil = 'inicio'; renderMain()" class="w-full rounded-xl bg-[#2563EB] py-3 font-extrabold text-white">Crear cuenta empresarial ›</button>
+                      </div>
+                    \` : ''}
+                  </div>
+                \` : ''}
+
                 \${state.tabMovil === 'inicio' ? \`
                   <div>
                     <span class="text-[11px] font-extrabold text-blue-600 uppercase">BUENOS DÍAS, DANIEL</span>
@@ -1067,77 +1187,364 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
         return;
       }
 
-      // 01-06 LANDING Y ACCESO SEGURO SGCI (Réplica exacta de 01-Landing.png y 03-Inicio-de-sesion.png)
+      // 01-06 LANDING, DEMO GUIADA (02), LOGIN (03), RECUPERACIÓN (04), CONFIRMACIÓN (05), TOKEN (05B) Y REGISTRO (06)
       if (state.vista === 'landing') {
         el.innerHTML = \`
-          <div class="space-y-8">
-            <div class="rounded-3xl bg-white border border-slate-200 p-8 lg:p-12 shadow-sm grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-              <div class="space-y-5">
-                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1 text-xs font-semibold text-slate-700">
-                  <span class="h-2 w-2 rounded-full bg-cyan-500"></span> Nueva generación de control de inventarios
-                </span>
-                <h1 class="text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.08]">
-                  Inventario preciso.<br />
-                  <span class="text-[#2563EB]">Operación sin límites.</span>
-                </h1>
-                <p class="text-sm text-slate-600 leading-relaxed max-w-lg">
-                  Centraliza almacenes, automatiza el Kardex y toma decisiones en tiempo real con una plataforma creada para operaciones empresariales exigentes.
-                </p>
-                <div class="flex flex-wrap gap-3 pt-2">
-                  <button onclick="seleccionarVista('centro-mando')" class="rounded-xl bg-[#2563EB] px-6 py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
-                    Entrar al Centro de Mando SGCI ›
-                  </button>
-                  <button onclick="seleccionarVista('galeria-25')" class="rounded-xl border border-slate-200 bg-white px-5 py-3.5 text-xs font-bold text-slate-800 hover:bg-slate-50">
-                    ▶ Ver las 25 Pantallas Oficiales SGCI
-                  </button>
-                </div>
-              </div>
-
-              <!-- Tarjeta de Acceso Seguro (Pantalla 03-Inicio-de-sesion.png) -->
-              <div class="rounded-2xl border border-slate-200 bg-slate-50/60 p-6 lg:p-8 space-y-4">
-                <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">ACCESO SEGURO · PANTALLA 03</span>
-                <h2 class="text-2xl font-extrabold text-slate-900">Bienvenido de nuevo</h2>
-                <div class="space-y-3 text-xs">
-                  <label class="block">
-                    <span class="font-bold text-slate-700">Código de organización</span>
-                    <input type="text" value="IND-ALFA" readonly class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 font-mono font-bold text-slate-900" />
-                  </label>
-                  <label class="block">
-                    <span class="font-bold text-slate-700">Correo electrónico</span>
-                    <input type="email" value="laura@industriasalfa.com" readonly class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 font-semibold text-slate-900" />
-                  </label>
-                  <button onclick="seleccionarVista('centro-mando')" class="w-full rounded-xl bg-[#2563EB] py-3 text-xs font-extrabold text-white shadow hover:bg-blue-700">
-                    Ingresar a SGCI ›
-                  </button>
-                </div>
+          <div class="space-y-6">
+            <!-- Conmutador de las 7 Ventanas de Acceso y Onboarding (01 a 06 + 05b) -->
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white border border-slate-200 p-3 shadow-sm">
+              <div class="flex flex-wrap gap-1.5">
+                \${[
+                  { id: '01-landing', label: '01 · Landing SGCI' },
+                  { id: '02-demo', label: '02 · Demo Guiada (00:38)' },
+                  { id: '03-login', label: '03 · Inicio de sesión' },
+                  { id: '04-recuperacion', label: '04 · Recuperación' },
+                  { id: '05-confirmacion', label: '05 · Confirmación correo' },
+                  { id: '05b-token', label: '05b · Nueva contraseña por Token ★' },
+                  { id: '06-registro', label: '06 · Creación de cuenta' },
+                ].map(tab => \`
+                  <button onclick="state.subVistaAcceso = '\${tab.id}'; renderMain()" class="rounded-xl px-3.5 py-2 text-xs font-bold transition \${state.subVistaAcceso === tab.id ? 'bg-[#2563EB] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}">\${tab.label}</button>
+                \`).join('')}
               </div>
             </div>
 
-            <!-- Pantalla Especializada 05b: Nueva Contraseña por Token (Cierre Brecha LEEME.txt) -->
-            <div class="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8 shadow-sm grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-              <div class="space-y-2">
-                <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">PANTALLA ESPECIALIZADA 05B · RECUPERACIÓN CRIPTOGRÁFICA</span>
-                <h3 class="text-xl font-extrabold text-slate-900">Establecer nueva contraseña por token de un solo uso</h3>
-                <p class="text-xs text-slate-500">Valida el token firmado SHA-256 vinculado a <strong>Industrias Alfa S.A.S.</strong>, verifica política OWASP (≥10 caracteres, mayúscula, número y símbolo) y revoca Refresh Tokens previos.</p>
-                <div class="pt-2 flex flex-wrap gap-2 text-[11px]">
-                  <span class="rounded-full bg-emerald-50 text-emerald-800 px-3 py-1 font-bold">✓ Token SHA-256 de un solo uso</span>
-                  <span class="rounded-full bg-blue-50 text-blue-800 px-3 py-1 font-bold">✓ Revocación automática de sesiones</span>
+            \${state.subVistaAcceso === '01-landing' || state.subVistaAcceso === '02-demo' ? \`
+              <!-- Réplica Exacta de 01-Landing.png y 02-Demostracion.png -->
+              <div class="rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden relative">
+                <!-- Navbar Superior Landing -->
+                <div class="px-8 py-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
+                  <div class="flex items-center gap-3">
+                    <div class="flex h-9 w-9 items-end justify-center gap-1 rounded-xl bg-[#0A1120] p-2">
+                      <span class="w-1 h-2.5 rounded-full bg-cyan-400"></span>
+                      <span class="w-1 h-4 rounded-full bg-cyan-400"></span>
+                      <span class="w-1 h-5 rounded-full bg-cyan-300"></span>
+                    </div>
+                    <div>
+                      <strong class="block text-sm font-extrabold tracking-tight text-slate-900 leading-none">SGCI</strong>
+                      <span class="block text-[9px] font-bold tracking-[0.18em] text-slate-400 uppercase mt-0.5">INVENTORY INTELLIGENCE</span>
+                    </div>
+                  </div>
+                  <div class="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-600">
+                    <span>Producto</span>
+                    <span>Capacidades</span>
+                    <span>Seguridad</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <button onclick="state.subVistaAcceso = '03-login'; renderMain()" class="text-xs font-bold text-slate-700 px-3 py-2">Iniciar sesión</button>
+                    <button onclick="state.subVistaAcceso = '06-registro'; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-4 py-2.5 text-xs font-bold">Comenzar ahora ›</button>
+                  </div>
+                </div>
+
+                <!-- Hero Landing -->
+                <div class="p-8 lg:p-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center bg-gradient-to-b from-white to-slate-50/60">
+                  <div class="space-y-5">
+                    <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1 text-xs font-semibold text-slate-700 shadow-sm">
+                      <span class="h-2 w-2 rounded-full bg-cyan-500"></span> Nueva generación de control de inventarios
+                    </span>
+                    <h1 class="text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.06]">
+                      Inventario preciso.<br />
+                      <span class="text-[#2563EB]">Operación sin límites.</span>
+                    </h1>
+                    <p class="text-sm text-slate-600 leading-relaxed max-w-lg">
+                      Centraliza almacenes, automatiza el Kardex y toma decisiones en tiempo real con una plataforma creada para operaciones empresariales exigentes.
+                    </p>
+                    <div class="flex flex-wrap items-center gap-3 pt-1">
+                      <button onclick="seleccionarVista('centro-mando')" class="rounded-xl bg-[#2563EB] px-6 py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                        Probar SGCI gratis ›
+                      </button>
+                      <button onclick="state.subVistaAcceso = '02-demo'; renderMain()" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3.5 text-xs font-bold text-slate-800 hover:bg-slate-50">
+                        <span>▶ Ver cómo funciona</span>
+                        <span class="font-mono text-[10px] text-slate-400">38 SEG</span>
+                      </button>
+                    </div>
+                    <div class="flex flex-wrap gap-5 pt-2 text-[11px] font-semibold text-slate-500">
+                      <span>✓ Sin tarjeta de crédito</span>
+                      <span>✓ Configuración en minutos</span>
+                      <span>✓ Soporte especializado</span>
+                    </div>
+                  </div>
+
+                  <!-- Mockup Interactivo Derecho (01-Landing.png) -->
+                  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xl space-y-4 relative">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">CENTRO DE MANDO</span>
+                        <strong class="block text-sm font-extrabold text-slate-900">Buenos días, Laura</strong>
+                      </div>
+                      <span class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold text-emerald-800">
+                        📡 3 almacenes en línea ●
+                      </span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-xs">
+                      <div class="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
+                        <span class="text-[9px] font-bold text-slate-400 uppercase">EXACTITUD ERI</span>
+                        <strong class="block text-lg font-extrabold text-slate-900 mt-0.5">99.4%</strong>
+                        <span class="text-[10px] font-bold text-emerald-600">+0.8%</span>
+                      </div>
+                      <div class="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
+                        <span class="text-[9px] font-bold text-slate-400 uppercase">VALOR PATRIMONIAL</span>
+                        <strong class="block text-lg font-extrabold text-slate-900 mt-0.5">$1.48M</strong>
+                        <span class="text-[10px] font-bold text-blue-600">ACTUALIZADO</span>
+                      </div>
+                      <div class="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
+                        <span class="text-[9px] font-bold text-slate-400 uppercase">STOCK CRÍTICO</span>
+                        <strong class="block text-lg font-extrabold text-slate-900 mt-0.5">7</strong>
+                        <span class="text-[10px] font-bold text-rose-600">3 HOY</span>
+                      </div>
+                    </div>
+                    <div class="rounded-xl border border-rose-200 bg-rose-50/80 p-3 flex items-center justify-between text-xs">
+                      <div>
+                        <span class="text-[9px] font-extrabold text-rose-700 uppercase block">⚠️ ALERTA INTELIGENTE</span>
+                        <strong class="text-slate-900">Stock crítico detectado · AC-100-FLEX · 5 PZA</strong>
+                      </div>
+                      <span class="font-mono text-xs font-bold text-rose-700">5 PZA</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Cintillo de Empresas -->
+                <div class="border-y border-slate-100 py-5 px-8 text-center">
+                  <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 block mb-3">DISEÑADO PARA OPERACIONES QUE NO SE DETIENEN</span>
+                  <div class="flex flex-wrap justify-center gap-10 text-xs font-extrabold tracking-wider text-slate-400">
+                    <span>METALNOVA</span>
+                    <span>INDUSTRIAS ALFA</span>
+                    <span>AXIS LOGÍSTICA</span>
+                    <span>NORTEK</span>
+                    <span>GRUPO MERIDIAN</span>
+                  </div>
+                </div>
+
+                <!-- 4 Tarjetas de Capacidades + Bloque Oscuro SOC 2 -->
+                <div class="p-8 lg:p-12 space-y-10">
+                  <div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-600">UNA PLATAFORMA. CONTROL TOTAL.</span>
+                    <h2 class="text-2xl lg:text-3xl font-extrabold text-slate-900 mt-1">Todo lo que tu inventario necesita para operar con precisión.</h2>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-xs">
+                    <div class="rounded-2xl border border-slate-200 p-5 space-y-2">
+                      <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 font-bold">📈</span>
+                      <strong class="block text-sm font-extrabold text-slate-900 pt-1">Visibilidad en tiempo real</strong>
+                      <p class="text-slate-500 leading-relaxed">Indicadores, alertas y movimientos sincronizados entre todos tus almacenes.</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 p-5 space-y-2">
+                      <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700 font-bold">📑</span>
+                      <strong class="block text-sm font-extrabold text-slate-900 pt-1">Kardex confiable</strong>
+                      <p class="text-slate-500 leading-relaxed">Valoración PEPS, UEPS y promedio con trazabilidad inmutable para auditoría.</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 p-5 space-y-2">
+                      <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 font-bold">📷</span>
+                      <strong class="block text-sm font-extrabold text-slate-900 pt-1">Operación móvil</strong>
+                      <p class="text-slate-500 leading-relaxed">Escaneo QR/EAN-13, conteos ciegos y operación offline desde cualquier pasillo.</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 p-5 space-y-2">
+                      <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 font-bold">🛡️</span>
+                      <strong class="block text-sm font-extrabold text-slate-900 pt-1">Gobierno empresarial</strong>
+                      <p class="text-slate-500 leading-relaxed">Multi-tenant, diez roles RBAC y políticas configurables por organización.</p>
+                    </div>
+                  </div>
+
+                  <div class="rounded-2xl bg-[#0A1120] text-white p-8 flex flex-wrap items-center justify-between gap-6">
+                    <div class="space-y-1 max-w-xl">
+                      <span class="text-[10px] font-extrabold uppercase tracking-widest text-cyan-400">SEGURIDAD EMPRESARIAL</span>
+                      <h3 class="text-xl font-extrabold">Tus datos, siempre protegidos.</h3>
+                      <p class="text-xs text-slate-400">Arquitectura multi-tenant, permisos granulares, trazabilidad completa y cifrado de extremo a extremo.</p>
+                    </div>
+                    <div class="text-right font-mono text-[11px] font-bold text-slate-300 space-y-1">
+                      <div>SOC 2 READY</div>
+                      <div>RBAC 10 ROLES</div>
+                      <div>99.9% UPTIME</div>
+                    </div>
+                  </div>
+                </div>
+
+                \${state.subVistaAcceso === '02-demo' ? \`
+                  <!-- Modal Superpuesto 02-Demostracion.png -->
+                  <div class=" inset-0 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-6">
+                    <div class="max-w-2xl w-full rounded-3xl bg-[#0A1120] text-white p-6 shadow-2xl border border-slate-800 space-y-4">
+                      <div class="flex items-center justify-between">
+                        <div>
+                          <span class="text-[10px] font-bold text-cyan-400 uppercase">● DEMO GUIADA · 00:38</span>
+                          <h3 class="text-lg font-extrabold mt-0.5">Del escaneo al Kardex, en tiempo real</h3>
+                        </div>
+                        <button onclick="state.subVistaAcceso = '01-landing'; renderMain()" class="h-8 w-8 rounded-lg bg-slate-800 text-slate-300 hover:text-white">✕</button>
+                      </div>
+                      <div class="rounded-2xl bg-white text-slate-900 p-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                        <div class="md:col-span-2 space-y-2 text-xs">
+                          <span class="font-mono text-[11px] font-bold text-blue-600">PASO 01 → 03 · SINCRONIZACIÓN INSTANTÁNEA</span>
+                          <strong class="block text-base font-extrabold">Escaneo móvil en Bodega Central Monterrey</strong>
+                          <p class="text-slate-500">El operador escanea el lote LOTE-2026-089 y el Libro Mayor Kardex recalcula automáticamente la capa PEPS.</p>
+                          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1 font-bold">
+                            ✓ Kardex actualizado · Stock 29.0000 PZA
+                          </span>
+                        </div>
+                        <div class="rounded-2xl border-4 border-[#0A1120] p-4 text-center space-y-1 bg-slate-50">
+                          <span class="text-lg">📷</span>
+                          <span class="block font-mono text-[11px] font-bold text-blue-600">AC-100-FLEX</span>
+                          <strong class="block text-xs font-extrabold">Entrada registrada</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                \` : ''}
+              </div>
+            \` : \`
+              <!-- Layout Split-Screen Oficial para 03-Login, 04-Recuperacion, 05-Confirmacion, 05b-Token y 06-Registro -->
+              <div class="rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm grid grid-cols-1 lg:grid-cols-2 min-h-[640px]">
+                <!-- Panel Izquierdo Oscuro (#081122) idéntico a Pantallas 03, 04, 05 y 06 -->
+                <div class="bg-[#081122] text-white p-8 lg:p-12 flex flex-col justify-between">
+                  <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                      <button onclick="state.subVistaAcceso = '01-landing'; renderMain()" class="text-xs font-semibold text-slate-300 hover:text-white">&lt; Volver al inicio</button>
+                      <span class="font-mono text-[10px] text-cyan-400">SGCI · INVENTORY INTELLIGENCE</span>
+                    </div>
+                    <span class="inline-block rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 text-[10px] font-bold tracking-widest text-cyan-300 uppercase">
+                      OPERACIÓN EN TIEMPO REAL
+                    </span>
+                    <h2 class="text-3xl lg:text-4xl font-extrabold leading-tight">
+                      Control absoluto.<br />Decisiones más inteligentes.
+                    </h2>
+                    <p class="text-xs text-slate-300 leading-relaxed max-w-md">
+                      Inventario, costos y trazabilidad conectados en una sola plataforma empresarial.
+                    </p>
+                    <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 flex items-end justify-between">
+                      <div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">EXACTITUD ERI</span>
+                        <strong class="block text-3xl font-extrabold mt-1">99.4%</strong>
+                      </div>
+                      <div class="flex items-end gap-1.5 h-12">
+                        <span class="w-2 h-5 rounded bg-blue-600"></span>
+                        <span class="w-2 h-7 rounded bg-blue-600"></span>
+                        <span class="w-2 h-6 rounded bg-blue-500"></span>
+                        <span class="w-2 h-9 rounded bg-blue-500"></span>
+                        <span class="w-2 h-10 rounded bg-cyan-400"></span>
+                        <span class="w-2 h-12 rounded bg-cyan-300"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="border-l-2 border-cyan-400 pl-4 text-xs text-slate-300 space-y-1 mt-8">
+                    <p>"SGCI convirtió una operación fragmentada en una fuente confiable de decisiones."</p>
+                    <span class="block text-[11px] text-slate-400">Laura Mendoza · Jefe de Almacén</span>
+                  </div>
+                </div>
+
+                <!-- Panel Derecho Blanco Dinámico (03, 04, 05, 05b, 06) -->
+                <div class="p-8 lg:p-12 flex flex-col justify-center max-w-lg mx-auto w-full">
+                  \${state.subVistaAcceso === '03-login' ? \`
+                    <div class="space-y-4 text-xs">
+                      <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">ACCESO SEGURO · PANTALLA 03</span>
+                      <h3 class="text-3xl font-extrabold text-slate-900">Bienvenido de nuevo</h3>
+                      <p class="text-slate-500">Ingresa a tu centro de control de inventarios.</p>
+                      <button onclick="seleccionarVista('centro-mando')" class="w-full rounded-xl border border-slate-200 py-3 font-bold text-slate-800 hover:bg-slate-50">G Continuar con Google</button>
+                      <div class="text-center text-[11px] text-slate-400">o continúa con correo corporativo</div>
+                      <label class="block">
+                        <span class="font-bold text-slate-700">Código de organización</span>
+                        <input type="text" value="IND-ALFA" readonly class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono font-bold text-slate-900" />
+                      </label>
+                      <label class="block">
+                        <span class="font-bold text-slate-700">Correo electrónico</span>
+                        <input type="email" value="laura@industriasalfa.com" readonly class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-semibold text-slate-900" />
+                      </label>
+                      <div class="flex items-center justify-between text-[11px]">
+                        <span class="font-semibold text-slate-600">☑ Recordarme</span>
+                        <button onclick="state.subVistaAcceso = '04-recuperacion'; renderMain()" class="font-bold text-blue-600 hover:underline">¿Olvidaste tu contraseña?</button>
+                      </div>
+                      <button onclick="seleccionarVista('centro-mando')" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                        Ingresar a SGCI ›
+                      </button>
+                      <div class="text-center text-[11px] text-slate-500">
+                        ¿Tu empresa aún no usa SGCI? <button onclick="state.subVistaAcceso = '06-registro'; renderMain()" class="font-bold text-blue-600 hover:underline">Crear cuenta</button>
+                      </div>
+                    </div>
+                  \` : ''}
+
+                  \${state.subVistaAcceso === '04-recuperacion' ? \`
+                    <div class="space-y-4 text-xs">
+                      <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">RESTABLECER CONTRASEÑA · PANTALLA 04</span>
+                      <h3 class="text-3xl font-extrabold text-slate-900">Recupera tu acceso</h3>
+                      <p class="text-slate-500">Te enviaremos un enlace seguro a tu correo.</p>
+                      <label class="block">
+                        <span class="font-bold text-slate-700">Correo electrónico</span>
+                        <input type="email" value="laura@industriasalfa.com" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-semibold text-slate-900" />
+                      </label>
+                      <button onclick="state.subVistaAcceso = '05-confirmacion'; renderMain()" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                        Enviar enlace de recuperación ›
+                      </button>
+                      <div class="text-center text-[11px] text-slate-500">
+                        ¿Recordaste tu contraseña? <button onclick="state.subVistaAcceso = '03-login'; renderMain()" class="font-bold text-blue-600 hover:underline">Volver al acceso</button>
+                      </div>
+                    </div>
+                  \` : ''}
+
+                  \${state.subVistaAcceso === '05-confirmacion' ? \`
+                    <div class="space-y-4 text-xs text-center">
+                      <div class="mx-auto h-14 w-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">✓</div>
+                      <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">ENLACE ENVIADO · PANTALLA 05</span>
+                      <h3 class="text-3xl font-extrabold text-slate-900">Revisa tu bandeja de entrada</h3>
+                      <p class="text-slate-500">Enviamos instrucciones a <strong>laura@industriasalfa.com</strong>. El enlace estará disponible durante 20 minutos.</p>
+                      <button onclick="state.subVistaAcceso = '05b-token'; renderMain()" class="w-full rounded-xl bg-[#0A1120] py-3 text-xs font-extrabold text-white shadow hover:bg-slate-800">
+                        Abrir enlace con Token de Recuperación (Pantalla 05b) ›
+                      </button>
+                      <button onclick="state.subVistaAcceso = '03-login'; renderMain()" class="w-full rounded-xl bg-[#2563EB] py-3 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                        Volver a iniciar sesión
+                      </button>
+                    </div>
+                  \` : ''}
+
+                  \${state.subVistaAcceso === '05b-token' ? \`
+                    <div class="space-y-4 text-xs">
+                      <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">NUEVA CONTRASEÑA POR TOKEN · PANTALLA 05B (COMPLEMENTO LEEME.TXT)</span>
+                      <h3 class="text-2xl font-extrabold text-slate-900">Define tu nueva contraseña corporativa</h3>
+                      <p class="text-slate-500">Token SHA-256 de un solo uso validado para <strong>Industrias Alfa S.A.S.</strong></p>
+                      <label class="block">
+                        <span class="font-bold text-slate-700">Token firmado recibido</span>
+                        <input oninput="state.tokenRecuperacionInput = this.value" value="\${state.tokenRecuperacionInput}" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono font-bold text-slate-900" />
+                      </label>
+                      <label class="block">
+                        <span class="font-bold text-slate-700">Nueva contraseña (mín. 10 caracteres, mayúscula, número y símbolo)</span>
+                        <input type="password" oninput="state.nuevaPasswordInput = this.value" value="\${state.nuevaPasswordInput}" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono text-slate-900" />
+                      </label>
+                      <label class="block">
+                        <span class="font-bold text-slate-700">Confirmar nueva contraseña</span>
+                        <input type="password" oninput="state.confirmarPasswordInput = this.value" value="\${state.confirmarPasswordInput}" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono text-slate-900" />
+                      </label>
+                      <button onclick="aplicarNuevaContrasenaToken()" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                        \${state.tokenActualizadoExito ? '✓ Contraseña Actualizada y Sesiones Revocadas' : 'Guardar Nueva Contraseña ›'}
+                      </button>
+                    </div>
+                  \` : ''}
+
+                  \${state.subVistaAcceso === '06-registro' ? \`
+                    <div class="space-y-4 text-xs">
+                      <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">NUEVA ORGANIZACIÓN · PANTALLA 06</span>
+                      <h3 class="text-3xl font-extrabold text-slate-900">Crea tu espacio de trabajo</h3>
+                      <p class="text-slate-500">Configura tu organización y comienza en minutos.</p>
+                      <button class="w-full rounded-xl border border-slate-200 py-2.5 font-bold text-slate-800">G Continuar con Google</button>
+                      <div class="grid grid-cols-2 gap-3">
+                        <label class="block">
+                          <span class="font-bold text-slate-700">Nombre completo</span>
+                          <input value="Laura Mendoza" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold text-slate-900" />
+                        </label>
+                        <label class="block">
+                          <span class="font-bold text-slate-700">Organización</span>
+                          <input value="Industrias Alfa" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold text-slate-900" />
+                        </label>
+                      </div>
+                      <label class="block">
+                        <span class="font-bold text-slate-700">Correo electrónico</span>
+                        <input value="laura@industriasalfa.com" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold text-slate-900" />
+                      </label>
+                      <label class="block">
+                        <span class="font-bold text-slate-700">Contraseña</span>
+                        <input type="password" value="AlfaInventario#2026" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-mono text-slate-900" />
+                      </label>
+                      <button onclick="seleccionarVista('centro-mando')" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                        Crear cuenta empresarial ›
+                      </button>
+                    </div>
+                  \` : ''}
                 </div>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs items-end">
-                <label class="block">
-                  <span class="font-bold text-slate-700">Token de recuperación</span>
-                  <input oninput="state.tokenRecuperacionInput = this.value" value="\${state.tokenRecuperacionInput}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-mono font-bold text-slate-900" />
-                </label>
-                <label class="block">
-                  <span class="font-bold text-slate-700">Nueva contraseña</span>
-                  <input type="password" oninput="state.nuevaPasswordInput = this.value" value="\${state.nuevaPasswordInput}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-mono text-slate-900" />
-                </label>
-                <button onclick="aplicarNuevaContrasenaToken()" class="rounded-xl bg-[#0A1120] text-white py-2.5 px-4 font-extrabold hover:bg-slate-800">
-                  \${state.tokenActualizadoExito ? '✓ Token Consumido' : 'Confirmar con Token'}
-                </button>
-              </div>
-            </div>
+            \`}
           </div>
         \`;
         return;
