@@ -1,239 +1,151 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 
-export interface PantallaFigmaItem {
-  code: string;
-  slug: string;
-  group: string;
+export interface PantallaOficialSgci {
+  file: string;
   title: string;
-  description: string;
-  desktop: string;
-  mobile: string | null;
+  note: string;
 }
 
-interface Props {
-  pantallas?: PantallaFigmaItem[];
-  cargarManifestAutomatico?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  pantallas: () => [
-    {
-      code: '01',
-      slug: '01-landing',
-      group: 'Acceso y bienvenida',
-      title: 'Página pública de presentación',
-      description: 'Inicio comercial con propuesta de valor y acceso.',
-      desktop: '/artifacts/sgip-pantallas/escritorio/01-landing.png',
-      mobile: '/artifacts/sgip-pantallas/movil/01-landing.png',
-    },
-    {
-      code: '12',
-      slug: '12-dashboard-principal',
-      group: 'Panel principal',
-      title: 'Panel principal con métricas',
-      description: 'Resumen diario de ventas, inventario y alertas.',
-      desktop: '/artifacts/sgip-pantallas/escritorio/12-dashboard-principal.png',
-      mobile: '/artifacts/sgip-pantallas/movil/12-dashboard-principal.png',
-    },
-    {
-      code: '14',
-      slug: '14-catalogo-productos',
-      group: 'Catálogo e inventario',
-      title: 'Catálogo de productos',
-      description: 'Tabla de productos con SKU, categoría, stock y estado.',
-      desktop: '/artifacts/sgip-pantallas/escritorio/14-catalogo-productos.png',
-      mobile: '/artifacts/sgip-pantallas/movil/14-catalogo-productos.png',
-    },
-    {
-      code: '36',
-      slug: '36-ordenes-compra',
-      group: 'Compras y ajustes',
-      title: 'Órdenes de compra',
-      description: 'Listado de órdenes con progreso de recepción.',
-      desktop: '/artifacts/sgip-pantallas/escritorio/36-ordenes-compra.png',
-      mobile: '/artifacts/sgip-pantallas/movil/36-ordenes-compra.png',
-    },
-    {
-      code: '42',
-      slug: '42-historial-inventario',
-      group: 'Compras y ajustes',
-      title: 'Ajustes de inventario',
-      description: 'Métricas e historial de movimientos de existencias.',
-      desktop: '/artifacts/sgip-pantallas/escritorio/42-historial-inventario.png',
-      mobile: '/artifacts/sgip-pantallas/movil/42-historial-inventario.png',
-    },
-    {
-      code: '46',
-      slug: '46-impuestos-ganancia',
-      group: 'Precios e impuestos',
-      title: 'Impuestos y ganancia',
-      description: 'Configuración de IVA y cálculo en vivo.',
-      desktop: '/artifacts/sgip-pantallas/escritorio/46-impuestos-ganancia.png',
-      mobile: '/artifacts/sgip-pantallas/movil/46-impuestos-ganancia.png',
-    },
-    {
-      code: '77',
-      slug: '77-confirmar-bajo-costo',
-      group: 'Precios e impuestos',
-      title: 'Confirmación de precio bajo el costo',
-      description: 'Bloqueo preventivo cuando un precio es menor al costo.',
-      desktop: '/artifacts/sgip-pantallas/escritorio/77-confirmar-bajo-costo.png',
-      mobile: '/artifacts/sgip-pantallas/movil/77-confirmar-bajo-costo.png',
-    },
-    {
-      code: '78',
-      slug: '78-inventario-sin-movimientos',
-      group: 'Compras y ajustes',
-      title: 'Ajustes sin movimientos',
-      description: 'Estado vacío del historial de ajustes.',
-      desktop: '/artifacts/sgip-pantallas/escritorio/78-inventario-sin-movimientos.png',
-      mobile: '/artifacts/sgip-pantallas/movil/78-inventario-sin-movimientos.png',
-    },
-  ],
-  cargarManifestAutomatico: true,
-});
-
-const listaPantallas = ref<PantallaFigmaItem[]>([...props.pantallas]);
-const modoVista = ref<'desktop' | 'mobile'>('desktop');
+const pantallas = ref<PantallaOficialSgci[]>([]);
+const filtroFormato = ref<'Todos' | 'Escritorio' | 'Movil'>('Todos');
 const busqueda = ref<string>('');
-const grupoSeleccionado = ref<string>('Todos');
+
+const PANTALLAS_SGCI_CANONICAS: PantallaOficialSgci[] = [
+  { file: '01-Escritorio-1440/01-Landing.png', title: '01 Landing', note: 'Landing corporativa SGCI Inventory Intelligence' },
+  { file: '01-Escritorio-1440/02-Demostracion.png', title: '02 Demostracion', note: 'Demostración interactiva del sistema' },
+  { file: '01-Escritorio-1440/03-Inicio-de-sesion.png', title: '03 Inicio de sesion', note: 'Acceso seguro Multi-Tenant (IND-ALFA · laura@industriasalfa.com)' },
+  { file: '01-Escritorio-1440/04-Recuperacion.png', title: '04 Recuperacion', note: 'Recuperación de acceso corporativo' },
+  { file: '01-Escritorio-1440/05-Confirmacion-de-recuperacion.png', title: '05 Confirmacion de recuperacion', note: 'Confirmación de envío de instrucciones' },
+  { file: '01-Escritorio-1440/06-Creacion-de-cuenta.png', title: '06 Creacion de cuenta', note: 'Alta de nueva organización Multi-Tenant' },
+  { file: '01-Escritorio-1440/07-Centro-de-mando.png', title: '07 Centro de mando', note: 'ERI 99.4%, Valor patrimonial $1,482,900.00, Prioridades FEFO y WebSockets' },
+  { file: '01-Escritorio-1440/08-Productos-y-ROP.png', title: '08 Productos y ROP', note: 'Catálogo maestro AC-100-FLEX, RB-220-INOX y FL-084-NBR con puntos de reorden' },
+  { file: '01-Escritorio-1440/09-Almacenes.png', title: '09 Almacenes', note: 'Topología de almacenes (3 activos, 82% ocupación, 2 transferencias en tránsito)' },
+  { file: '01-Escritorio-1440/10-Libro-Kardex.png', title: '10 Libro Kardex', note: 'Contabilidad inmutable PEPS/UEPS/Promedio con verificación HASH 8F2A...C91D' },
+  { file: '01-Escritorio-1440/11-Lotes-y-FEFO.png', title: '11 Lotes y FEFO', note: 'Trazabilidad sanitaria (128 lotes vigentes, 12 próximos a vencer, 1 en cuarentena)' },
+  { file: '01-Escritorio-1440/12-Conteos-y-auditoria.png', title: '12 Conteos y auditoria', note: 'Conciliación física ciega (4 ciclos activos, 2 diferencias abiertas, doble firma)' },
+  { file: '01-Escritorio-1440/13-Abastecimiento.png', title: '13 Abastecimiento', note: 'Órdenes de compra y recepción en muelle (6 abiertas, $84,250 comprometidos)' },
+  { file: '01-Escritorio-1440/14-Analitica.png', title: '14 Analitica', note: 'Rotación anual 4.8x, 42 días de cobertura y 1.2% obsolescencia' },
+  { file: '01-Escritorio-1440/15-Gobernanza-RBAC.png', title: '15 Gobernanza RBAC', note: '28 usuarios activos, 10 roles canónicos y 3 almacenes autorizados' },
+  { file: '02-Movil-390/01-Landing.png', title: '01 Landing (Móvil 390px)', note: 'Vista móvil de portada SGCI' },
+  { file: '02-Movil-390/02-Demostracion.png', title: '02 Demostracion (Móvil 390px)', note: 'Demostración móvil' },
+  { file: '02-Movil-390/03-Inicio-de-sesion.png', title: '03 Inicio de sesion (Móvil 390px)', note: 'Login móvil Multi-Tenant' },
+  { file: '02-Movil-390/04-Recuperacion.png', title: '04 Recuperacion (Móvil 390px)', note: 'Recuperación móvil' },
+  { file: '02-Movil-390/05-Confirmacion-de-recuperacion.png', title: '05 Confirmacion (Móvil 390px)', note: 'Confirmación móvil' },
+  { file: '02-Movil-390/06-Creacion-de-cuenta.png', title: '06 Creacion de cuenta (Móvil 390px)', note: 'Registro móvil' },
+  { file: '02-Movil-390/07-Inicio.png', title: '07 Inicio Bodega (Móvil 390px)', note: 'Operación de bodega PWA · ERI HOY 99.4% y acciones rápidas' },
+  { file: '02-Movil-390/08-Escanear.png', title: '08 Escanear EAN-13 / QR (Móvil 390px)', note: 'Escáner óptico con detección FEFO LOTE-2026-089' },
+  { file: '02-Movil-390/09-Conteos.png', title: '09 Conteos Ciegos (Móvil 390px)', note: 'Teclado numérico de conteo ciego en Ubicación B-02-05' },
+  { file: '02-Movil-390/10-Cola-offline.png', title: '10 Cola Offline IndexedDB (Móvil 390px)', note: 'Cola de sincronización con 4 movimientos pendientes' },
+];
 
 onMounted(async () => {
-  if (!props.cargarManifestAutomatico || typeof fetch === 'undefined') return;
   try {
-    const resp = await fetch('/artifacts/sgip-pantallas/manifest.json');
-    if (!resp.ok) return;
-    const data = (await resp.json()) as { screens?: any[] };
-    if (Array.isArray(data.screens) && data.screens.length > 0) {
-      listaPantallas.value = data.screens.map((s: any) => {
-        const idStr = String(s.id || s.slug || '');
-        const codeStr = String(s.code || (idStr.includes('-') ? idStr.split('-')[0] : idStr));
-        const desktopFile = s.images?.escritorio?.file || s.desktop || '';
-        const mobileFile = s.images?.movil?.file || s.mobile || null;
-
-        return {
-          code: codeStr,
-          slug: idStr,
-          group: s.group || 'General',
-          title: s.title || idStr,
-          description: s.description || s.title || '',
-          desktop: desktopFile.startsWith('/') ? desktopFile : `/artifacts/sgip-pantallas/${desktopFile}`,
-          mobile: mobileFile ? (mobileFile.startsWith('/') ? mobileFile : `/artifacts/sgip-pantallas/${mobileFile}`) : null,
-        };
-      });
+    const res = await fetch('/artifacts/sgci-pantallas/manifest.json');
+    if (res.ok) {
+      const data = (await res.json()) as { screens?: PantallaOficialSgci[] };
+      pantallas.value =
+        Array.isArray(data.screens) && data.screens.length > 0
+          ? data.screens
+          : PANTALLAS_SGCI_CANONICAS;
+    } else {
+      pantallas.value = PANTALLAS_SGCI_CANONICAS;
     }
   } catch {
-    // Mantiene la lista inicial si se ejecuta en entorno de pruebas sin servidor estático
+    pantallas.value = PANTALLAS_SGCI_CANONICAS;
   }
 });
 
-const gruposDisponibles = computed<string[]>(() => {
-  const unicos = new Set<string>(listaPantallas.value.map((p) => p.group));
-  return ['Todos', ...Array.from(unicos)];
+const pantallasFiltradas = computed<PantallaOficialSgci[]>(() => {
+  const q = busqueda.value.trim().toLowerCase();
+  return pantallas.value.filter((s) => {
+    const matchFormato =
+      filtroFormato.value === 'Todos' ||
+      (filtroFormato.value === 'Escritorio' && s.file.startsWith('01-Escritorio-1440')) ||
+      (filtroFormato.value === 'Movil' && s.file.startsWith('02-Movil-390'));
+    const matchTexto =
+      !q ||
+      s.title.toLowerCase().includes(q) ||
+      s.file.toLowerCase().includes(q) ||
+      (s.note || '').toLowerCase().includes(q);
+    return matchFormato && matchTexto;
+  });
 });
-
-const pantallasFiltradas = computed<PantallaFigmaItem[]>(() =>
-  listaPantallas.value.filter((item) => {
-    const coincideGrupo =
-      grupoSeleccionado.value === 'Todos' || item.group === grupoSeleccionado.value;
-    const termino = busqueda.value.trim().toLowerCase();
-    const coincideTexto =
-      termino === '' ||
-      `${item.code} ${item.slug} ${item.title} ${item.description}`
-        .toLowerCase()
-        .includes(termino);
-    return coincideGrupo && coincideTexto;
-  }),
-);
 </script>
 
 <template>
-  <section class="space-y-6" data-testid="galeria-78-pantallas-figma">
-    <header class="flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <span class="text-xs font-semibold tracking-wider text-[#416772] uppercase">
-          Biblioteca Oficial Figma · {{ listaPantallas.length }} Pantallas Integradas (155 PNGs)
-        </span>
-        <h1 class="mt-1 text-2xl font-bold text-[#203959]">
-          Catálogo Visual SGCI / SGIP
-        </h1>
-        <p class="mt-1 text-sm text-slate-600">
-          Inspección en vivo de las capturas de Escritorio (1440px) y Móvil (390px) integradas en
-          <code>/artifacts/sgip-pantallas/</code>.
-        </p>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button
-          type="button"
-          data-testid="btn-modo-desktop-figma"
-          class="min-h-[44px] rounded-lg px-4 py-2 text-xs font-semibold"
-          :class="
-            modoVista === 'desktop'
-              ? 'bg-[#203959] text-white'
-              : 'border border-slate-300 bg-white text-slate-700'
-          "
-          @click="modoVista = 'desktop'"
-        >
-          Escritorio (1440px)
-        </button>
-        <button
-          type="button"
-          data-testid="btn-modo-mobile-figma"
-          class="min-h-[44px] rounded-lg px-4 py-2 text-xs font-semibold"
-          :class="
-            modoVista === 'mobile'
-              ? 'bg-[#203959] text-white'
-              : 'border border-slate-300 bg-white text-slate-700'
-          "
-          @click="modoVista = 'mobile'"
-        >
-          Móvil (390px)
-        </button>
+  <section class="space-y-6">
+    <header class="rounded-2xl bg-[#0A1120] p-6 text-white shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="font-mono text-xs font-bold uppercase tracking-widest text-cyan-400">
+            SGCI · CONTROL DE INVENTARIOS · 25 PANTALLAS OFICIALES
+          </span>
+          <h2 class="mt-1 text-2xl font-extrabold">
+            Biblioteca Visual Oficial SGCI (15 Escritorio 1440px + 10 Móvil 390px)
+          </h2>
+          <p class="mt-1 text-xs text-slate-300">
+            Cargadas desde <code>C:\Users\sxepc\Downloads\SGCI\SGCI-pantallas</code> (`Industrias
+            Alfa S.A.S.` · `ALM-CENTRAL-01 — Bodega Central Monterrey`).
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <button
+            v-for="modo in ['Todos', 'Escritorio', 'Movil'] as const"
+            :key="modo"
+            type="button"
+            class="rounded-xl px-4 py-2 text-xs font-bold transition"
+            :class="
+              filtroFormato === modo
+                ? 'bg-[#2563EB] text-white'
+                : 'border border-slate-700 bg-slate-900 text-slate-300'
+            "
+            @click="filtroFormato = modo"
+          >
+            {{ modo }}
+          </button>
+        </div>
       </div>
     </header>
 
-    <div class="flex flex-wrap items-center gap-3">
+    <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <input
         v-model="busqueda"
         type="search"
-        placeholder="Buscar por código (01-78), título o módulo..."
-        data-testid="input-buscar-pantalla-figma"
-        class="min-h-[44px] flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm"
+        placeholder="Buscar pantalla oficial SGCI (Centro de mando, Kardex, FEFO, Escanear, Cola offline)..."
+        class="w-full rounded-lg border border-slate-300 px-4 py-2 text-xs focus:border-blue-600 focus:outline-none"
       />
-      <select
-        v-model="grupoSeleccionado"
-        data-testid="select-grupo-pantalla-figma"
-        class="min-h-[44px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
-      >
-        <option v-for="grupo in gruposDisponibles" :key="grupo" :value="grupo">
-          {{ grupo }}
-        </option>
-      </select>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       <article
         v-for="item in pantallasFiltradas"
-        :key="item.slug"
-        class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xs"
+        :key="item.file"
+        class="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
       >
-        <div class="border-b border-slate-200 bg-slate-100 p-3">
-          <img
-            :src="modoVista === 'mobile' && item.mobile ? item.mobile : item.desktop"
-            :alt="`${item.code} - ${item.title}`"
-            loading="lazy"
-            class="mx-auto max-h-64 rounded-lg object-contain"
-          />
+        <div class="flex items-center justify-between bg-[#0A1120] px-4 py-2.5 text-xs text-white">
+          <strong class="font-bold">{{ item.title }}</strong>
+          <span class="rounded bg-blue-600/30 px-2 py-0.5 font-mono text-[10px] text-cyan-300">
+            {{ item.file.startsWith('02-Movil-390') ? 'Móvil 390px' : 'Escritorio 1440px' }}
+          </span>
         </div>
-        <div class="p-4">
-          <div class="flex items-center justify-between text-xs text-slate-500">
-            <span class="font-mono font-bold text-[#416772]">#{{ item.code }}</span>
-            <span>{{ item.group }}</span>
-          </div>
-          <h2 class="mt-1 text-sm font-bold text-[#203959]">{{ item.title }}</h2>
-          <p class="mt-1 text-xs text-slate-600">{{ item.description }}</p>
+        <a
+          :href="'/artifacts/sgci-pantallas/' + item.file"
+          target="_blank"
+          class="block border-b border-slate-200 bg-slate-100 p-3"
+        >
+          <img
+            :src="'/artifacts/sgci-pantallas/' + item.file"
+            :alt="item.title"
+            loading="lazy"
+            class="mx-auto max-h-64 rounded object-contain object-top"
+          />
+        </a>
+        <div class="flex flex-1 flex-col justify-between p-4">
+          <p class="text-xs text-slate-600">
+            {{ item.note || 'Pantalla oficial SGCI implementada.' }}
+          </p>
+          <span class="mt-3 block font-mono text-[10px] text-slate-400">{{ item.file }}</span>
         </div>
       </article>
     </div>

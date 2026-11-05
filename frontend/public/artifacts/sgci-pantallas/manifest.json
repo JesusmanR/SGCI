@@ -1,0 +1,130 @@
+{
+  "screens": [
+    {
+      "file": "01-Escritorio-1440/01-Landing.png",
+      "title": "01 Landing",
+      "note": ""
+    },
+    {
+      "file": "01-Escritorio-1440/02-Demostracion.png",
+      "title": "02 Demostracion",
+      "note": "Captura de la demostración animada, no un archivo de vídeo."
+    },
+    {
+      "file": "01-Escritorio-1440/03-Inicio-de-sesion.png",
+      "title": "03 Inicio de sesion",
+      "note": "Acceso por correo y Google demostrativo, sin OAuth real."
+    },
+    {
+      "file": "01-Escritorio-1440/04-Recuperacion.png",
+      "title": "04 Recuperacion",
+      "note": ""
+    },
+    {
+      "file": "01-Escritorio-1440/05-Confirmacion-de-recuperacion.png",
+      "title": "05 Confirmacion de recuperacion",
+      "note": "Estado demostrativo; no se envía correo real."
+    },
+    {
+      "file": "01-Escritorio-1440/06-Creacion-de-cuenta.png",
+      "title": "06 Creacion de cuenta",
+      "note": ""
+    },
+    {
+      "file": "01-Escritorio-1440/07-Centro-de-mando.png",
+      "title": "07 Centro de mando",
+      "note": ""
+    },
+    {
+      "file": "01-Escritorio-1440/08-Productos-y-ROP.png",
+      "title": "08 Productos y ROP",
+      "note": ""
+    },
+    {
+      "file": "01-Escritorio-1440/09-Almacenes.png",
+      "title": "09 Almacenes",
+      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+    },
+    {
+      "file": "01-Escritorio-1440/10-Libro-Kardex.png",
+      "title": "10 Libro Kardex",
+      "note": ""
+    },
+    {
+      "file": "01-Escritorio-1440/11-Lotes-y-FEFO.png",
+      "title": "11 Lotes y FEFO",
+      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+    },
+    {
+      "file": "01-Escritorio-1440/12-Conteos-y-auditoria.png",
+      "title": "12 Conteos y auditoria",
+      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+    },
+    {
+      "file": "01-Escritorio-1440/13-Abastecimiento.png",
+      "title": "13 Abastecimiento",
+      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+    },
+    {
+      "file": "01-Escritorio-1440/14-Analitica.png",
+      "title": "14 Analitica",
+      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+    },
+    {
+      "file": "01-Escritorio-1440/15-Gobernanza-RBAC.png",
+      "title": "15 Gobernanza RBAC",
+      "note": "Vista general de módulo. El flujo especializado aún no está implementado."
+    },
+    {
+      "file": "02-Movil-390/01-Landing.png",
+      "title": "01 Landing",
+      "note": ""
+    },
+    {
+      "file": "02-Movil-390/02-Demostracion.png",
+      "title": "02 Demostracion",
+      "note": "Captura de la demostración animada, no un archivo de vídeo."
+    },
+    {
+      "file": "02-Movil-390/03-Inicio-de-sesion.png",
+      "title": "03 Inicio de sesion",
+      "note": "Acceso por correo y Google demostrativo, sin OAuth real."
+    },
+    {
+      "file": "02-Movil-390/04-Recuperacion.png",
+      "title": "04 Recuperacion",
+      "note": ""
+    },
+    {
+      "file": "02-Movil-390/05-Confirmacion-de-recuperacion.png",
+      "title": "05 Confirmacion de recuperacion",
+      "note": "Estado demostrativo; no se envía correo real."
+    },
+    {
+      "file": "02-Movil-390/06-Creacion-de-cuenta.png",
+      "title": "06 Creacion de cuenta",
+      "note": ""
+    },
+    {
+      "file": "02-Movil-390/07-Inicio.png",
+      "title": "07 Inicio",
+      "note": ""
+    },
+    {
+      "file": "02-Movil-390/08-Escanear.png",
+      "title": "08 Escanear",
+      "note": ""
+    },
+    {
+      "file": "02-Movil-390/09-Conteos.png",
+      "title": "09 Conteos",
+      "note": ""
+    },
+    {
+      "file": "02-Movil-390/10-Cola-offline.png",
+      "title": "10 Cola offline",
+      "note": "Cola offline simulada, no persistencia IndexedDB real."
+    }
+  ],
+  "errors": []
+}

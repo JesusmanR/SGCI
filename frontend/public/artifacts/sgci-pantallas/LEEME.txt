@@ -1,0 +1,33 @@
+SGCI — PANTALLAS
+
+Exportación de las 25 vistas actualmente implementadas: 15 escritorio y 10 móvil. PNG a escala 1:1. Las capturas de página completa pueden superar 900/844 px de alto.
+
+Abre INDICE.html para recorrer todas las imágenes o abre directamente las carpetas.
+
+Alcance: Almacenes, Lotes/FEFO, Auditoría, Abastecimiento, Analítica y Gobernanza son vistas generales, no pantallas especializadas completas. No existe una pantalla independiente de recepción de orden de compra, ni una pantalla de nueva contraseña por token. Google, envío de correo y cola offline son demostrativos. La demostración es una animación de interfaz; se incluye una captura, no un vídeo.
+
+01-Escritorio-1440/01-Landing.png
+01-Escritorio-1440/02-Demostracion.png — Captura de la demostración animada, no un archivo de vídeo.
+01-Escritorio-1440/03-Inicio-de-sesion.png — Acceso por correo y Google demostrativo, sin OAuth real.
+01-Escritorio-1440/04-Recuperacion.png
+01-Escritorio-1440/05-Confirmacion-de-recuperacion.png — Estado demostrativo; no se envía correo real.
+01-Escritorio-1440/06-Creacion-de-cuenta.png
+01-Escritorio-1440/07-Centro-de-mando.png
+01-Escritorio-1440/08-Productos-y-ROP.png
+01-Escritorio-1440/09-Almacenes.png — Vista general de módulo. El flujo especializado aún no está implementado.
+01-Escritorio-1440/10-Libro-Kardex.png
+01-Escritorio-1440/11-Lotes-y-FEFO.png — Vista general de módulo. El flujo especializado aún no está implementado.
+01-Escritorio-1440/12-Conteos-y-auditoria.png — Vista general de módulo. El flujo especializado aún no está implementado.
+01-Escritorio-1440/13-Abastecimiento.png — Vista general de módulo. El flujo especializado aún no está implementado.
+01-Escritorio-1440/14-Analitica.png — Vista general de módulo. El flujo especializado aún no está implementado.
+01-Escritorio-1440/15-Gobernanza-RBAC.png — Vista general de módulo. El flujo especializado aún no está implementado.
+02-Movil-390/01-Landing.png
+02-Movil-390/02-Demostracion.png — Captura de la demostración animada, no un archivo de vídeo.
+02-Movil-390/03-Inicio-de-sesion.png — Acceso por correo y Google demostrativo, sin OAuth real.
+02-Movil-390/04-Recuperacion.png
+02-Movil-390/05-Confirmacion-de-recuperacion.png — Estado demostrativo; no se envía correo real.
+02-Movil-390/06-Creacion-de-cuenta.png
+02-Movil-390/07-Inicio.png
+02-Movil-390/08-Escanear.png
+02-Movil-390/09-Conteos.png
+02-Movil-390/10-Cola-offline.png — Cola offline simulada, no persistencia IndexedDB real.
