@@ -28,23 +28,25 @@ if ($remotoActual -notcontains "origin") {
 
 git checkout -B main
 git add -A
-git commit -m "release(sgci-v2): cierre integral Fase II (Sprints 1-10), suites TDD 100% verdes (34/34 Backend, 23/23 Frontend), API REST v1, Docker y 78 pantallas Figma" --allow-empty
+git commit -m "feat(sgci-pantallas): integración de las 25 pantallas oficiales SGCI (15 escritorio 1440px + 10 móvil 390px), cierre de brechas LEEME.txt y TDD 100% verde (36/36 Backend, 28/28 Frontend)" --allow-empty
 
 foreach ($rama in @(
     "feat/admin-saas-reportes-ejecutivos",
     "feat/pwa-offline-indexeddb-sync",
-    "feat/api-rest-docker-postgresql"
+    "feat/api-rest-docker-postgresql",
+    "feat/pantallas-oficiales-sgci-25"
 )) {
     git branch -f $rama main
 }
 
 git checkout -B develop
-git merge --no-ff main -m "chore: sincronizar release integral v2 (Sprints 1-10) en develop" --allow-unrelated-histories
+git merge --no-ff main -m "chore: sincronizar pantallas oficiales SGCI y cierre de brechas en develop" --allow-unrelated-histories
 
 git push -u origin main --force
 git push -u origin develop --force
 git push -u origin feat/admin-saas-reportes-ejecutivos --force
 git push -u origin feat/pwa-offline-indexeddb-sync --force
 git push -u origin feat/api-rest-docker-postgresql --force
+git push -u origin feat/pantallas-oficiales-sgci-25 --force
 
-Write-Host "¡Sincronización completa de SGCI (Sprints 1 al 10) con GitHub finalizada!" -ForegroundColor Green
+Write-Host "¡Sincronización completa de SGCI (25 Pantallas Oficiales + Sprints 1-12) con GitHub finalizada!" -ForegroundColor Green

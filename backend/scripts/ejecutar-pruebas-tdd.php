@@ -235,6 +235,7 @@ namespace {
         \Tests\Feature\Modulos\Tenants\GobernanzaSaasReportesTest::class,
         \Tests\Feature\Modulos\AuditoriaConteos\SincronizacionOfflinePwaTest::class,
         \Tests\Feature\Modulos\Compartido\OperacionesApiV1Test::class,
+        \Tests\Feature\Modulos\Autenticacion\RestablecerContrasenaTokenTest::class,
     ];
 
     $totalPruebas = 0;
