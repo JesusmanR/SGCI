@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  sgci-postgres:
+    image: postgres:16-alpine
+    container_name: sgci-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sgci_multitenant
+      POSTGRES_USER: sgci_user
+      POSTGRES_PASSWORD: sgci_secret_password
+    ports:
+      - '5432:5432'
+    volumes:
+      - sgci_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sgci_user -d sgci_multitenant']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  sgci-redis:
+    image: redis:7-alpine
+    container_name: sgci-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+
+  sgci-frontend:
+    image: node:20-alpine
+    container_name: sgci-frontend
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: node scripts/servidor-sgci.mjs
+    ports:
+      - '4173:4173'
+    environment:
+      PORT: 4173
+    depends_on:
+      - sgci-postgres
+      - sgci-redis
+
+volumes:
+  sgci_pgdata:

@@ -81,9 +81,6 @@ export const useAuditoriaConteosStore = defineStore('auditoriaConteos', () => {
   const movimientosAjuste = ref<MovimientoAjusteKardex[]>([]);
   const avisoConfirmacionReciente = ref<string | null>(null);
 
-  /**
-   * Filtra los productos pertenecientes exclusivamente al tenant y almacén activo.
-   */
   const productosDelTenant = computed<ProductoInventarioAjustable[]>(() =>
     productosCatalogo.value.filter(
       (prod) =>
@@ -93,9 +90,6 @@ export const useAuditoriaConteosStore = defineStore('auditoriaConteos', () => {
     ),
   );
 
-  /**
-   * Filtra los ajustes registrados en la sesión para el tenant y almacén activo.
-   */
   const movimientosDelTenant = computed<MovimientoAjusteKardex[]>(() =>
     movimientosAjuste.value.filter(
       (mov) =>
@@ -105,21 +99,12 @@ export const useAuditoriaConteosStore = defineStore('auditoriaConteos', () => {
     ),
   );
 
-  /**
-   * KPI 1 (Pantalla Figma 42): "Unidades disponibles" (Existencias actuales · Bodega principal).
-   */
   const totalUnidadesDisponibles = computed<number>(() =>
     productosDelTenant.value.reduce((acc, prod) => acc + prod.stockActual, 0),
   );
 
-  /**
-   * KPI 2 (Pantalla Figma 42): "Movimientos registrados" (Ajustes, recepciones y ventas de esta sesión).
-   */
   const totalMovimientosRegistrados = computed<number>(() => movimientosDelTenant.value.length);
 
-  /**
-   * KPI 3 (Pantalla Figma 42): "Productos con stock bajo" (Por debajo del mínimo configurado).
-   */
   const totalProductosStockBajo = computed<number>(() =>
     productosDelTenant.value.filter((prod) => prod.stockActual <= prod.stockMinimo).length,
   );
@@ -131,7 +116,7 @@ export const useAuditoriaConteosStore = defineStore('auditoriaConteos', () => {
   }
 
   function cargarProductosIniciales(productos: ProductoInventarioAjustable[]): void {
-    productosCatalogo.value = [...productos];
+    productosCatalogo.value = productos.map((prod) => ({ ...prod }));
   }
 
   function resolverTipoMovimientoKardex(
@@ -147,14 +132,6 @@ export const useAuditoriaConteosStore = defineStore('auditoriaConteos', () => {
     return 'AJUSTE_NEGATIVO';
   }
 
-  /**
-   * Registra un ajuste de existencias validando invariantes de negocio:
-   * 1. Aislamiento estricto por tenant_id.
-   * 2. Cantidad real contada >= 0.
-   * 3. Variación distinta de 0.
-   * 4. Si el motivo es "Otro", la observación es obligatoria (Pantalla Figma 43/44).
-   * 5. Segregación de funciones (doble firma) en discrepancias críticas.
-   */
   function registrarAjusteExistencias(
     solicitud: SolicitudAjusteExistencias,
   ): MovimientoAjusteKardex {
@@ -246,8 +223,6 @@ export const useAuditoriaConteosStore = defineStore('auditoriaConteos', () => {
     };
 
     movimientosAjuste.value = [nuevoMovimiento, ...movimientosAjuste.value];
-
-    // Mensaje exacto de confirmación de la Pantalla Figma 45-ajuste-confirmado
     avisoConfirmacionReciente.value = `Ajuste registrado: ${producto.nombre} ahora tiene ${solicitud.cantidadRealContada} unidades.`;
 
     return nuevoMovimiento;

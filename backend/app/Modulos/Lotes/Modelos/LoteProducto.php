@@ -73,7 +73,9 @@ class LoteProducto extends ModeloBaseTenant
             ? DateTimeImmutable::createFromInterface($fechaReferencia)->setTime(0, 0, 0)
             : new DateTimeImmutable('today');
 
-        $vencimiento = DateTimeImmutable::createFromInterface($this->fecha_vencimiento)->setTime(0, 0, 0);
+        $vencimiento = $this->fecha_vencimiento instanceof DateTimeInterface
+            ? DateTimeImmutable::createFromInterface($this->fecha_vencimiento)->setTime(0, 0, 0)
+            : (new DateTimeImmutable((string) $this->fecha_vencimiento))->setTime(0, 0, 0);
         $diferencia = $referencia->diff($vencimiento);
 
         return (int) $diferencia->format('%r%a');

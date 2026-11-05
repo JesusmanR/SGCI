@@ -8,19 +8,12 @@ use App\Compartido\Modelos\ModeloBaseTenant;
 use App\Modulos\Compras\DTOs\RecepcionMercaderiaMuelleDTO;
 use App\Modulos\Kardex\DTOs\RegistrarMovimientoDTO;
 use App\Modulos\Kardex\Estrategias\EstrategiaValoracionInterface;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use RuntimeException;
 
 /**
  * Caso de uso para el Cotejo y Recepción Física de Orden de Compra en Muelle (`feat/abastecimiento-recepcion`).
- *
- * Responsabilidades:
- * 1. Verificar aislamiento Multi-Tenant (`tenant_id`) y estado válido de la Orden de Compra (`APROBADA`, `ENVIADA`, `RECIBIDA_PARCIAL`).
- * 2. Impedir sobreentregas no autorizadas (`cantidad_recibida_acumulada > cantidad_solicitada`).
- * 3. Levantar automáticamente el **Acta de Discrepancia en Muelle** cuando existan unidades averiadas/rechazadas,
- *    entregas parciales (faltantes) o diferencias de costo entre Orden de Compra y Factura.
- * 4. Generar automáticamente los movimientos inmutables `ENTRADA_COMPRA` en el Libro Mayor de Kardex
- *    únicamente por las unidades recibidas conformes, recalculando el costo unitario según la estrategia activa (`PEPS` / `CPP`).
  */
 final class ProcesarRecepcionOrdenCompraAction
 {
@@ -30,33 +23,9 @@ final class ProcesarRecepcionOrdenCompraAction
     }
 
     /**
-     * Ejecuta el cotejo de recepción contra el estado actual de la Orden de Compra y los saldos de almacén.
-     *
-     * @param array{
-     *     id: string,
-     *     tenant_id: string,
-     *     numero_orden: string,
-     *     warehouse_id: string,
-     *     estado: string,
-     *     renglones: array<string, array{
-     *         product_id: string,
-     *         sku: string,
-     *         cantidad_solicitada: float,
-     *         cantidad_recibida_previa: float,
-     *         precio_unitario_pactado: float
-     *     }>
-     * } $estadoOrdenCompra
+     * @param array<string, mixed> $estadoOrdenCompra
      * @param array<string, array{cantidad_actual: float, costo_unitario_actual: float}> $saldosAlmacenPorProducto
-     * @return array{
-     *     purchase_order_id: string,
-     *     numero_orden: string,
-     *     nuevo_estado_orden: string,
-     *     tiene_discrepancias: bool,
-     *     acta_discrepancias: array<int, array<string, mixed>>,
-     *     asientos_kardex_generados: array<int, array<string, mixed>>,
-     *     saldos_almacen_actualizados: array<string, array{cantidad_actual: float, costo_unitario_actual: float, valor_total: float}>,
-     *     renglones_orden_actualizados: array<string, array<string, mixed>>
-     * }
+     * @return array<string, mixed>
      */
     public function ejecutar(
         RecepcionMercaderiaMuelleDTO $dto,
@@ -122,7 +91,6 @@ final class ProcesarRecepcionOrdenCompraAction
                 ? round((float) $renglonMuelle['precio_unitario_factura'], 4)
                 : $precioPactado;
 
-            // 1. Detectar discrepancias de calidad (averías en muelle)
             if ($averiada > 0.0) {
                 $actaDiscrepancias[] = [
                     'tipo' => 'AVERIA_MUELLE',
@@ -133,7 +101,6 @@ final class ProcesarRecepcionOrdenCompraAction
                 ];
             }
 
-            // 2. Detectar discrepancias de precio entre OC y Factura
             if (abs($precioFactura - $precioPactado) > 0.0001) {
                 $actaDiscrepancias[] = [
                     'tipo' => 'DIFERENCIA_PRECIO',
@@ -161,7 +128,6 @@ final class ProcesarRecepcionOrdenCompraAction
             $renglonesOrden[$productoId]['cantidad_recibida_previa'] = $nuevaRecibidaAcumulada;
             $renglonesOrden[$productoId]['cantidad_pendiente'] = $pendienteRestante;
 
-            // 3. Generar movimiento inmutable ENTRADA_COMPRA en Kardex solo para unidades conformes
             if ($conforme > 0.0) {
                 $saldoPrevio = $saldosActualizados[$productoId] ?? [
                     'cantidad_actual' => 0.0,
@@ -169,23 +135,24 @@ final class ProcesarRecepcionOrdenCompraAction
                 ];
 
                 $movimientoDto = new RegistrarMovimientoDTO(
-                    tenantId: $tenantActual,
-                    productoId: $productoId,
-                    almacenId: $dto->warehouseId,
-                    tipoMovimiento: 'ENTRADA_COMPRA',
+                    id: (string) Str::uuid(),
+                    tenant_id: $tenantActual,
+                    almacen_id: $dto->warehouseId,
+                    producto_id: $productoId,
+                    lote_id: $renglonMuelle['numero_lote'] ?? null,
+                    tipo_movimiento: 'ENTRADA_COMPRA',
                     cantidad: $conforme,
-                    costoUnitario: $precioFactura,
-                    referenciaDocumento: sprintf('%s / %s', $dto->numeroOrden, $dto->referenciaRemisionProveedor),
-                    motivo: 'Recepción verificada de Orden de Compra en muelle',
-                    usuarioId: $dto->usuarioReceptorId,
-                    loteId: $renglonMuelle['numero_lote'] ?? null,
+                    costo_unitario: $precioFactura,
+                    referencia_documento: sprintf('%s / %s', $dto->numeroOrden, $dto->referenciaRemisionProveedor),
+                    observacion: 'Recepción verificada de Orden de Compra en muelle',
+                    created_by: $dto->usuarioReceptorId,
                 );
 
                 $calculoValoracion = $this->estrategiaValoracion->calcularEntrada(
                     cantidadActual: (float) $saldoPrevio['cantidad_actual'],
                     costoUnitarioActual: (float) $saldoPrevio['costo_unitario_actual'],
                     cantidadEntrada: $movimientoDto->cantidad,
-                    costoUnitarioEntrada: $movimientoDto->costoUnitario
+                    costoUnitarioEntrada: $movimientoDto->costo_unitario
                 );
 
                 $saldosActualizados[$productoId] = [
@@ -199,22 +166,21 @@ final class ProcesarRecepcionOrdenCompraAction
                     'warehouse_id' => $dto->warehouseId,
                     'product_id' => $productoId,
                     'sku' => $sku,
-                    'lot_id' => $movimientoDto->loteId,
+                    'lot_id' => $movimientoDto->lote_id,
                     'tipo_movimiento' => 'ENTRADA_COMPRA',
-                    'referencia_documento' => $movimientoDto->referenciaDocumento,
+                    'referencia_documento' => $movimientoDto->referencia_documento,
                     'cantidad' => $conforme,
                     'costo_unitario' => $precioFactura,
                     'costo_total' => round($conforme * $precioFactura, 4),
                     'saldo_cantidad' => $calculoValoracion['saldo_cantidad'],
                     'saldo_costo_unitario' => $calculoValoracion['saldo_costo_unitario'],
                     'saldo_valor_total' => $calculoValoracion['saldo_valor_total'],
-                    'metodo_valoracion' => $this->estrategiaValoracion->obtenerNombreMetodo(),
+                    'metodo_valoracion' => $this->estrategiaValoracion->obtenerNombre(),
                     'created_by' => $dto->usuarioReceptorId,
                 ];
             }
         }
 
-        // Determinar nuevo estado de la Orden de Compra
         $todosCompletos = true;
         $algunoRecibido = false;
 

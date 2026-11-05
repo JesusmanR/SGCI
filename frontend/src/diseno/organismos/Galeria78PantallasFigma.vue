@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 export interface PantallaFigmaItem {
   code: string;
@@ -13,6 +13,7 @@ export interface PantallaFigmaItem {
 
 interface Props {
   pantallas?: PantallaFigmaItem[];
+  cargarManifestAutomatico?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -90,19 +91,50 @@ const props = withDefaults(defineProps<Props>(), {
       mobile: '/artifacts/sgip-pantallas/movil/78-inventario-sin-movimientos.png',
     },
   ],
+  cargarManifestAutomatico: true,
 });
 
+const listaPantallas = ref<PantallaFigmaItem[]>([...props.pantallas]);
 const modoVista = ref<'desktop' | 'mobile'>('desktop');
 const busqueda = ref<string>('');
 const grupoSeleccionado = ref<string>('Todos');
 
+onMounted(async () => {
+  if (!props.cargarManifestAutomatico || typeof fetch === 'undefined') return;
+  try {
+    const resp = await fetch('/artifacts/sgip-pantallas/manifest.json');
+    if (!resp.ok) return;
+    const data = (await resp.json()) as { screens?: any[] };
+    if (Array.isArray(data.screens) && data.screens.length > 0) {
+      listaPantallas.value = data.screens.map((s: any) => {
+        const idStr = String(s.id || s.slug || '');
+        const codeStr = String(s.code || (idStr.includes('-') ? idStr.split('-')[0] : idStr));
+        const desktopFile = s.images?.escritorio?.file || s.desktop || '';
+        const mobileFile = s.images?.movil?.file || s.mobile || null;
+
+        return {
+          code: codeStr,
+          slug: idStr,
+          group: s.group || 'General',
+          title: s.title || idStr,
+          description: s.description || s.title || '',
+          desktop: desktopFile.startsWith('/') ? desktopFile : `/artifacts/sgip-pantallas/${desktopFile}`,
+          mobile: mobileFile ? (mobileFile.startsWith('/') ? mobileFile : `/artifacts/sgip-pantallas/${mobileFile}`) : null,
+        };
+      });
+    }
+  } catch {
+    // Mantiene la lista inicial si se ejecuta en entorno de pruebas sin servidor estático
+  }
+});
+
 const gruposDisponibles = computed<string[]>(() => {
-  const unicos = new Set<string>(props.pantallas.map((p) => p.group));
+  const unicos = new Set<string>(listaPantallas.value.map((p) => p.group));
   return ['Todos', ...Array.from(unicos)];
 });
 
 const pantallasFiltradas = computed<PantallaFigmaItem[]>(() =>
-  props.pantallas.filter((item) => {
+  listaPantallas.value.filter((item) => {
     const coincideGrupo =
       grupoSeleccionado.value === 'Todos' || item.group === grupoSeleccionado.value;
     const termino = busqueda.value.trim().toLowerCase();
@@ -121,7 +153,7 @@ const pantallasFiltradas = computed<PantallaFigmaItem[]>(() =>
     <header class="flex flex-wrap items-center justify-between gap-4">
       <div>
         <span class="text-xs font-semibold tracking-wider text-[#416772] uppercase">
-          Biblioteca Oficial Figma · 78 Pantallas (155 PNGs)
+          Biblioteca Oficial Figma · {{ listaPantallas.length }} Pantallas Integradas (155 PNGs)
         </span>
         <h1 class="mt-1 text-2xl font-bold text-[#203959]">
           Catálogo Visual SGCI / SGIP

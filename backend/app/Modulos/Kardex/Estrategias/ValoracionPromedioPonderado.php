@@ -10,10 +10,6 @@ use InvalidArgumentException;
 /**
  * Implementación del Patrón Strategy para el método de valoración
  * Costo Promedio Ponderado (CPP).
- *
- * Fórmula:
- * Costo Promedio Ponderado = Saldo Total Monetario / Saldo Total Unidades
- * Costo Salida = Cantidad a Salir * Costo Promedio Ponderado
  */
 final class ValoracionPromedioPonderado implements EstrategiaValoracionInterface
 {
@@ -22,6 +18,37 @@ final class ValoracionPromedioPonderado implements EstrategiaValoracionInterface
     public function obtenerNombre(): string
     {
         return self::NOMBRE;
+    }
+
+    public function obtenerNombreMetodo(): string
+    {
+        return self::NOMBRE;
+    }
+
+    /**
+     * Calcula el nuevo saldo y costo unitario promedio ponderado tras una entrada de mercadería.
+     *
+     * @return array{saldo_cantidad: float, saldo_costo_unitario: float, saldo_valor_total: float}
+     */
+    public function calcularEntrada(
+        float $cantidadActual,
+        float $costoUnitarioActual,
+        float $cantidadEntrada,
+        float $costoUnitarioEntrada
+    ): array {
+        $valorPrevio = $cantidadActual * $costoUnitarioActual;
+        $valorEntrada = $cantidadEntrada * $costoUnitarioEntrada;
+        $nuevoSaldoCantidad = round($cantidadActual + $cantidadEntrada, 4);
+        $nuevoValorTotal = round($valorPrevio + $valorEntrada, 4);
+        $nuevoCostoUnitario = $nuevoSaldoCantidad > 0.0
+            ? round($nuevoValorTotal / $nuevoSaldoCantidad, 4)
+            : 0.0;
+
+        return [
+            'saldo_cantidad' => $nuevoSaldoCantidad,
+            'saldo_costo_unitario' => $nuevoCostoUnitario,
+            'saldo_valor_total' => $nuevoValorTotal,
+        ];
     }
 
     /**
@@ -99,13 +126,14 @@ final class ValoracionPromedioPonderado implements EstrategiaValoracionInterface
         string $almacenId,
         string $productoId
     ): float {
-        $resultado = DB::table('existencias_almacen')
+        $existencia = DB::table('existencias_almacen')
             ->where('tenant_id', '=', $tenantId)
             ->where('almacen_id', '=', $almacenId)
             ->where('producto_id', '=', $productoId)
             ->whereNull('deleted_at')
-            ->sum('valor_total');
+            ->select(DB::raw('COALESCE(SUM(valor_total), 0) as total_valorizado'))
+            ->first();
 
-        return round((float) $resultado, 4);
+        return round((float) ($existencia->total_valorizado ?? 0.0), 4);
     }
 }

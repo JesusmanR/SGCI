@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --aurora-midnight: #203959;
+  --aurora-teal: #416772;
+  --aurora-sage: #96ada5;
+  --aurora-silver: #abb7b3;
+  --aurora-jade: #839492;
+}

@@ -14,11 +14,6 @@ use InvalidArgumentException;
  */
 final class CalculadoraPreciosImpuestosService
 {
-    /**
-     * Calcula el precio sugerido antes de impuestos según la regla activa:
-     * - markup (Recargo sobre el costo): Costo * (1 + porcentaje / 100)
-     * - margin (Margen sobre la venta): Costo / (1 - porcentaje / 100)
-     */
     public function calcularPrecioSugeridoSinIva(float $costoCompra, ReglaGananciaImpuestoDTO $regla): float
     {
         if ($costoCompra < 0) {
@@ -35,8 +30,6 @@ final class CalculadoraPreciosImpuestosService
     }
 
     /**
-     * Genera el desglose exacto del panel lateral "ASÍ SE CALCULA" (Pantallas Figma 46 y 47).
-     *
      * @return array{
      *   costo_compra: float,
      *   ganancia_valor: float,
@@ -62,21 +55,8 @@ final class CalculadoraPreciosImpuestosService
     }
 
     /**
-     * Analiza un archivo CSV con columnas SKU, Costo y Precio (soporta coma o punto y coma).
-     * Replica las validaciones exactas de la Pantalla Figma 51-revision-csv.
-     *
      * @param array<string, array{sku: string, nombre: string, costo: float, precio: float, tenant_id: string}> $catalogoActualPorSku
-     * @return list<array{
-     *   sku: string,
-     *   nombre: string,
-     *   costo_anterior: float,
-     *   nuevo_costo: float,
-     *   precio_actual: float,
-     *   nuevo_precio: float,
-     *   variacion_precio: float,
-     *   margen_porcentaje: float,
-     *   bajo_costo: bool
-     * }>
+     * @return list<array<string, mixed>>
      */
     public function procesarImportacionCsv(
         string $contenidoCsv,
@@ -98,7 +78,7 @@ final class CalculadoraPreciosImpuestosService
 
         $cabeceras = array_map(
             static fn (string $col): string => mb_strtolower(trim($col)),
-            str_getcsv($primeraLinea, $separador)
+            str_getcsv($primeraLinea, $separador, '"', '')
         );
 
         $idxSku = array_search('sku', $cabeceras, true);
@@ -120,7 +100,7 @@ final class CalculadoraPreciosImpuestosService
                 continue;
             }
 
-            $columnas = str_getcsv($linea, $separador);
+            $columnas = str_getcsv($linea, $separador, '"', '');
             $numeroFila = $i + 1;
             $sku = trim((string) ($columnas[$idxSku] ?? ''));
 
@@ -130,7 +110,7 @@ final class CalculadoraPreciosImpuestosService
 
             $producto = $catalogoActualPorSku[$sku];
             if ($producto['tenant_id'] !== $tenantId) {
-                throw new DomainException(" Violación Multi-Tenant en fila {$numeroFila}: el SKU {$sku} pertenece a otro inquilino.");
+                throw new DomainException("Violación Multi-Tenant en fila {$numeroFila}: el SKU {$sku} pertenece a otro inquilino.");
             }
 
             if (isset($skusVistos[$sku])) {
@@ -181,9 +161,6 @@ final class CalculadoraPreciosImpuestosService
     }
 
     /**
-     * Aplica los cambios de precios validando la confirmación explícita cuando existen
-     * precios por debajo del costo (Pantalla Figma 77-confirmar-bajo-costo).
-     *
      * @param list<array{sku: string, nuevo_costo: float, nuevo_precio: float, bajo_costo: bool}> $cambiosPropuestos
      * @return array{actualizados: int, mensaje: string}
      */
