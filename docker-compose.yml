@@ -1,5 +1,10 @@
 version: '3.9'
 
+networks:
+  sgci-internal-net:
+    driver: bridge
+    name: sgci-internal-net
+
 services:
   sgci-postgres:
     image: postgres:16-alpine
@@ -10,9 +15,12 @@ services:
       POSTGRES_USER: sgci_user
       POSTGRES_PASSWORD: sgci_secret_password
     ports:
-      - '5432:5432'
+      # Aislamiento de red: enlace exclusivo a loopback local (127.0.0.1) para evitar exposición pública
+      - '127.0.0.1:5432:5432'
     volumes:
       - sgci_pgdata:/var/lib/postgresql/data
+    networks:
+      - sgci-internal-net
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U sgci_user -d sgci_multitenant']
       interval: 10s
@@ -24,7 +32,10 @@ services:
     container_name: sgci-redis
     restart: unless-stopped
     ports:
-      - '6379:6379'
+      # Aislamiento de red: enlace exclusivo a loopback local (127.0.0.1) para evitar exposición pública
+      - '127.0.0.1:6379:6379'
+    networks:
+      - sgci-internal-net
 
   sgci-frontend:
     image: node:20-alpine
@@ -37,9 +48,12 @@ services:
       - '4173:4173'
     environment:
       PORT: 4173
+    networks:
+      - sgci-internal-net
     depends_on:
       - sgci-postgres
       - sgci-redis
 
 volumes:
   sgci_pgdata:
+

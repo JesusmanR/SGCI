@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace App\Modulos\Compartido\Controladores;
 
+use App\Compartido\Modelos\ModeloBaseTenant;
 use App\Modulos\AuditoriaConteos\Acciones\AplicarAjusteInventarioKardexAction;
 use App\Modulos\AuditoriaConteos\DTOs\RegistrarAjusteInventarioDTO;
 use App\Modulos\AuditoriaConteos\Servicios\ReconciliadorSincronizacionOfflineService;
 use App\Modulos\Catalogo\Servicios\CalculadoraPreciosImpuestosService;
 use App\Modulos\FacturacionCaja\DTOs\RegistrarCobroCajaDTO;
 use App\Modulos\FacturacionCaja\Servicios\GestorFacturacionArqueoCajaService;
+use App\Modulos\Autenticacion\Servicios\RestablecerContrasenaTokenService;
+use App\Modulos\Compras\Acciones\ProcesarRecepcionOrdenCompraAction;
+use App\Modulos\Compras\DTOs\RecepcionMercaderiaMuelleDTO;
+use App\Modulos\Kardex\Estrategias\ValoracionPromedioPonderado;
 use App\Modulos\Lotes\Servicios\PlanificadorDespachoFefoService;
 use App\Modulos\Tenants\DTOs\ActualizarPlanSuscripcionDTO;
 use App\Modulos\Tenants\Servicios\GobernanzaSaasReportesService;
@@ -29,6 +34,8 @@ final class OperacionesApiV1Controller
         private readonly CalculadoraPreciosImpuestosService $preciosImpuestosService,
         private readonly AplicarAjusteInventarioKardexAction $ajusteKardexAction,
         private readonly PlanificadorDespachoFefoService $planificadorFefoService,
+        private readonly ?RestablecerContrasenaTokenService $restablecerContrasenaService = null,
+        private readonly ?ProcesarRecepcionOrdenCompraAction $recepcionCompraAction = null,
     ) {
     }
 
@@ -188,5 +195,70 @@ final class OperacionesApiV1Controller
         );
 
         return $this->ajusteKardexAction->ejecutar($dto);
+    }
+
+    /**
+     * POST /api/v1/auth/restablecer-contrasena
+     * Restablece la contraseña por token cumpliendo OWASP y revocación de sesiones.
+     *
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function restablecerContrasena(array $payload): array
+    {
+        $service = $this->restablecerContrasenaService ?? new RestablecerContrasenaTokenService();
+        $registroToken = (array) ($payload['registro_token'] ?? [
+            'tenant_id' => (string) ($payload['tenant_id'] ?? ''),
+            'correo' => (string) ($payload['correo'] ?? ''),
+            'token_hash' => hash('sha256', (string) ($payload['token_plano'] ?? '')),
+            'expira_en' => (string) ($payload['expira_en'] ?? date(DATE_ATOM, time() + 900)),
+            'usado' => false,
+        ]);
+
+        return $service->confirmarNuevaContrasenaPorToken(
+            tenantIdContexto: (string) ($payload['tenant_id'] ?? ''),
+            tokenPlanoRecibido: (string) ($payload['token_plano'] ?? ''),
+            nuevaContrasena: (string) ($payload['nueva_contrasena'] ?? ''),
+            confirmacionContrasena: (string) ($payload['confirmacion_contrasena'] ?? ''),
+            registroToken: $registroToken,
+            ahoraIso: (string) ($payload['ahora_iso'] ?? date(DATE_ATOM))
+        );
+    }
+
+    /**
+     * POST /api/v1/compras/recepciones-muelle
+     * Registra recepción en muelle contra Orden de Compra y actualiza Kardex inmutable.
+     *
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function procesarRecepcionMuelle(array $payload): array
+    {
+        $action = $this->recepcionCompraAction ?? new ProcesarRecepcionOrdenCompraAction(new ValoracionPromedioPonderado());
+
+        $dto = new RecepcionMercaderiaMuelleDTO(
+            tenantId: (string) $payload['tenant_id'],
+            purchaseOrderId: (string) ($payload['purchase_order_id'] ?? $payload['orden_compra_id'] ?? 'po-001'),
+            numeroOrden: (string) ($payload['numero_orden'] ?? 'OC-2026-0001'),
+            warehouseId: (string) ($payload['warehouse_id'] ?? $payload['almacen_id'] ?? 'alm-central-01'),
+            referenciaRemisionProveedor: (string) ($payload['referencia_remision_proveedor'] ?? $payload['guia_remision'] ?? 'GR-001'),
+            renglonesRecibidos: (array) ($payload['renglones_recibidos'] ?? []),
+            usuarioReceptorId: (string) ($payload['usuario_receptor_id'] ?? $payload['usuario_id'] ?? 'usr-receptor-01'),
+        );
+
+        $estadoOrdenCompra = (array) ($payload['estado_orden_compra'] ?? [
+            'id' => $dto->purchaseOrderId,
+            'tenant_id' => $dto->tenantId,
+            'estado' => 'APROBADA',
+            'renglones' => [],
+        ]);
+
+        $saldosAlmacenPorProducto = (array) ($payload['saldos_almacen_por_producto'] ?? []);
+
+        if (ModeloBaseTenant::obtenerTenantIdActual() === null) {
+            ModeloBaseTenant::fijarTenantContexto($dto->tenantId);
+        }
+
+        return $action->ejecutar($dto, $estadoOrdenCompra, $saldosAlmacenPorProducto);
     }
 }

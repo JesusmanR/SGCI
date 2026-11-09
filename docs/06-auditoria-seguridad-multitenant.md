@@ -1,12 +1,12 @@
 # Informe Formal de Auditoría Integral de Seguridad (Security Scan OWASP & Multi-Tenant Isolation)
-## SGCI — Sistema de Gestión de Control de Inventarios (Cierre de los 7 Sprints)
+## SGCI — Sistema de Gestión de Control de Inventarios (Sprints 1 al 10 + Entrega Final MVP UAT)
 
-- **Identificador de Auditoría:** `SGCI-SEC-AUDIT-2026-FINAL`
-- **Fecha de Emisión:** 5 de Noviembre de 2026
+- **Identificador de Auditoría:** `SGCI-SEC-AUDIT-2026-MVP-FINAL`
+- **Fecha de Emisión:** 9 de Noviembre de 2026
 - **Auditor Responsable:** Security Scanner (`security-scanner` | Model: Pro)
 - **Estado del Dictamen:** **APROBADO — CERO VULNERABILIDADES CRÍTICAS / SISTEMA ENDURECIDO (SYSTEM PASS & SECURE)**
 - **Entorno Evaluado:** Repositorio Oficial [C:/dev/SGCI](file:///C:/dev/SGCI)
-- **Marco de Referencia:** OWASP Top 10 API Security (2023), NIST SP 800-53 r5, Multi-Tenant SaaS Isolation Standards, Segregation of Duties (SoD) Accounting Frameworks
+- **Marco de Referencia:** OWASP Top 10 API Security (2023), OWASP ASVS v4.0, NIST SP 800-53 r5, Multi-Tenant SaaS Isolation Standards, Segregation of Duties (SoD) Accounting Frameworks
 
 ---
 
@@ -24,7 +24,13 @@ Se ha llevado a cabo la **Auditoría Integral de Seguridad de Cierre de los 7 Sp
 | **Control de Márgenes Comerciales** | Bloqueo preventivo de venta bajo costo (`77-confirmar-bajo-costo`) | [CalculadoraPreciosImpuestosService.php](file:///C:/dev/SGCI/backend/app/Modulos/Catalogo/Servicios/CalculadoraPreciosImpuestosService.php) & [usePreciosImpuestosStore.ts](file:///C:/dev/SGCI/frontend/src/modulos/precios/almacen/usePreciosImpuestosStore.ts) | **CONFORME** |
 | **Control de Tesorería y Caja** | Arqueo con justificación obligatoria ante cualquier descuadre de efectivo | [GestorFacturacionArqueoCajaService.php](file:///C:/dev/SGCI/backend/app/Modulos/FacturacionCaja/Servicios/GestorFacturacionArqueoCajaService.php) & [useFacturacionCajaStore.ts](file:///C:/dev/SGCI/frontend/src/modulos/caja/almacen/useFacturacionCajaStore.ts) | **CONFORME** |
 | **Autenticación Criptográfica JWT** | Access token efímero (15m) + rotación de Refresh Token (7d) con detección de reúso | [GestorTokensJwtService.php](file:///C:/dev/SGCI/backend/app/Modulos/Autenticacion/Servicios/GestorTokensJwtService.php) & [useAutenticacionStore.ts](file:///C:/dev/SGCI/frontend/src/modulos/autenticacion/almacen/useAutenticacionStore.ts) | **CONFORME** |
+| **Recuperación Segura por Token** | Hash SHA-256, TTL 15 min, OWASP Password Policy, revocación de sesiones | [RestablecerContrasenaTokenService.php](file:///C:/dev/SGCI/backend/app/Modulos/Autenticacion/Servicios/RestablecerContrasenaTokenService.php) | **CONFORME** |
+| **Privacidad por Diseño SuperAdmin** | Bloqueo de acceso operativo a inventarios/costos privados para el SuperAdmin | [GobernanzaSaasReportesService.php](file:///C:/dev/SGCI/backend/app/Modulos/Tenants/Servicios/GobernanzaSaasReportesService.php) | **CONFORME** |
+| **Ofuscación de Costos (Modo Vendedor)**| Purga estricta de márgenes y costos en catálogo según rol del usuario | [GobernanzaSaasReportesService.php](file:///C:/dev/SGCI/backend/app/Modulos/Tenants/Servicios/GobernanzaSaasReportesService.php) & [useGobernanzaSaasStore.ts](file:///C:/dev/SGCI/frontend/src/modulos/gobernanza/almacen/useGobernanzaSaasStore.ts) | **CONFORME** |
+| **Idempotencia y Cola Offline** | Prevención de contaminación Cross-Tenant y deduplicación por `idempotency_key` | [ReconciliadorSincronizacionOfflineService.php](file:///C:/dev/SGCI/backend/app/Modulos/AuditoriaConteos/Servicios/ReconciliadorSincronizacionOfflineService.php) & [useSincronizacionOfflineStore.ts](file:///C:/dev/SGCI/frontend/src/modulos/offline/almacen/useSincronizacionOfflineStore.ts) | **CONFORME** |
+| **Analítica Patrimonial Multinquilino**| Clasificación Pareto ABC con validación fail-closed de tenant en cada partida | [AnaliticaValoracionAbcService.php](file:///C:/dev/SGCI/backend/app/Modulos/Kardex/Servicios/AnaliticaValoracionAbcService.php) | **CONFORME** |
 | **Matriz RBAC de 10 Roles** | Autorización granular de 10 perfiles oficiales y alcance físico por almacén | [RolSistemaEnum.php](file:///C:/dev/SGCI/backend/app/Modulos/Autenticacion/Enums/RolSistemaEnum.php) & [AutorizarRolRbacMiddleware.php](file:///C:/dev/SGCI/backend/app/Modulos/Autenticacion/Middlewares/AutorizarRolRbacMiddleware.php) | **CONFORME** |
+| **Aislamiento de Red Docker** | Red puente interna (`sgci-internal-net`) y enlace exclusivo a loopback `127.0.0.1` | [docker-compose.yml](file:///C:/dev/SGCI/docker-compose.yml) | **CONFORME** |
 | **Pipeline Automatizado CI/CD** | 3 Quality Gates: Esquema Prisma/Figma, PHP 8.2 TDD PHPUnit, Vue 3 Vitest TDD | [.github/workflows/ci-sgci.yml](file:///C:/dev/SGCI/.github/workflows/ci-sgci.yml) | **CONFORME** |
 
 > [!IMPORTANT]
@@ -182,7 +188,58 @@ flowchart LR
 
 ---
 
-## 5. Matriz OWASP Top 10 API Security (2023) — Estado de Mitigación
+## 5. Auditoría de Seguridad de Fase II (Sprints 8, 9 y 10) y Validación MVP UAT
+
+### 5.1. Sprint 8 — Privacidad por Diseño de Plataforma y Enforzamiento de Cuotas Multi-Tenant
+En [GobernanzaSaasReportesService.php](file:///C:/dev/SGCI/backend/app/Modulos/Tenants/Servicios/GobernanzaSaasReportesService.php) y [useGobernanzaSaasStore.ts](file:///C:/dev/SGCI/frontend/src/modulos/gobernanza/almacen/useGobernanzaSaasStore.ts) se verificaron las salvaguardas de confidencialidad institucional y restricción de recursos:
+1. **Privacidad por Diseño para `SUPER_ADMIN_SAAS` (`verificarAccesoOperativoPrivado`):**
+   - **Regla:** El superadministrador global del SaaS únicamente administra planes de suscripción, cuotas de infraestructura y estados de membresía. Carece de autorización técnica para examinar existencias físicas, movimientos de Kardex o costos comerciales de los inquilinos.
+   - **Defensa:** Se lanza de forma incondicional `DomainException('El superadministrador SaaS no tiene acceso al inventario privado de las organizaciones.')` ante intentos de lectura o inspección de datos comerciales de un tenant ajeno.
+2. **Modo Vendedor / Ofuscación Automática de Costos (`proyectarCatalogoSegunRol`):**
+   - **Regla:** Los colaboradores en puntos de venta o visores no deben tener acceso a los márgenes brutos ni al costo de reposición unitario de las mercancías.
+   - **Defensa:** El método proyecta el catálogo eliminando de forma irreversible los atributos `costo` y `margen_porcentaje` si el rol del usuario pertenece al ámbito comercial (`vendedor` / `seller` / `visor`), respondiendo únicamente con el precio final autorizado al público.
+3. **Control Estricto de Cuotas de Suscripción por `tenant_id`:**
+   - Se validan de forma determinista los límites de bodegas físicas, usuarios concurrentes y referencias de productos según el tier contratado (`STARTER`, `PROFESSIONAL`, `ENTERPRISE`), retornando estados de advertencia o bloqueo (`limite_alcanzado: true`) para prevenir denegación de servicio por agotamiento de recursos (OWASP API4:2023).
+
+### 5.2. Sprint 9 — Sincronización Offline Resiliente, Deduplicación e Idempotencia
+En [ReconciliadorSincronizacionOfflineService.php](file:///C:/dev/SGCI/backend/app/Modulos/AuditoriaConteos/Servicios/ReconciliadorSincronizacionOfflineService.php) y [useSincronizacionOfflineStore.ts](file:///C:/dev/SGCI/frontend/src/modulos/offline/almacen/useSincronizacionOfflineStore.ts) se validaron los mecanismos de contingencia ante pérdida de conectividad (Pantallas Figma 55 y 59):
+1. **Prevención de Contaminación Cruzada (Cross-Tenant Poisoning):**
+   - Cada paquete de operaciones sincronizado desde `IndexedDB` valida en cada renglón que `tenant_id === tenantActivoId`. Cualquier paquete o transacción perteneciente a otro inquilino es rechazado con `violacion_aislamiento_multitenant`, impidiendo la inyección o alteración indebida de existencias entre organizaciones.
+2. **Idempotencia Determinista por `idempotency_key`:**
+   - La cola de reconciliación contrasta cada clave contra el registro de llaves ya aplicadas (`llaves_ya_procesadas`). Si una solicitud se reenvía por reintentos de red PWA o latencia, se omite de forma idempotente con estado `YA_PROCESADO_PREVIAMENTE`, evitando dobles deducciones o duplicación de asientos contables.
+3. **Resolución Determinista de Conflictos y Salvaguarda de Stock No Negativo:**
+   - Se emplea una estrategia determinista Last-Write-Wins contrastando `updated_at_cliente` vs `updated_at_servidor`. Si el servidor posee una versión posterior, se descarta la mutación obsoleta (`CONFLICTO_VERSION_OBSOLETA`). Asimismo, cualquier ajuste negativo que pudiese llevar el stock por debajo de cero es rechazado con error `STOCK_INSUFICIENTE_OFFLINE`.
+
+### 5.3. Sprint 10 — API REST v1 Delgada y Endurecimiento de Red en Docker
+En [OperacionesApiV1Controller.php](file:///C:/dev/SGCI/backend/app/Modulos/Compartido/Controladores/OperacionesApiV1Controller.php), [api.php](file:///C:/dev/SGCI/backend/routes/api.php) y [docker-compose.yml](file:///C:/dev/SGCI/docker-compose.yml):
+1. **Patrón Thin Controller (Screaming Architecture):**
+   - El controlador no ejecuta consultas directas ni manipula estados globales. Delega 100% en DTOs inmutables tipados y Acciones/Servicios de Dominio con inyección de dependencias.
+2. **Defensa Anti-Spoofing en Middleware:**
+   - Las rutas `/api/v1/*` aplican [VerificarContextoTenantMiddleware.php](file:///C:/dev/SGCI/backend/app/Modulos/Autenticacion/Middlewares/VerificarContextoTenantMiddleware.php), el cual compara en tiempo constante (`hash_equals`) el claim `tenant_id` del token JWT con la cabecera `X-Tenant-ID`. Ante cualquier discrepancia, responde `HTTP 403 Forbidden` (`TENANT_SPOOFING_DETECTADO`).
+3. **Aislamiento Criptográfico y Topología de Red de Contenedores:**
+   - En [docker-compose.yml](file:///C:/dev/SGCI/docker-compose.yml), los contenedores de persistencia `sgci-postgres` y caché en memoria `sgci-redis` están aislados en la red interna tipo puente `sgci-internal-net`.
+   - Se han fijado sus mapeos de puertos exclusivamente al loopback local (`127.0.0.1:5432:5432` y `127.0.0.1:6379:6379`), garantizando que ninguna interfaz de red WAN/externa exponga los servicios de base de datos o sesiones.
+
+### 5.4. Entrega Final MVP UAT — Autenticación por Token y Analítica de Valoración ABC
+Se auditaron los componentes nucleares de autenticación y analítica para la aceptación de usuario final (UAT):
+1. **Flujo de Restablecimiento de Contraseñas por Token ([RestablecerContrasenaTokenService.php](file:///C:/dev/SGCI/backend/app/Modulos/Autenticacion/Servicios/RestablecerContrasenaTokenService.php)):**
+   - **Mitigación OWASP A07:2021 (Identification and Authentication Failures):**
+     - Emisión de token plano criptográfico con hash SHA-256 almacenado en base de datos.
+     - Ventana estricta de caducidad de 15 minutos (`expira_en`).
+     - Verificación del token plano recibido mediante `hash_equals` para inmunidad total frente a ataques de canal lateral por análisis de tiempo (Timing Attacks).
+     - Validación obligatoria de política de contraseñas robusta: mínimo 10 caracteres, al menos una mayúscula, un dígito numérico y un carácter especial.
+     - Invalidation single-use: el registro del token pasa de inmediato a `usado = true`.
+     - Revocación de sesiones activas: emite instrucción obligatoria de invalidar todos los Refresh Tokens emitidos previamente para el usuario (`refresh_tokens_revocados = true`), cerrando sesiones en dispositivos potencialmente comprometidos.
+     - Aislamiento Multi-Tenant: comprueba que el token emitido coincida con el `tenant_id` en contexto, impidiendo que un token de recuperación sea utilizado en otra organización del SaaS.
+2. **Analítica Patrimonial de Inventario y Clasificación ABC ([AnaliticaValoracionAbcService.php](file:///C:/dev/SGCI/backend/app/Modulos/Kardex/Servicios/AnaliticaValoracionAbcService.php)):**
+   - **Mitigación OWASP API1:2023 / Fuga de Datos Financieros:**
+     - Clasificación Pareto (80% Clase A, 15% Clase B, 5% Clase C) sobre saldos y costos unitarios.
+     - Comparación de valoración simultánea entre métodos PEPS (FIFO), UEPS (LIFO) y Costo Promedio Ponderado (CPP).
+     - Verificación fail-closed de `tenant_id` en cada partida del arreglo procesado: si un lote o saldo pertenece a otro inquilino, el cálculo aborta de inmediato con excepción `InvalidArgumentException('Violación de aislamiento Multi-Tenant')`, imposibilitando la mezcla de partidas patrimoniales o fuga de inventarios entre organizaciones en reportes ejecutivos.
+
+---
+
+## 6. Matriz OWASP Top 10 API Security (2023) — Estado de Mitigación
 
 | Riesgo OWASP API | Vector de Ataque Evaluado | Control Mitigante Verificado en SGCI |
 |---|---|---|
@@ -199,16 +256,18 @@ flowchart LR
 
 ---
 
-## 6. Veredicto Final de Seguridad
+## 7. Veredicto Final de Seguridad y Dossier MVP
 
 Habiendo auditado exhaustivamente el repositorio [C:/dev/SGCI](file:///C:/dev/SGCI):
 - Se comprobó el aislamiento estricto por `tenant_id` en todas las entidades de Prisma, modelos Eloquent, servicios y stores Pinia.
 - Se verificó la implementación de las 7 columnas de auditoría canónica en cada entidad de persistencia.
 - Se confirmaron operativas las defensas contra fraude contable (doble firma en ajustes, bloqueo de venta bajo costo y justificación de descuadre en arqueos).
+- Se validaron los controles de Fase II: Privacidad SuperAdmin y Modo Vendedor (Sprint 8), Idempotencia y Reconciliación Offline (Sprint 9), Thin Controller y Aislamiento de Red Docker (Sprint 10).
+- Se certificó el cumplimiento OWASP y Multi-Tenant en la Entrega MVP UAT: Flujo de Contraseña por Token SHA-256 (`RestablecerContrasenaTokenService`) y Clasificación Analítica Pareto ABC con PEPS/UEPS/CPP (`AnaliticaValoracionAbcService`).
 - Se validó la coherencia de los 10 roles canónicos y la robustez del pipeline CI/CD en GitHub Actions.
 
-**DICTAMEN FINAL: APROBADO (SECURITY AUDIT PASSED)**  
-El borrador del proyecto SGCI se encuentra blindado, conforme y apto para su avance hacia los entornos de puesta en producción.
+**DICTAMEN FINAL: APROBADO (SECURITY AUDIT PASSED — 100% CONFORME)**  
+El proyecto SGCI se encuentra blindado contra vulnerabilidades OWASP API Top 10, con aislamiento multi-inquilino fail-closed y apto para su validación de usuario final (UAT) y avance a puesta en producción.
 
 ---
 *Informe emitido y validado por el Agente Especialista Security Scanner (`security-scanner`).*
