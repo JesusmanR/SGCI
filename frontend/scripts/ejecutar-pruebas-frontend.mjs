@@ -15,6 +15,7 @@ await import('../src/modulos/gobernanza/__tests__/gobernanzaSaasReportes.prueba.
 await import('../src/modulos/offline/__tests__/sincronizacionOfflinePwa.prueba.ts');
 await import('../src/stores/__tests__/arquitecturaFrontendCompleta.prueba.ts');
 await import('../src/modulos/autenticacion/__tests__/restablecerContrasenaToken.prueba.ts');
+await import('../src/modulos/analitica/__tests__/analiticaInventarioAbc.prueba.ts');
 
 let totalTests = 0;
 let passedTests = 0;

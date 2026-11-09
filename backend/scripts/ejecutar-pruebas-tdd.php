@@ -236,6 +236,7 @@ namespace {
         \Tests\Feature\Modulos\AuditoriaConteos\SincronizacionOfflinePwaTest::class,
         \Tests\Feature\Modulos\Compartido\OperacionesApiV1Test::class,
         \Tests\Feature\Modulos\Autenticacion\RestablecerContrasenaTokenTest::class,
+        \Tests\Unit\Modulos\Kardex\AnaliticaValoracionAbcTest::class,
     ];
 
     $totalPruebas = 0;

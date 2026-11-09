@@ -34,77 +34,8 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 </head>
 <body class="min-h-screen bg-[#F5F7FB] text-slate-900 antialiased">
   <div class="flex min-h-screen flex-col lg:flex-row">
-    <!-- Barra Lateral Exacta SGCI (#0A1120) · Menú Expandido (248px) / Contraído (76px) -->
-    <aside id="sidebar-principal" class="flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[248px] lg:min-h-screen shrink-0 select-none transition-all duration-200">
-      <div>
-        <!-- Cabecera SGCI + Botón Contraer/Expandir Menú (Idéntico a 00-MENU-EXPANDIDO-Y-CONTRAIDO) -->
-        <div id="sidebar-header" class="flex items-center justify-between gap-2 px-5 py-5 border-b border-slate-800/80">
-          <div id="sidebar-brand" class="flex items-center gap-3 min-w-0">
-            <div class="flex h-9 w-9 shrink-0 items-end justify-center gap-1 rounded-xl bg-[#0F1D3A] border border-cyan-500/30 p-2 shadow-inner">
-              <span class="w-1 h-2.5 rounded-full bg-cyan-400"></span>
-              <span class="w-1 h-4 rounded-full bg-cyan-400"></span>
-              <span class="w-1 h-5 rounded-full bg-cyan-300"></span>
-            </div>
-            <div id="sidebar-brand-text" class="truncate">
-              <span class="block text-base font-extrabold tracking-tight text-white leading-none">SGCI</span>
-              <span class="block text-[9px] font-semibold tracking-[0.16em] text-slate-400 uppercase mt-1">CONTROL DE INVENTARIOS</span>
-            </div>
-          </div>
-          <button onclick="alternarMenuLateral()" id="btn-toggle-sidebar" title="Contraer / Expandir menú lateral" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-700/80 bg-slate-900/90 text-slate-300 hover:text-white hover:border-cyan-400/50 transition text-xs font-mono">
-            |◁
-          </button>
-        </div>
-
-        <!-- Grupo OPERACIÓN -->
-        <div class="px-3 pt-5">
-          <span id="lbl-grupo-op" class="px-3 text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase block">OPERACIÓN</span>
-          <nav id="nav-operacion" class="mt-2 space-y-1"></nav>
-        </div>
-
-        <!-- Grupo ADMINISTRACIÓN -->
-        <div class="px-3 pt-5">
-          <span id="lbl-grupo-adm" class="px-3 text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase block">ADMINISTRACIÓN</span>
-          <nav id="nav-admin" class="mt-2 space-y-1"></nav>
-        </div>
-
-        <!-- Grupo PANTALLAS OFICIALES Y PWA MÓVIL -->
-        <div class="px-3 pt-5">
-          <span id="lbl-grupo-pan" class="px-3 text-[10px] font-bold tracking-[0.14em] text-cyan-400/80 uppercase block">PANTALLAS Y MÓVIL PWA</span>
-          <nav id="nav-pantallas" class="mt-2 space-y-1"></nav>
-        </div>
-      </div>
-
-      <!-- Bloque Inferior: Operación Conectada + Perfil Laura Mendoza -->
-      <div class="space-y-2">
-        <div class="px-3">
-          <div id="card-op-conectada" class="rounded-xl border border-cyan-500/20 bg-[#0D182C] px-3.5 py-2.5 flex items-center justify-between">
-            <div class="flex items-center gap-2.5 min-w-0" id="card-op-text">
-              <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-400"></span>
-              <div class="truncate">
-                <strong class="block text-[11px] font-bold text-white leading-tight">Operación conectada</strong>
-                <span class="block text-[10px] text-slate-400">Todos los sistemas activos</span>
-              </div>
-            </div>
-            <span class="text-cyan-400 text-xs shrink-0">📡</span>
-          </div>
-        </div>
-
-        <div id="sidebar-footer" class="border-t border-slate-800/80 p-4 flex items-center justify-between bg-[#080E1A]">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-white font-extrabold text-xs">
-              LM
-            </div>
-            <div id="sidebar-user-text" class="truncate">
-              <strong class="block text-xs font-bold text-white leading-tight">Laura Mendoza</strong>
-              <span id="sidebar-rol-label" class="block text-[10px] font-mono text-slate-400">JEFE_ALMACEN</span>
-            </div>
-          </div>
-          <button onclick="seleccionarVista('landing')" title="Cerrar sesión / Ir a Landing (Pantallas 01-06)" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-slate-800 shrink-0">
-            ✕
-          </button>
-        </div>
-      </div>
-    </aside>
+    <!-- Barra Lateral Exacta SGCI (#0A1120) · Renderizada dinámicamente sin colisión de iconos (252px Expandido / 72px Contraído) -->
+    <aside id="sidebar-principal" class="flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[252px] lg:min-h-screen shrink-0 select-none transition-all duration-200 border-r border-slate-800/80"></aside>
 
     <!-- Contenedor Derecho: Topbar + Contenido -->
     <div class="flex-1 flex flex-col min-w-0">
@@ -165,25 +96,43 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
   </div>
 
   <script>
+    const ICONOS_SVG = {
+      grid: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>',
+      box: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>',
+      warehouse: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg>',
+      book: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg>',
+      layers: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>',
+      clipboard: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+      truck: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>',
+      chart: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>',
+      users: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+      mobile: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>',
+      lock: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+      gallery: '<svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>',
+      collapseLeft: '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></svg>',
+      expandRight: '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/></svg>',
+      wifi: '<svg class="w-4 h-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></svg>',
+    };
+
     const MENU_OPERACION = [
-      { id: 'centro-mando', label: 'Centro de mando', icon: '⊞', screen: '07' },
-      { id: 'productos-rop', label: 'Productos y ROP', icon: '📦', screen: '08' },
-      { id: 'almacenes', label: 'Almacenes', icon: '🏬', screen: '09' },
-      { id: 'libro-kardex', label: 'Libro Kardex', icon: '📑', screen: '10' },
-      { id: 'lotes-fefo', label: 'Lotes y FEFO', icon: '⏳', screen: '11' },
-      { id: 'conteos-auditoria', label: 'Conteos y auditoría', icon: '📋', badge: 2, screen: '12' },
-      { id: 'abastecimiento', label: 'Abastecimiento', icon: '🚚', screen: '13' },
+      { id: 'centro-mando', label: 'Centro de mando', icon: 'grid', screen: '07' },
+      { id: 'productos-rop', label: 'Productos y ROP', icon: 'box', screen: '08' },
+      { id: 'almacenes', label: 'Almacenes', icon: 'warehouse', screen: '09' },
+      { id: 'libro-kardex', label: 'Libro Kardex', icon: 'book', screen: '10' },
+      { id: 'lotes-fefo', label: 'Lotes y FEFO', icon: 'layers', screen: '11' },
+      { id: 'conteos-auditoria', label: 'Conteos y auditoría', icon: 'clipboard', badge: 2, screen: '12' },
+      { id: 'abastecimiento', label: 'Abastecimiento', icon: 'truck', screen: '13' },
     ];
 
     const MENU_ADMIN = [
-      { id: 'analitica', label: 'Analítica', icon: '📈', screen: '14' },
-      { id: 'gobernanza-rbac', label: 'Gobernanza RBAC', icon: '🛡️', screen: '15' },
+      { id: 'analitica', label: 'Analítica', icon: 'chart', screen: '14' },
+      { id: 'gobernanza-rbac', label: 'Gobernanza RBAC', icon: 'users', screen: '15' },
     ];
 
     const MENU_PANTALLAS = [
-      { id: 'pwa-movil', label: 'App Móvil PWA (390px)', icon: '📱', screen: 'M07-M10' },
-      { id: 'landing', label: 'Landing y Login (01–06)', icon: '🔐', screen: '01-06' },
-      { id: 'galeria-25', label: '47 Capturas SGCI (Menú)', icon: '🖼️', screen: '47 PNG' },
+      { id: 'pwa-movil', label: 'App Móvil PWA (390px)', icon: 'mobile', screen: 'M07-M10' },
+      { id: 'landing', label: 'Landing y Login (01–06)', icon: 'lock', screen: '01-06' },
+      { id: 'galeria-25', label: '47 Capturas SGCI (Menú)', icon: 'gallery', screen: '47 PNG' },
     ];
 
     let state = {
@@ -194,6 +143,10 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       mostrarModalDemo02: false,
       mostrarModalProducto08b: false,
       mostrarModalRecepcion13b: false,
+      mostrarModalTransferencia09b: false,
+      mostrarSimuladorFefo11b: false,
+      mostrarModalCicloConteo12b: false,
+      cantidadDespachoFefo: 10,
       nuevoProdSku: 'VL-310-TITAN',
       nuevoProdNombre: 'Válvula direccional neumática 1/2"',
       nuevoProdUbicacion: 'A-01-R04-NA',
@@ -205,6 +158,7 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       bodega: 'ALM-CENTRAL-01 — Bodega Central Monterrey',
       online: true,
       metodoKardex: 'PEPS / FIFO',
+      metodoComparadorAnalitica: 'PEPS',
       busquedaSku: '',
       tabMovil: 'inicio',
       conteoFisicoInput: '14',
@@ -245,21 +199,25 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 
     function renderItemMenu(item) {
       const activo = state.vista === item.id;
+      const svg = ICONOS_SVG[item.icon] || ICONOS_SVG.grid;
       if (state.menuContraido) {
         return \`
-          <button onclick="seleccionarVista('\${item.id}')" title="\${item.label}" class="relative mx-auto flex h-11 w-11 items-center justify-center rounded-xl text-sm font-semibold transition \${activo ? 'bg-[#2563EB] text-white shadow-sm border-l-4 border-l-cyan-400' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white'}">
-            <span>\${item.icon}</span>
-            \${item.badge ? \`<span class="absolute -top-1 -right-1 rounded-full bg-rose-600 text-white text-[9px] font-bold px-1.5">\${item.badge}</span>\` : ''}
+          <button onclick="seleccionarVista('\${item.id}')" aria-label="\${item.label}" class="group relative mx-auto flex h-11 w-11 items-center justify-center rounded-xl transition \${activo ? 'bg-[#2563EB] text-white shadow-md border-l-[3px] border-l-cyan-300' : 'text-slate-400 hover:bg-slate-800/80 hover:text-white'}">
+            \${svg}
+            \${item.badge ? \`<span class="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-600 px-1 text-[9px] font-extrabold text-white shadow">\${item.badge}</span>\` : ''}
+            <span class="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-lg bg-[#0A1120] border border-slate-700 px-2.5 py-1.5 text-[11px] font-bold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+              \${item.label}
+            </span>
           </button>
         \`;
       }
       return \`
-        <button onclick="seleccionarVista('\${item.id}')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition \${activo ? 'bg-[#2563EB] text-white shadow-sm border-l-4 border-l-cyan-400' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white'}">
-          <span class="flex items-center gap-3 truncate">
-            <span class="text-sm">\${item.icon}</span>
+        <button onclick="seleccionarVista('\${item.id}')" class="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition \${activo ? 'bg-[#2563EB] text-white shadow-md border-l-[3px] border-l-cyan-300' : 'text-slate-400 hover:bg-slate-800/75 hover:text-white'}">
+          <span class="flex items-center gap-3 min-w-0">
+            \${svg}
             <span class="truncate">\${item.label}</span>
           </span>
-          \${item.badge ? \`<span class="rounded-full bg-rose-900/80 border border-rose-500/40 text-rose-200 text-[10px] font-bold px-1.5 py-0.2">\${item.badge}</span>\` : ''}
+          \${item.badge ? \`<span class="shrink-0 rounded-full bg-rose-900/90 border border-rose-500/40 text-rose-200 text-[10px] font-bold px-2 py-0.5 leading-none">\${item.badge}</span>\` : ''}
         </button>
       \`;
     }
@@ -271,42 +229,110 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 
     function renderSidebar() {
       const aside = document.getElementById('sidebar-principal');
-      const brandText = document.getElementById('sidebar-brand-text');
-      const btnToggle = document.getElementById('btn-toggle-sidebar');
-      const lblOp = document.getElementById('lbl-grupo-op');
-      const lblAdm = document.getElementById('lbl-grupo-adm');
-      const lblPan = document.getElementById('lbl-grupo-pan');
-      const cardOpText = document.getElementById('card-op-text');
-      const userText = document.getElementById('sidebar-user-text');
-      const footer = document.getElementById('sidebar-footer');
+      if (!aside) return;
 
       if (state.menuContraido) {
-        aside.className = 'flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[76px] lg:min-h-screen shrink-0 select-none transition-all duration-200';
-        brandText.classList.add('hidden');
-        btnToggle.textContent = '|▷';
-        lblOp.classList.add('hidden');
-        lblAdm.classList.add('hidden');
-        lblPan.classList.add('hidden');
-        cardOpText.classList.add('hidden');
-        userText.classList.add('hidden');
-        footer.className = 'border-t border-slate-800/80 p-3 flex flex-col items-center gap-2 bg-[#080E1A]';
-      } else {
-        aside.className = 'flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[248px] lg:min-h-screen shrink-0 select-none transition-all duration-200';
-        brandText.classList.remove('hidden');
-        btnToggle.textContent = '|◁';
-        lblOp.classList.remove('hidden');
-        lblAdm.classList.remove('hidden');
-        lblPan.classList.remove('hidden');
-        cardOpText.classList.remove('hidden');
-        userText.classList.remove('hidden');
-        footer.className = 'border-t border-slate-800/80 p-4 flex items-center justify-between bg-[#080E1A]';
+        // MODO CONTRAÍDO (72px): Cero nodos de texto en el DOM -> Imposible que se sobrepongan iconos o textos
+        aside.className = 'flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[72px] lg:min-h-screen shrink-0 select-none transition-all duration-200 border-r border-slate-800/80';
+        aside.innerHTML = \`
+          <div class="flex flex-col items-center">
+            <div class="h-[68px] w-full flex items-center justify-center border-b border-slate-800/80 px-2">
+              <button onclick="alternarMenuLateral()" title="Expandir menú lateral" class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700/80 bg-slate-900/90 text-slate-200 hover:text-white hover:border-cyan-400 transition">
+                \${ICONOS_SVG.expandRight}
+              </button>
+            </div>
+            <nav class="py-4 flex flex-col items-center gap-1.5 w-full px-2">
+              \${MENU_OPERACION.map(renderItemMenu).join('')}
+              <div class="w-8 h-px bg-slate-800 my-1.5"></div>
+              \${MENU_ADMIN.map(renderItemMenu).join('')}
+              <div class="w-8 h-px bg-slate-800 my-1.5"></div>
+              \${MENU_PANTALLAS.map(renderItemMenu).join('')}
+            </nav>
+          </div>
+          <div class="flex flex-col items-center gap-2.5 pb-3">
+            <div title="Operación conectada · Todos los sistemas activos" class="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/25 bg-[#0D182C]">
+              \${ICONOS_SVG.wifi}
+            </div>
+            <div class="w-full border-t border-slate-800/80 pt-3 flex flex-col items-center gap-2 bg-[#080E1A]">
+              <div title="Laura Mendoza · \${state.rol}" class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-white font-extrabold text-xs">
+                LM
+              </div>
+              <button onclick="seleccionarVista('landing')" title="Cerrar sesión / Ir a Landing" class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-xs">
+                ✕
+              </button>
+            </div>
+          </div>
+        \`;
+        return;
       }
 
-      document.getElementById('nav-operacion').innerHTML = MENU_OPERACION.map(renderItemMenu).join('');
-      document.getElementById('nav-admin').innerHTML = MENU_ADMIN.map(renderItemMenu).join('');
-      document.getElementById('nav-pantallas').innerHTML = MENU_PANTALLAS.map(renderItemMenu).join('');
-      const rolEl = document.getElementById('sidebar-rol-label');
-      if (rolEl) rolEl.textContent = state.rol;
+      // MODO EXPANDIDO (252px): Réplica exacta de 01-Centro-de-mando-MENU-EXPANDIDO.png
+      aside.className = 'flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[252px] lg:min-h-screen shrink-0 select-none transition-all duration-200 border-r border-slate-800/80';
+      aside.innerHTML = \`
+        <div>
+          <div class="h-[68px] flex items-center justify-between gap-2 px-5 border-b border-slate-800/80">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-end justify-center gap-1 rounded-xl bg-[#0F1D3A] border border-cyan-500/30 p-2 shadow-inner">
+                <span class="w-1 h-2.5 rounded-full bg-cyan-400"></span>
+                <span class="w-1 h-4 rounded-full bg-cyan-400"></span>
+                <span class="w-1 h-5 rounded-full bg-cyan-300"></span>
+              </div>
+              <div class="truncate">
+                <span class="block text-base font-extrabold tracking-tight text-white leading-none">SGCI</span>
+                <span class="block text-[9px] font-semibold tracking-[0.16em] text-slate-400 uppercase mt-1 truncate">CONTROL DE INVENTARIOS</span>
+              </div>
+            </div>
+            <button onclick="alternarMenuLateral()" title="Contraer menú lateral" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-700/80 bg-slate-900/90 text-slate-300 hover:text-white hover:border-cyan-400 transition">
+              \${ICONOS_SVG.collapseLeft}
+            </button>
+          </div>
+
+          <div class="px-3 pt-5">
+            <span class="px-3 text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase block">OPERACIÓN</span>
+            <nav class="mt-2 space-y-1">\${MENU_OPERACION.map(renderItemMenu).join('')}</nav>
+          </div>
+
+          <div class="px-3 pt-5">
+            <span class="px-3 text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase block">ADMINISTRACIÓN</span>
+            <nav class="mt-2 space-y-1">\${MENU_ADMIN.map(renderItemMenu).join('')}</nav>
+          </div>
+
+          <div class="px-3 pt-5">
+            <span class="px-3 text-[10px] font-bold tracking-[0.14em] text-cyan-400/80 uppercase block">PANTALLAS Y MÓVIL PWA</span>
+            <nav class="mt-2 space-y-1">\${MENU_PANTALLAS.map(renderItemMenu).join('')}</nav>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-4">
+          <div class="px-3">
+            <div class="rounded-xl border border-cyan-500/20 bg-[#0D182C] px-3.5 py-2.5 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-400"></span>
+                <div class="truncate">
+                  <strong class="block text-[11px] font-bold text-white leading-tight truncate">Operación conectada</strong>
+                  <span class="block text-[10px] text-slate-400 truncate">Todos los sistemas activos</span>
+                </div>
+              </div>
+              \${ICONOS_SVG.wifi}
+            </div>
+          </div>
+
+          <div class="border-t border-slate-800/80 p-4 flex items-center justify-between gap-2 bg-[#080E1A]">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-white font-extrabold text-xs">
+                LM
+              </div>
+              <div class="truncate">
+                <strong class="block text-xs font-bold text-white leading-tight truncate">Laura Mendoza</strong>
+                <span class="block text-[10px] font-mono text-slate-400 truncate">\${state.rol}</span>
+              </div>
+            </div>
+            <button onclick="seleccionarVista('landing')" title="Cerrar sesión / Ir a Landing (Pantallas 01-06)" class="text-slate-400 hover:text-white text-xs h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-800 shrink-0">
+              ✕
+            </button>
+          </div>
+        </div>
+      \`;
     }
 
     function seleccionarVista(v) {
@@ -388,7 +414,78 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 
     function ejecutarAccionEspecializadaModulo(modulo, refId) {
       if (modulo === 'almacenes') {
-        alert('Transferencia ' + refId + ' recibida en ' + state.bodega + ' y conciliada en ubicación Bin.');
+        state.movimientosKardex.unshift({
+          fecha: 'HOY · ' + new Date().toTimeString().slice(0, 8) + ' UTC-6',
+          doc: refId,
+          tipo: 'ENTRADA TRANSFERENCIA',
+          lote: 'LOTE-2026-089',
+          vence: '18/03/2026',
+          entrada: '8.0000',
+          salida: '—',
+          saldo: '14.0000',
+          costoUnit: 142.50,
+          saldoVal: 1995.00,
+          operador: 'L. Mendoza',
+          rolOp: state.rol,
+        });
+        alert('Transferencia ' + refId + ' recibida en ' + state.bodega + ', conciliada en ubicación Bin y asentada en Libro Kardex.');
+      } else if (modulo === 'nueva-transferencia') {
+        const nuevoTr = 'TR-2026-0' + Math.floor(190 + Math.random() * 700);
+        state.movimientosKardex.unshift({
+          fecha: 'HOY · ' + new Date().toTimeString().slice(0, 8) + ' UTC-6',
+          doc: nuevoTr,
+          tipo: 'SALIDA TRANSFERENCIA',
+          lote: 'LOTE-2027-014',
+          vence: '15/06/2027',
+          entrada: '—',
+          salida: '12.0000',
+          saldo: '72.0000',
+          costoUnit: 64.00,
+          saldoVal: 4608.00,
+          operador: 'L. Mendoza',
+          rolOp: state.rol,
+        });
+        state.mostrarModalTransferencia09b = false;
+        alert('Orden de Transferencia ' + nuevoTr + ' emitida en Tránsito (Paso 1) y asentada en Libro Kardex.');
+      } else if (modulo === 'despacho-fefo') {
+        const cantSolicitada = Number(state.cantidadDespachoFefo || 10);
+        let restante = cantSolicitada;
+        const lotesConsumidos = [];
+        for (const l of state.lotesFefo) {
+          if (l.semaforo === 'CUARENTENA' || l.dias <= 0 || l.cant <= 0 || restante <= 0) continue;
+          const tomar = Math.min(l.cant, restante);
+          l.cant -= tomar;
+          restante -= tomar;
+          lotesConsumidos.push(l.lote + ' (' + tomar + ' PZA)');
+        }
+        state.movimientosKardex.unshift({
+          fecha: 'HOY · ' + new Date().toTimeString().slice(0, 8) + ' UTC-6',
+          doc: 'FEFO-2026-' + Math.floor(100 + Math.random() * 899),
+          tipo: 'SALIDA FEFO',
+          lote: lotesConsumidos[0] || 'LOTE-2026-089',
+          vence: '2026-11-17',
+          entrada: '—',
+          salida: (cantSolicitada - restante).toFixed(4),
+          saldo: '18.0000',
+          costoUnit: 142.50,
+          saldoVal: 2565.00,
+          operador: 'L. Mendoza',
+          rolOp: state.rol,
+        });
+        alert('Despacho FEFO ejecutado por orden estricto de vencimiento: ' + lotesConsumidos.join(' + ') + '. Lotes en CUARENTENA fueron omitidos automáticamente.');
+      } else if (modulo === 'emitir-oc-rop') {
+        const nuevaOc = 'OC-2026-0' + Math.floor(120 + Math.random() * 800);
+        state.ordenesCompra.unshift({
+          oc: nuevaOc,
+          proveedor: 'Metalnova Industrial S.A.',
+          sku: 'AC-100-FLEX',
+          solicitado: 36,
+          recibido: 0,
+          muelle: 'Muelle 02',
+          estado: 'ABIERTA · GENERADA POR ROP',
+          totalUsd: 5130,
+        });
+        alert('Orden de Compra ' + nuevaOc + ' generada automáticamente para reabastecer SKU AC-100-FLEX hasta su Stock Máximo (48 PZA).');
       } else if (modulo === 'lotes-fefo') {
         const loteObj = state.lotesFefo.find(l => l.lote === refId);
         if (loteObj) {
@@ -1025,11 +1122,111 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                   <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-600">OPERACIÓN EN TIEMPO REAL · \${state.bodega}</span>
                   <h2 class="text-base font-extrabold text-slate-900 mt-0.5">\${cfg.tablaTitulo}</h2>
                 </div>
-                <div class="flex items-center gap-2">
-                  \${state.vista === 'abastecimiento' ? \`<button onclick="state.mostrarModalRecepcion13b = !state.mostrarModalRecepcion13b; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-3.5 py-1.5 text-[11px] font-bold hover:bg-slate-800">📥 Ventana 13b · Recepción de Orden de Compra en Muelle</button>\` : ''}
+                <div class="flex flex-wrap items-center gap-2">
+                  \${state.vista === 'almacenes' ? \`<button onclick="state.mostrarModalTransferencia09b = !state.mostrarModalTransferencia09b; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-3.5 py-1.5 text-[11px] font-bold hover:bg-slate-800">🚚 + Nueva Transferencia Inter-Almacén (2 Pasos)</button>\` : ''}
+                  \${state.vista === 'lotes-fefo' ? \`<button onclick="state.mostrarSimuladorFefo11b = !state.mostrarSimuladorFefo11b; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-3.5 py-1.5 text-[11px] font-bold hover:bg-slate-800">⚡ Simulador Despacho FEFO Multi-Lote</button>\` : ''}
+                  \${state.vista === 'abastecimiento' ? \`
+                    <button onclick="ejecutarAccionEspecializadaModulo('emitir-oc-rop', 'AC-100-FLEX')" class="rounded-xl border border-blue-200 bg-blue-50 text-blue-700 px-3.5 py-1.5 text-[11px] font-bold hover:bg-blue-100">+ Emitir OC por ROP</button>
+                    <button onclick="state.mostrarModalRecepcion13b = !state.mostrarModalRecepcion13b; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-3.5 py-1.5 text-[11px] font-bold hover:bg-slate-800">📥 Ventana 13b · Recepción en Muelle</button>
+                  \` : ''}
                   <span class="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-bold text-blue-700">Rol: \${state.rol}</span>
                 </div>
               </div>
+
+              \${state.vista === 'almacenes' ? \`
+                <!-- Mapa Visual de Racks y Ubicaciones Bin (Flujo Especializado 09) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                  <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                      <span>Pasillo A · Racks Hidráulicos</span>
+                      <span class="font-mono text-amber-700">85% Ocupado</span>
+                    </div>
+                    <div class="mt-2 h-2 w-full rounded-full bg-slate-200 overflow-hidden"><div class="h-full bg-amber-500 w-[85%]"></div></div>
+                    <span class="mt-2 block text-[11px] text-slate-500 font-mono">Bin A-04-R02-NB · AC-100-FLEX (5 PZA)</span>
+                  </div>
+                  <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                      <span>Pasillo B · Transmisión y Sellos</span>
+                      <span class="font-mono text-emerald-700">76% Ocupado</span>
+                    </div>
+                    <div class="mt-2 h-2 w-full rounded-full bg-slate-200 overflow-hidden"><div class="h-full bg-emerald-600 w-[76%]"></div></div>
+                    <span class="mt-2 block text-[11px] text-slate-500 font-mono">Bin B-02-R08-NA · RB-220-INOX (14 PZA)</span>
+                  </div>
+                  <div class="rounded-xl border border-rose-200 bg-rose-50/50 p-4">
+                    <div class="flex items-center justify-between text-xs font-bold text-rose-900">
+                      <span>Zona Cuarentena Sanitaria</span>
+                      <span class="font-mono text-rose-700">BLOQUEO FEFO</span>
+                    </div>
+                    <div class="mt-2 h-2 w-full rounded-full bg-rose-100 overflow-hidden"><div class="h-full bg-rose-600 w-[32%]"></div></div>
+                    <span class="mt-2 block text-[11px] text-rose-700 font-mono">ZONA-CUARENTENA-01 · LOTE-2026-019 (3 PZA)</span>
+                  </div>
+                </div>
+                \${state.mostrarModalTransferencia09b ? \`
+                  <div class="rounded-2xl border-2 border-blue-600 bg-blue-50/40 p-5 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-700">FLUJO ESPECIALIZADO 09B · TRANSFERENCIA EN 2 PASOS</span>
+                      <h3 class="text-sm font-extrabold text-slate-900 mt-0.5">Emitir Salida en Tránsito: Bodega Central Monterrey → Centro Logístico Saltillo</h3>
+                      <p class="text-xs text-slate-600">Descuenta stock en origen inmediatamente y habilita la recepción confirmada en almacén destino.</p>
+                    </div>
+                    <button onclick="ejecutarAccionEspecializadaModulo('nueva-transferencia', 'TR-NEW')" class="rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                      ✓ Despachar 12 PZA FL-084-NBR en Tránsito → Kardex
+                    </button>
+                  </div>
+                \` : ''}
+              \` : ''}
+
+              \${state.vista === 'lotes-fefo' && state.mostrarSimuladorFefo11b ? \`
+                <!-- Simulador Interactivo de Despacho Multi-Lote por Regla FEFO (Flujo Especializado 11b) -->
+                <div class="rounded-2xl border-2 border-blue-600 bg-blue-50/40 p-5 flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-700">MOTOR ALGORÍTMICO FEFO (FIRST-EXPIRED, FIRST-OUT)</span>
+                    <h3 class="text-sm font-extrabold text-slate-900 mt-0.5">Despacho Automático por Vencimiento Más Próximo (Excluye Lotes en Cuarentena)</h3>
+                    <p class="text-xs text-slate-600">Consume primero LOTE-2026-089 (vence en 12 días) y completa con LOTE-2026-101, bloqueando LOTE-2026-019.</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <input type="number" min="1" max="50" value="\${state.cantidadDespachoFefo}" oninput="state.cantidadDespachoFefo = this.value" class="w-24 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-bold text-slate-900" />
+                    <button onclick="ejecutarAccionEspecializadaModulo('despacho-fefo', 'FEFO')" class="rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                      ✓ Despachar por FEFO → Kardex
+                    </button>
+                  </div>
+                </div>
+              \` : ''}
+
+              \${state.vista === 'analitica' ? \`
+                <!-- Comparador Patrimonial PEPS vs UEPS vs CPP y Clasificación ABC (Flujo Especializado 14) -->
+                <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 space-y-4">
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-700">SIMULADOR DE VALORACIÓN PATRIMONIAL Y PARETO ABC</span>
+                      <h3 class="text-sm font-extrabold text-slate-900 mt-0.5">Comparativa de Costo de Inventario por Estrategia (Patrón Strategy SOLID)</h3>
+                    </div>
+                    <div class="inline-flex rounded-xl bg-white border border-slate-200 p-1">
+                      \${['PEPS', 'UEPS', 'CPP'].map(met => \`
+                        <button onclick="state.metodoComparadorAnalitica = '\${met}'; renderMain()" class="rounded-lg px-3 py-1 text-[11px] font-extrabold transition \${state.metodoComparadorAnalitica === met ? 'bg-[#2563EB] text-white' : 'text-slate-600'}">\${met}</button>
+                      \`).join('')}
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div class="rounded-xl bg-white p-3.5 border border-slate-200">
+                      <span class="text-[10px] font-bold text-slate-400 uppercase block">VALORACIÓN \${state.metodoComparadorAnalitica} CONSOLIDADA</span>
+                      <strong class="font-mono text-lg font-extrabold text-slate-900 mt-1 block">
+                        $ \${state.metodoComparadorAnalitica === 'PEPS' ? '2,441,470.00' : (state.metodoComparadorAnalitica === 'UEPS' ? '2,418,920.00' : '2,430,195.00')}
+                      </strong>
+                      <span class="text-[11px] text-emerald-700 font-semibold">Precisión DECIMAL(18,4) verificada</span>
+                    </div>
+                    <div class="rounded-xl bg-white p-3.5 border border-slate-200">
+                      <span class="text-[10px] font-bold text-slate-400 uppercase block">PARETO CLASE A (80% VALOR)</span>
+                      <strong class="font-mono text-lg font-extrabold text-blue-700 mt-1 block">2 Almacenes · 68% SKUs</strong>
+                      <span class="text-[11px] text-slate-500">Conteo cíclico obligatorio quincenal</span>
+                    </div>
+                    <div class="rounded-xl bg-white p-3.5 border border-slate-200">
+                      <span class="text-[10px] font-bold text-slate-400 uppercase block">ÍNDICE ERI PONDERADO</span>
+                      <strong class="font-mono text-lg font-extrabold text-emerald-700 mt-1 block">99.22% Exactitud</strong>
+                      <span class="text-[11px] text-slate-500">+0.72% sobre meta institucional (98.5%)</span>
+                    </div>
+                  </div>
+                </div>
+              \` : ''}
 
               \${state.vista === 'abastecimiento' && state.mostrarModalRecepcion13b ? \`
                 <!-- Ventana Faltante 13b: Recepción de Orden de Compra en Muelle (Documentada en LEEME.txt) -->
@@ -1158,7 +1355,7 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                         <div class="mt-2 space-y-1 text-xs">
                           \${MENU_OPERACION.map(m => \`
                             <button onclick="state.menuMovilAbierto = false; seleccionarVista('\${m.id}')" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800">
-                              <span class="flex items-center gap-3"><span>\${m.icon}</span><span>\${m.label}</span></span>
+                              <span class="flex items-center gap-3">\${ICONOS_SVG[m.icon] || ''}<span>\${m.label}</span></span>
                               \${m.badge ? \`<span class="rounded-full bg-rose-900/80 text-rose-200 text-[10px] font-bold px-1.5">\${m.badge}</span>\` : ''}
                             </button>
                           \`).join('')}
@@ -1169,7 +1366,7 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                         <div class="mt-2 space-y-1 text-xs">
                           \${MENU_ADMIN.map(m => \`
                             <button onclick="state.menuMovilAbierto = false; seleccionarVista('\${m.id}')" class="w-full flex items-center justify-between px-3 py-2 rounded-xl \${m.id === 'gobernanza-rbac' ? 'bg-[#2563EB] text-white font-bold border-l-4 border-l-cyan-400' : 'text-slate-300 hover:bg-slate-800'}">
-                              <span class="flex items-center gap-3"><span>\${m.icon}</span><span>\${m.label}</span></span>
+                              <span class="flex items-center gap-3">\${ICONOS_SVG[m.icon] || ''}<span>\${m.label}</span></span>
                             </button>
                           \`).join('')}
                         </div>
