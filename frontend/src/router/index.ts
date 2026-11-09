@@ -56,6 +56,16 @@ export const RUTAS_APLICACION_SGCI: DefinicionRutaSgci[] = [
     icono: '📋',
   },
   {
+    id: 'analitica-patrimonial-abc',
+    path: '/analitica-patrimonial',
+    titulo: 'Analítica Patrimonial y ABC',
+    subtitulo: 'Valorización multi-almacén PEPS/UEPS/CPP, ERI y clasificación Pareto ABC',
+    grupoMenu: 'INVENTARIO',
+    pantallasFigma: 'Pantalla 14 · Analítica ABC',
+    rolesPermitidos: ['admin'],
+    icono: '📈',
+  },
+  {
     id: 'facturacion-caja',
     path: '/facturacion-caja',
     titulo: 'Facturación POS y Arqueo de Caja',

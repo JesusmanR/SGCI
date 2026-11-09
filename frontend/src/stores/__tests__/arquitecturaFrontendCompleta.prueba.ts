@@ -14,8 +14,8 @@ describe('Sprint 10 — Arquitectura Frontend Completa: Router RBAC, Sesión Mul
     const rutasVendedor = filtrarRutasPorRol('seller');
     const rutasSuperAdmin = filtrarRutasPorRol('superadmin');
 
-    expect(RUTAS_APLICACION_SGCI.length).toBe(9);
-    expect(rutasAdmin.length).toBe(9);
+    expect(RUTAS_APLICACION_SGCI.length).toBe(10);
+    expect(rutasAdmin.length).toBe(10);
     // El vendedor no ve Kardex ni Ajustes de conteos físicos, pero sí Dashboard, Catálogo, Caja, Precios, Alertas, Gobernanza y Galería
     expect(rutasVendedor.some((r) => r.id === 'ajustes-conteos')).toBe(false);
     expect(rutasVendedor.some((r) => r.id === 'facturacion-caja')).toBe(true);

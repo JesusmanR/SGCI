@@ -34,9 +34,9 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
   </style>
 </head>
 <body class="min-h-screen bg-[#F5F7FB] text-slate-900 antialiased">
-  <div class="flex min-h-screen flex-col lg:flex-row">
-    <!-- Barra Lateral Exacta SGCI (#0A1120) · Renderizada dinámicamente sin colisión de iconos (252px Expandido / 72px Contraído) -->
-    <aside id="sidebar-principal" class="flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[252px] lg:min-h-screen shrink-0 select-none transition-all duration-200 border-r border-slate-800/80"></aside>
+  <div class="flex min-h-screen flex-row">
+    <!-- Barra Lateral Exacta SGCI (#0A1120) · Ancho estricto sin colisión en cualquier resolución (252px Expandido / 72px Contraído) -->
+    <aside id="sidebar-principal" class="flex w-[252px] min-w-[252px] max-w-[252px] min-h-screen flex-col justify-between bg-[#0A1120] text-white shrink-0 select-none transition-all duration-200 border-r border-slate-800/80 z-30"></aside>
 
     <!-- Contenedor Derecho: Topbar + Contenido -->
     <div class="flex-1 flex flex-col min-w-0">
@@ -245,8 +245,8 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       if (!aside) return;
 
       if (state.menuContraido) {
-        // MODO CONTRAÍDO (72px): Cero nodos de texto en el DOM -> Imposible que se sobrepongan iconos o textos
-        aside.className = 'flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[72px] lg:min-h-screen shrink-0 select-none transition-all duration-200 border-r border-slate-800/80';
+        // MODO CONTRAÍDO (72px estricto en cualquier ancho de ventana): Cero nodos de texto en el DOM -> Imposible que se sobrepongan iconos o textos
+        aside.className = 'flex w-[72px] min-w-[72px] max-w-[72px] min-h-screen flex-col justify-between bg-[#0A1120] text-white shrink-0 select-none transition-all duration-200 border-r border-slate-800/80 z-30';
         aside.innerHTML = \`
           <div class="flex flex-col items-center">
             <div class="h-[68px] w-full flex items-center justify-center border-b border-slate-800/80 px-2">
@@ -279,8 +279,8 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
         return;
       }
 
-      // MODO EXPANDIDO (252px): Réplica exacta de 01-Centro-de-mando-MENU-EXPANDIDO.png
-      aside.className = 'flex w-full flex-col justify-between bg-[#0A1120] text-white lg:w-[252px] lg:min-h-screen shrink-0 select-none transition-all duration-200 border-r border-slate-800/80';
+      // MODO EXPANDIDO (252px estricto): Réplica exacta de 01-Centro-de-mando-MENU-EXPANDIDO.png
+      aside.className = 'flex w-[252px] min-w-[252px] max-w-[252px] min-h-screen flex-col justify-between bg-[#0A1120] text-white shrink-0 select-none overflow-hidden transition-all duration-200 border-r border-slate-800/80 z-30';
       aside.innerHTML = \`
         <div>
           <div class="h-[68px] flex items-center justify-between gap-2 px-5 border-b border-slate-800/80">
@@ -684,6 +684,38 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       renderMain();
     }
 
+    function exportarCsvArchivo(nombreArchivo, encabezados, filas) {
+      const lineas = [
+        encabezados.join(','),
+        ...filas.map(fila => fila.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')),
+      ];
+      const blob = new Blob(['\uFEFF' + lineas.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nombreArchivo;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportarResumenEjecutivoCsv() {
+      exportarCsvArchivo(
+        'SGCI-Resumen-Inventario-IndustriasAlfa.csv',
+        ['SKU', 'PRODUCTO', 'UBICACION_BIN', 'LOTE', 'METODO_COSTEO', 'MINIMO', 'ROP', 'MAXIMO', 'STOCK_ACTUAL', 'ESTADO'],
+        state.productos.map(p => [p.sku, p.nombre, p.ubicacion, p.lote, p.metodo, p.min, p.rop, p.max, p.stock, p.estado]),
+      );
+    }
+
+    function exportarLibroKardexCsv() {
+      exportarCsvArchivo(
+        'SGCI-Libro-Kardex-IndustriasAlfa-SHA256.csv',
+        ['FECHA_UTC', 'DOCUMENTO', 'TIPO_MOVIMIENTO', 'LOTE', 'VENCIMIENTO', 'ENTRADA', 'SALIDA', 'SALDO_CANTIDAD', 'COSTO_UNITARIO', 'SALDO_VALORIZADO', 'OPERADOR', 'ROL'],
+        state.movimientosKardex.map(m => [m.fecha, m.doc, m.tipo, m.lote, m.vence, m.entrada, m.salida, m.saldo, m.costoUnit, m.saldoVal, m.operador, m.rolOp]),
+      );
+    }
+
     function renderMain() {
       renderGuiaUat();
       sincronizarEstadoServidorMvp();
@@ -699,8 +731,8 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                 <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-1">Centro de mando</h1>
                 <p class="text-sm text-slate-500 mt-1">Visibilidad consolidada de inventario y operaciones en tiempo real.</p>
               </div>
-              <button onclick="seleccionarVista('libro-kardex')" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-800 shadow-sm hover:bg-slate-50">
-                ↓ Exportar resumen
+              <button onclick="exportarResumenEjecutivoCsv()" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-800 shadow-sm hover:bg-slate-50">
+                ↓ Exportar resumen (.CSV)
               </button>
             </div>
 
@@ -973,8 +1005,8 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                 <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-1">Libro mayor Kardex</h1>
                 <p class="text-sm text-slate-500 mt-1">Trazabilidad inmutable de movimientos y valoración.</p>
               </div>
-              <button onclick="alert('Libro Mayor Kardex exportado con firma SHA-256 (8F2A...C91D).')" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-800 shadow-sm hover:bg-slate-50">
-                ↓ Exportar libro
+              <button onclick="exportarLibroKardexCsv()" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-800 shadow-sm hover:bg-slate-50">
+                ↓ Exportar libro (.CSV)
               </button>
             </div>
 
@@ -2198,8 +2230,8 @@ const server = createServer(async (req, res) => {
           tenant_demo: 'Industrias Alfa S.A.S. (8f2a...c91d)',
           bodega_activa: 'ALM-CENTRAL-01 — Bodega Central Monterrey',
           pantallasOficialesSgci: 47,
-          tddBackend: { suites: 11, total: 38, aprobadas: 38, estado: 'VERDE' },
-          tddFrontend: { suites: 11, total: 30, aprobadas: 30, estado: 'VERDE' },
+          tddBackend: { suites: 12, total: 40, aprobadas: 40, estado: 'VERDE' },
+          tddFrontend: { suites: 12, total: 32, aprobadas: 32, estado: 'VERDE' },
         }),
       );
       return;

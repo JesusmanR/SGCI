@@ -42,8 +42,8 @@ function manejarCambioRol(rol: RolUsuarioSaas): void {
 
 <template>
   <aside
-    class="flex w-full flex-col justify-between border-r border-slate-800 bg-[#0A1120] text-white transition-all duration-200 lg:min-h-screen"
-    :class="menuContraido ? 'lg:w-20' : 'lg:w-72'"
+    class="flex flex-col justify-between border-r border-slate-800 bg-[#0A1120] text-white transition-all duration-200 min-h-screen shrink-0 select-none"
+    :class="menuContraido ? 'w-20 min-w-[80px] max-w-[80px]' : 'w-72 min-w-[288px] max-w-[288px]'"
   >
     <div class="p-4 space-y-5">
       <!-- Marca Institucional SGCI + Botón Menú Expandido/Contraído (00-MENU-EXPANDIDO-Y-CONTRAIDO) -->

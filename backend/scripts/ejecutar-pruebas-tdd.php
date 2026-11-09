@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Ejecutor autónomo PSR-4 de la Suite TDD Backend SGCI (Sprints 2 al 10).
+ * Ejecutor autónomo PSR-4 de la Suite TDD Backend SGCI (Sprints 2 al 12 + Suite E2E MVP UAT Integral).
  * Soporta métodos con prefijo `test_` y anotaciones `@test` en docblocks.
  */
 
@@ -237,6 +237,7 @@ namespace {
         \Tests\Feature\Modulos\Compartido\OperacionesApiV1Test::class,
         \Tests\Feature\Modulos\Autenticacion\RestablecerContrasenaTokenTest::class,
         \Tests\Unit\Modulos\Kardex\AnaliticaValoracionAbcTest::class,
+        \Tests\Feature\Modulos\Compartido\MvpEntregaIntegralUatTest::class,
     ];
 
     $totalPruebas = 0;

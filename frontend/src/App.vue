@@ -12,11 +12,13 @@ import VistaImpuestosPreciosFigma from './diseno/organismos/VistaImpuestosPrecio
 import VistaEstadosSistemaNotificacionesFigma from './diseno/organismos/VistaEstadosSistemaNotificacionesFigma.vue';
 import VistaFacturacionCajaFigma from './diseno/organismos/VistaFacturacionCajaFigma.vue';
 import VistaGobernanzaReportesFigma from './diseno/organismos/VistaGobernanzaReportesFigma.vue';
+import VistaAnaliticaPatrimonialAbc from './diseno/organismos/VistaAnaliticaPatrimonialAbc.vue';
 import Galeria78PantallasFigma from './diseno/organismos/Galeria78PantallasFigma.vue';
 import { useSesionMultiTenantStore } from './stores/useSesionMultiTenantStore';
 import { useAuditoriaConteosStore } from './modulos/conteos/almacen/useAuditoriaConteosStore';
 import { usePreciosImpuestosStore } from './modulos/precios/almacen/usePreciosImpuestosStore';
 import { useFacturacionCajaStore } from './modulos/caja/almacen/useFacturacionCajaStore';
+import { useAnaliticaInventarioStore } from './modulos/analitica/almacen/useAnaliticaInventarioStore';
 import {
   useGobernanzaSaasStore,
   type RolUsuarioSaas,
@@ -36,6 +38,7 @@ const storePrecios = usePreciosImpuestosStore();
 const storeCaja = useFacturacionCajaStore();
 const storeGobernanza = useGobernanzaSaasStore();
 const storeOffline = useSincronizacionOfflineStore();
+const storeAnalitica = useAnaliticaInventarioStore();
 
 function sincronizarContextoTenant(tenantId: string): void {
   storeConteos.establecerContextoTenant(tenantId, sesionStore.empresaActiva.bodegaPrincipalId);
@@ -43,6 +46,7 @@ function sincronizarContextoTenant(tenantId: string): void {
   storeCaja.establecerTenantActivo(tenantId);
   storeGobernanza.establecerTenantActivo(tenantId);
   storeOffline.establecerTenantActivo(tenantId);
+  storeAnalitica.tenantActivoId = tenantId;
 }
 
 function sincronizarRolActivo(rol: RolUsuarioSaas): void {
@@ -221,6 +225,9 @@ const movimientosKardexDemo: MovimientoKardex[] = [
           v-else-if="moduloSeleccionado === 'estados-alertas'"
         />
         <VistaFacturacionCajaFigma v-else-if="moduloSeleccionado === 'facturacion-caja'" />
+        <VistaAnaliticaPatrimonialAbc
+          v-else-if="moduloSeleccionado === 'analitica-patrimonial-abc'"
+        />
         <div v-else class="space-y-8">
           <TablaKardexAlmacen
             :movimientos="movimientosKardexDemo"
