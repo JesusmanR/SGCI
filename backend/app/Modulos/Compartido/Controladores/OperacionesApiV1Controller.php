@@ -110,21 +110,44 @@ final class OperacionesApiV1Controller
      */
     public function registrarCobroFactura(array $payload): array
     {
+        $lineas = (array) ($payload['lineas_factura'] ?? [
+            [
+                'sku' => (string) ($payload['sku'] ?? 'SKU-GEN-01'),
+                'cantidad' => (int) ($payload['cantidad'] ?? 1),
+                'precio_unitario' => (float) ($payload['total_factura'] ?? $payload['monto_recibido'] ?? 10.0),
+            ],
+        ]);
+        $total = (float) ($payload['total_factura'] ?? $payload['monto_recibido'] ?? 10.0);
+        $efectivo = (float) ($payload['efectivo_recibido'] ?? $payload['monto_recibido'] ?? $total);
+
         $dto = new RegistrarCobroCajaDTO(
             tenantId: (string) $payload['tenant_id'],
-            facturaId: (string) $payload['factura_id'],
-            sesionCajaId: (string) $payload['sesion_caja_id'],
-            metodoPago: (string) $payload['metodo_pago'],
-            montoRecibido: (float) $payload['monto_recibido'],
-            referenciaVoucher: isset($payload['referencia_voucher']) ? (string) $payload['referencia_voucher'] : null,
-            cajeroUsuarioId: (string) $payload['cajero_usuario_id'],
+            almacenId: (string) ($payload['almacen_id'] ?? 'alm-central-01'),
+            referenciaFactura: (string) ($payload['referencia_factura'] ?? $payload['factura_id'] ?? 'FAC-1001'),
+            lineasFactura: $lineas,
+            totalFactura: $total,
+            metodoPago: (string) ($payload['metodo_pago'] ?? RegistrarCobroCajaDTO::METODO_EFECTIVO),
+            efectivoRecibido: $efectivo,
+            referenciaPago: (string) ($payload['referencia_pago'] ?? $payload['referencia_voucher'] ?? 'REF-PAGO-001'),
+            cajeroUsuarioId: (string) ($payload['cajero_usuario_id'] ?? 'usr-cajero-01'),
         );
 
-        return $this->facturacionCajaService->registrarCobroFactura(
+        $inventarioPorSku = (array) ($payload['inventario_por_sku'] ?? []);
+        if ($inventarioPorSku === [] && isset($lineas[0]['sku'])) {
+            $sku = (string) $lineas[0]['sku'];
+            $inventarioPorSku[$sku] = [
+                'sku' => $sku,
+                'nombre' => (string) ($payload['nombre_producto'] ?? 'Producto General'),
+                'stock_actual' => (int) ($payload['stock_actual'] ?? 100),
+                'tenant_id' => (string) $payload['tenant_id'],
+            ];
+        }
+
+        return $this->facturacionCajaService->confirmarCobroYDescontarStock(
             dto: $dto,
-            totalFactura: (float) $payload['total_factura'],
-            saldoPendienteActual: (float) $payload['saldo_pendiente_actual'],
-            estadoSesionCaja: (string) ($payload['estado_sesion_caja'] ?? 'ABIERTA'),
+            cajaAbierta: (bool) ($payload['caja_abierta'] ?? true),
+            inventarioPorSku: $inventarioPorSku,
+            consecutivoCobro: (int) ($payload['consecutivo_cobro'] ?? 1049),
         );
     }
 
@@ -137,19 +160,31 @@ final class OperacionesApiV1Controller
      */
     public function aplicarAjusteInventario(array $payload): array
     {
+        $stockActual = (float) ($payload['stock_actual_sistema'] ?? $payload['stock_sistema_actual'] ?? 10.0);
+        $delta = (float) ($payload['delta_cantidad'] ?? $payload['cantidad_ajuste'] ?? 0.0);
+        $cantidadRealContada = isset($payload['cantidad_real_contada'])
+            ? (float) $payload['cantidad_real_contada']
+            : ($stockActual + $delta);
+
+        $motivo = (string) ($payload['motivo_ajuste'] ?? $payload['motivo'] ?? 'Conteo físico');
+        $observaciones = isset($payload['observaciones'])
+            ? (string) $payload['observaciones']
+            : (isset($payload['notas']) ? (string) $payload['notas'] : ($motivo === 'Otro' ? 'Ajuste general' : null));
+
         $dto = new RegistrarAjusteInventarioDTO(
             tenantId: (string) $payload['tenant_id'],
-            almacenId: (string) $payload['almacen_id'],
-            productoId: (string) $payload['producto_id'],
+            warehouseId: (string) ($payload['warehouse_id'] ?? $payload['almacen_id'] ?? 'alm-central-01'),
+            productId: (string) ($payload['product_id'] ?? $payload['producto_id'] ?? 'prod-001'),
             sku: (string) $payload['sku'],
-            tipoAjuste: (string) $payload['tipo_ajuste'],
-            cantidadAjuste: (float) $payload['cantidad_ajuste'],
-            stockSistemaActual: (float) $payload['stock_sistema_actual'],
-            costoUnitarioActual: (float) $payload['costo_unitario_actual'],
-            motivo: (string) $payload['motivo'],
-            notas: (string) ($payload['notas'] ?? ''),
-            evidenciaAdjunta: isset($payload['evidencia_adjunta']) ? (string) $payload['evidencia_adjunta'] : null,
-            usuarioId: (string) $payload['usuario_id'],
+            nombreProducto: (string) ($payload['nombre_producto'] ?? $payload['nombre'] ?? $payload['sku']),
+            stockActualSistema: $stockActual,
+            cantidadRealContada: $cantidadRealContada,
+            costoUnitarioActual: (float) ($payload['costo_unitario_actual'] ?? 10.0),
+            motivoAjuste: $motivo,
+            observaciones: $observaciones,
+            usuarioResponsableId: (string) ($payload['usuario_responsable_id'] ?? $payload['usuario_id'] ?? 'usr-responsable-01'),
+            usuarioAutorizadorId: isset($payload['usuario_autorizador_id']) ? (string) $payload['usuario_autorizador_id'] : null,
+            loteId: isset($payload['lote_id']) ? (string) $payload['lote_id'] : null,
         );
 
         return $this->ajusteKardexAction->ejecutar($dto);

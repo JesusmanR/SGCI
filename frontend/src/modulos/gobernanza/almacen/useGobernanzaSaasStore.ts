@@ -4,8 +4,10 @@ import type { EntidadBaseTenant } from '../../../compartido/tipos/entidadBase';
 import { redondearMoneda } from '../../precios/almacen/usePreciosImpuestosStore';
 
 export type PlanSaasFigma = 'Emprende' | 'Crece' | 'Pro';
+export type TipoPlanSaas = PlanSaasFigma;
 export type EstadoMembresiaFigma = 'Activa' | 'Suspendida' | 'Cancelada' | 'Prueba';
 export type RolVistaFigma = 'admin' | 'seller' | 'superadmin';
+export type RolUsuarioSaas = RolVistaFigma;
 
 export interface MiembroEquipoFigma extends EntidadBaseTenant {
   nombre: string;

@@ -1,0 +1,191 @@
+{
+  "productos": [
+    {
+      "sku": "AC-100-FLEX",
+      "nombre": "Válvula de Presión Industrial 2\"",
+      "ubicacion": "A-04-R02-NB",
+      "lote": "LOTE-2026-089",
+      "metodo": "PEPS",
+      "min": 12,
+      "rop": 18,
+      "max": 48,
+      "stock": 5,
+      "costo": 142.5,
+      "estado": "CRÍTICO"
+    },
+    {
+      "sku": "RB-220-INOX",
+      "nombre": "Rodamiento sellado acero inoxidable",
+      "ubicacion": "B-02-R08-NA",
+      "lote": "LOTE-2026-101",
+      "metodo": "CPP",
+      "min": 10,
+      "rop": 20,
+      "max": 60,
+      "stock": 14,
+      "costo": 148.2,
+      "estado": "REORDEN"
+    },
+    {
+      "sku": "FL-084-NBR",
+      "nombre": "Sello mecánico NBR 84 mm",
+      "ubicacion": "B-06-R03-NC",
+      "lote": "LOTE-2027-014",
+      "metodo": "PEPS",
+      "min": 20,
+      "rop": 32,
+      "max": 100,
+      "stock": 84,
+      "costo": 64,
+      "estado": "ÓPTIMO"
+    }
+  ],
+  "movimientosKardex": [
+    {
+      "fecha": "08 MAR 2026 · 08:42:16 UTC-6",
+      "doc": "OC-2026-0041",
+      "tipo": "ENTRADA COMPRA",
+      "lote": "LOTE-2026-089",
+      "vence": "18/03/2026",
+      "entrada": "24.0000",
+      "salida": "—",
+      "saldo": "29.0000",
+      "costoUnit": 142.5,
+      "saldoVal": 4132.5,
+      "operador": "L. Mendoza",
+      "rolOp": "ALMACENISTA"
+    },
+    {
+      "fecha": "08 MAR 2026 · 09:18:02 UTC-6",
+      "doc": "TR-2026-0188",
+      "tipo": "TRANSFERENCIA",
+      "lote": "LOTE-2026-089",
+      "vence": "18/03/2026",
+      "entrada": "—",
+      "salida": "8.0000",
+      "saldo": "21.0000",
+      "costoUnit": 142.5,
+      "saldoVal": 2992.5,
+      "operador": "M. Solís",
+      "rolOp": "ALMACENISTA"
+    },
+    {
+      "fecha": "08 MAR 2026 · 10:06:44 UTC-6",
+      "doc": "OT-2026-1092",
+      "tipo": "SALIDA DESPACHO",
+      "lote": "LOTE-2026-089",
+      "vence": "18/03/2026",
+      "entrada": "—",
+      "salida": "16.0000",
+      "saldo": "5.0000",
+      "costoUnit": 142.5,
+      "saldoVal": 712.5,
+      "operador": "D. Ríos",
+      "rolOp": "ALMACENISTA"
+    },
+    {
+      "fecha": "08 MAR 2026 · 11:31:19 UTC-6",
+      "doc": "AJ-2026-0062",
+      "tipo": "AJUSTE",
+      "lote": "LOTE-2026-089",
+      "vence": "18/03/2026",
+      "entrada": "1.0000",
+      "salida": "—",
+      "saldo": "6.0000",
+      "costoUnit": 142.5,
+      "saldoVal": 855,
+      "operador": "A. Vélez",
+      "rolOp": "ALMACENISTA"
+    }
+  ],
+  "lotesFefo": [
+    {
+      "lote": "LOTE-2026-089",
+      "sku": "AC-100-FLEX",
+      "producto": "Válvula de Presión Industrial 2\"",
+      "vence": "2026-11-17",
+      "dias": 12,
+      "cant": 6,
+      "ubicacion": "A-04-R02-NB",
+      "semaforo": "PROXIMO_A_VENCER"
+    },
+    {
+      "lote": "LOTE-2026-101",
+      "sku": "RB-220-INOX",
+      "producto": "Rodamiento sellado acero inoxidable",
+      "vence": "2026-12-28",
+      "dias": 53,
+      "cant": 18,
+      "ubicacion": "B-02-R08-NA",
+      "semaforo": "ADVERTENCIA"
+    },
+    {
+      "lote": "LOTE-2027-014",
+      "sku": "FL-084-NBR",
+      "producto": "Sello mecánico NBR 84 mm",
+      "vence": "2027-06-15",
+      "dias": 222,
+      "cant": 84,
+      "ubicacion": "B-06-R03-NC",
+      "semaforo": "VIGENTE"
+    },
+    {
+      "lote": "LOTE-2026-019",
+      "sku": "AC-100-FLEX",
+      "producto": "Válvula de Presión Industrial 2\"",
+      "vence": "2026-10-01",
+      "dias": -35,
+      "cant": 3,
+      "ubicacion": "ZONA-CUARENTENA-01",
+      "semaforo": "CUARENTENA"
+    }
+  ],
+  "ordenesCompra": [
+    {
+      "oc": "OC-2026-0118",
+      "proveedor": "Metalnova Industrial S.A.",
+      "sku": "AC-100-FLEX",
+      "solicitado": 20,
+      "recibido": 20,
+      "muelle": "Muelle 02",
+      "estado": "CONCILIADA",
+      "totalUsd": 2850
+    },
+    {
+      "oc": "OC-2026-0119",
+      "proveedor": "Nortek Suministros",
+      "sku": "RB-220-INOX",
+      "solicitado": 40,
+      "recibido": 0,
+      "muelle": "Muelle 01",
+      "estado": "ABIERTA · PENDIENTE RECEPCIÓN",
+      "totalUsd": 5928
+    }
+  ],
+  "colaOffline": [
+    {
+      "id": "op-1",
+      "titulo": "Salida · AC-100-FLEX · 4 PZA",
+      "detalle": "Hoy · 10:42 · D. Ríos",
+      "estado": "PENDIENTE"
+    },
+    {
+      "id": "op-2",
+      "titulo": "Conteo · B-02-05 · 14 PZA",
+      "detalle": "Hoy · 10:38 · D. Ríos",
+      "estado": "PENDIENTE"
+    },
+    {
+      "id": "op-3",
+      "titulo": "Entrada · FL-084-NBR · 20 PZA",
+      "detalle": "Hoy · 10:21 · D. Ríos",
+      "estado": "PENDIENTE"
+    },
+    {
+      "id": "op-4",
+      "titulo": "Conteo · A-01-03 · 8 PZA",
+      "detalle": "Hoy · 09:54 · D. Ríos",
+      "estado": "PENDIENTE"
+    }
+  ]
+}

@@ -1,11 +1,12 @@
 import { createServer } from 'node:http';
-import { readFile, stat } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = resolve(fileURLToPath(import.meta.url), '..');
 const repoRoot = resolve(__dirname, '..');
 const publicDir = join(repoRoot, 'frontend', 'public');
+const mvpDbPath = join(repoRoot, 'database', 'mvp-storage.json');
 const PORT = Number(process.env.PORT || 4173);
 
 const MIME_TYPES = {
@@ -75,7 +76,15 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
           </div>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2.5">
+          <button onclick="state.mostrarGuiaUatMvp = !state.mostrarGuiaUatMvp; renderMain()" class="inline-flex items-center gap-1.5 rounded-lg bg-[#0A1120] px-3 py-2 text-xs font-extrabold text-white shadow-sm hover:bg-slate-800 transition">
+            🧪 Guía Prueba MVP
+          </button>
+
+          <button onclick="restaurarDatosDemoMvp()" title="Restaurar estado inicial de Industrias Alfa S.A.S." class="hidden sm:inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition">
+            ↺ Reset MVP
+          </button>
+
           <button onclick="alternarModoOffline()" id="btn-status-ws" class="flex items-center gap-2 rounded-lg px-3 py-1.5 border border-emerald-200 bg-emerald-50/60 text-left transition">
             <span id="dot-ws" class="h-2 w-2 rounded-full bg-emerald-500"></span>
             <div>
@@ -84,11 +93,14 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
             </div>
           </button>
 
-          <a href="/artifacts/sgci-pantallas/INDICE.html" target="_blank" class="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">
-            🖼️ Índice 25 PNGs ↗
+          <a href="/artifacts/sgci-pantallas/INDICE.html" target="_blank" class="hidden xl:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">
+            🖼️ 47 PNGs ↗
           </a>
         </div>
       </header>
+
+      <!-- Panel Desplegable de Guía Interactiva UAT para Prueba del MVP -->
+      <div id="contenedor-guia-uat" class="max-w-[1440px] w-full mx-auto px-6 lg:px-8 pt-4 empty:hidden"></div>
 
       <!-- Área Principal Dinámica -->
       <main id="contenedor-principal" class="flex-1 p-6 lg:p-8 max-w-[1440px] w-full mx-auto"></main>
@@ -146,6 +158,7 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       mostrarModalTransferencia09b: false,
       mostrarSimuladorFefo11b: false,
       mostrarModalCicloConteo12b: false,
+      mostrarGuiaUatMvp: true,
       cantidadDespachoFefo: 10,
       nuevoProdSku: 'VL-310-TITAN',
       nuevoProdNombre: 'Válvula direccional neumática 1/2"',
@@ -544,6 +557,85 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       try {
         localStorage.setItem('sgci_cola_offline_v1', JSON.stringify(state.colaOffline));
       } catch {}
+      sincronizarEstadoServidorMvp();
+    }
+
+    function sincronizarEstadoServidorMvp() {
+      fetch('/api/v1/mvp/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productos: state.productos,
+          movimientosKardex: state.movimientosKardex,
+          lotesFefo: state.lotesFefo,
+          ordenesCompra: state.ordenesCompra,
+          colaOffline: state.colaOffline,
+        }),
+      }).catch(() => {});
+    }
+
+    function restaurarDatosDemoMvp() {
+      fetch('/api/v1/mvp/reset', { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.state) {
+            state.productos = data.state.productos;
+            state.movimientosKardex = data.state.movimientosKardex;
+            state.lotesFefo = data.state.lotesFefo;
+            state.ordenesCompra = data.state.ordenesCompra;
+            state.colaOffline = data.state.colaOffline;
+            localStorage.removeItem('sgci_cola_offline_v1');
+            renderMain();
+          }
+        })
+        .catch(() => location.reload());
+    }
+
+    function renderGuiaUat() {
+      const box = document.getElementById('contenedor-guia-uat');
+      if (!box) return;
+      if (!state.mostrarGuiaUatMvp) {
+        box.innerHTML = '';
+        return;
+      }
+      box.innerHTML = \`
+        <div class="rounded-2xl border-2 border-cyan-500/40 bg-[#0A1120] text-white p-5 shadow-lg space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-extrabold uppercase tracking-widest text-cyan-400">ENTREGABLE MVP LISTO PARA PRUEBA DE USUARIO (UAT · PERSISTENCIA API V1 ACTIVA)</span>
+              <h2 class="text-base font-extrabold text-white mt-0.5">Recorrido Guiado de Prueba del MVP (Haz clic en cualquier escenario para probarlo en vivo)</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="alternarMenuLateral()" class="rounded-lg border border-cyan-400/40 bg-slate-900 px-3 py-1.5 text-[11px] font-bold text-cyan-300 hover:bg-slate-800">
+                ↔ Probar Menú Contraído/Expandido
+              </button>
+              <button onclick="state.mostrarGuiaUatMvp = false; renderMain()" class="rounded-lg bg-slate-800 px-2.5 py-1.5 text-xs font-bold text-slate-300 hover:text-white">✕ Ocultar</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+            <button onclick="seleccionarVista('productos-rop'); state.mostrarModalProducto08b = true; renderMain()" class="text-left rounded-xl border border-slate-800 bg-slate-900/90 p-3 hover:border-cyan-400 transition">
+              <span class="font-mono text-[10px] text-cyan-400 font-bold block">1. CATÁLOGO Y ROP (08B)</span>
+              <strong class="text-white block mt-0.5">Crear Producto Maestro</strong>
+              <span class="text-[11px] text-slate-400">Valida invariante ROP ≥ Stock Mínimo</span>
+            </button>
+            <button onclick="seleccionarVista('lotes-fefo'); state.mostrarSimuladorFefo11b = true; renderMain()" class="text-left rounded-xl border border-slate-800 bg-slate-900/90 p-3 hover:border-cyan-400 transition">
+              <span class="font-mono text-[10px] text-cyan-400 font-bold block">2. MOTOR FEFO (11B)</span>
+              <strong class="text-white block mt-0.5">Despacho Automático FEFO</strong>
+              <span class="text-[11px] text-slate-400">Consume por caducidad y omite cuarentena</span>
+            </button>
+            <button onclick="seleccionarVista('abastecimiento'); state.mostrarModalRecepcion13b = true; renderMain()" class="text-left rounded-xl border border-slate-800 bg-slate-900/90 p-3 hover:border-cyan-400 transition">
+              <span class="font-mono text-[10px] text-cyan-400 font-bold block">3. RECEPCIÓN MUELLE (13B)</span>
+              <strong class="text-white block mt-0.5">Recibir OC-2026-0119 → Kardex</strong>
+              <span class="text-[11px] text-slate-400">Suma 40 PZA y genera asiento inmutable</span>
+            </button>
+            <button onclick="seleccionarVista('pwa-movil'); state.tabMovil = 'conteos'; renderMain()" class="text-left rounded-xl border border-slate-800 bg-slate-900/90 p-3 hover:border-cyan-400 transition">
+              <span class="font-mono text-[10px] text-cyan-400 font-bold block">4. PWA MÓVIL 390PX (M07-M10)</span>
+              <strong class="text-white block mt-0.5">Conteo Ciego + Menú Móvil ☰</strong>
+              <span class="text-[11px] text-slate-400">Teclado táctil y cola Offline IndexedDB</span>
+            </button>
+          </div>
+        </div>
+      \`;
     }
 
     function aplicarNuevaContrasenaToken() {
@@ -593,6 +685,8 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
     }
 
     function renderMain() {
+      renderGuiaUat();
+      sincronizarEstadoServidorMvp();
       const el = document.getElementById('contenedor-principal');
 
       // 07 - CENTRO DE MANDO (Réplica exacta de 07-Centro-de-mando.png)
@@ -2019,20 +2113,76 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       \`;
     }
 
-    fetch('/artifacts/sgci-pantallas/manifest.json')
-      .then(r => r.json())
-      .then(data => {
-        state.pantallasManifest = data.screens || [];
-        renderSidebar();
-        renderMain();
-      })
-      .catch(() => {
-        renderSidebar();
-        renderMain();
-      });
+    Promise.all([
+      fetch('/artifacts/sgci-pantallas/manifest.json').then(r => r.json()).catch(() => ({ screens: [] })),
+      fetch('/api/v1/mvp/state').then(r => r.json()).catch(() => null),
+    ]).then(([manifestData, mvpData]) => {
+      state.pantallasManifest = (manifestData && manifestData.screens) || [];
+      if (mvpData && mvpData.state) {
+        state.productos = mvpData.state.productos || state.productos;
+        state.movimientosKardex = mvpData.state.movimientosKardex || state.movimientosKardex;
+        state.lotesFefo = mvpData.state.lotesFefo || state.lotesFefo;
+        state.ordenesCompra = mvpData.state.ordenesCompra || state.ordenesCompra;
+      }
+      renderSidebar();
+      renderMain();
+    });
   </script>
 </body>
 </html>`;
+
+const INITIAL_MVP_STATE = {
+  productos: [
+    { sku: 'AC-100-FLEX', nombre: 'Válvula de Presión Industrial 2"', ubicacion: 'A-04-R02-NB', lote: 'LOTE-2026-089', metodo: 'PEPS', min: 12, rop: 18, max: 48, stock: 5, costo: 142.50, estado: 'CRÍTICO' },
+    { sku: 'RB-220-INOX', nombre: 'Rodamiento sellado acero inoxidable', ubicacion: 'B-02-R08-NA', lote: 'LOTE-2026-101', metodo: 'CPP', min: 10, rop: 20, max: 60, stock: 14, costo: 148.20, estado: 'REORDEN' },
+    { sku: 'FL-084-NBR', nombre: 'Sello mecánico NBR 84 mm', ubicacion: 'B-06-R03-NC', lote: 'LOTE-2027-014', metodo: 'PEPS', min: 20, rop: 32, max: 100, stock: 84, costo: 64.00, estado: 'ÓPTIMO' },
+  ],
+  movimientosKardex: [
+    { fecha: '08 MAR 2026 · 08:42:16 UTC-6', doc: 'OC-2026-0041', tipo: 'ENTRADA COMPRA', lote: 'LOTE-2026-089', vence: '18/03/2026', entrada: '24.0000', salida: '—', saldo: '29.0000', costoUnit: 142.50, saldoVal: 4132.50, operador: 'L. Mendoza', rolOp: 'ALMACENISTA' },
+    { fecha: '08 MAR 2026 · 09:18:02 UTC-6', doc: 'TR-2026-0188', tipo: 'TRANSFERENCIA', lote: 'LOTE-2026-089', vence: '18/03/2026', entrada: '—', salida: '8.0000', saldo: '21.0000', costoUnit: 142.50, saldoVal: 2992.50, operador: 'M. Solís', rolOp: 'ALMACENISTA' },
+    { fecha: '08 MAR 2026 · 10:06:44 UTC-6', doc: 'OT-2026-1092', tipo: 'SALIDA DESPACHO', lote: 'LOTE-2026-089', vence: '18/03/2026', entrada: '—', salida: '16.0000', saldo: '5.0000', costoUnit: 142.50, saldoVal: 712.50, operador: 'D. Ríos', rolOp: 'ALMACENISTA' },
+    { fecha: '08 MAR 2026 · 11:31:19 UTC-6', doc: 'AJ-2026-0062', tipo: 'AJUSTE', lote: 'LOTE-2026-089', vence: '18/03/2026', entrada: '1.0000', salida: '—', saldo: '6.0000', costoUnit: 142.50, saldoVal: 855.00, operador: 'A. Vélez', rolOp: 'ALMACENISTA' },
+  ],
+  lotesFefo: [
+    { lote: 'LOTE-2026-089', sku: 'AC-100-FLEX', producto: 'Válvula de Presión Industrial 2"', vence: '2026-11-17', dias: 12, cant: 6, ubicacion: 'A-04-R02-NB', semaforo: 'PROXIMO_A_VENCER' },
+    { lote: 'LOTE-2026-101', sku: 'RB-220-INOX', producto: 'Rodamiento sellado acero inoxidable', vence: '2026-12-28', dias: 53, cant: 18, ubicacion: 'B-02-R08-NA', semaforo: 'ADVERTENCIA' },
+    { lote: 'LOTE-2027-014', sku: 'FL-084-NBR', producto: 'Sello mecánico NBR 84 mm', vence: '2027-06-15', dias: 222, cant: 84, ubicacion: 'B-06-R03-NC', semaforo: 'VIGENTE' },
+    { lote: 'LOTE-2026-019', sku: 'AC-100-FLEX', producto: 'Válvula de Presión Industrial 2"', vence: '2026-10-01', dias: -35, cant: 3, ubicacion: 'ZONA-CUARENTENA-01', semaforo: 'CUARENTENA' },
+  ],
+  ordenesCompra: [
+    { oc: 'OC-2026-0118', proveedor: 'Metalnova Industrial S.A.', sku: 'AC-100-FLEX', solicitado: 20, recibido: 20, muelle: 'Muelle 02', estado: 'CONCILIADA', totalUsd: 2850 },
+    { oc: 'OC-2026-0119', proveedor: 'Nortek Suministros', sku: 'RB-220-INOX', solicitado: 40, recibido: 0, muelle: 'Muelle 01', estado: 'ABIERTA · PENDIENTE RECEPCIÓN', totalUsd: 5928 },
+  ],
+  colaOffline: [
+    { id: 'op-1', titulo: 'Salida · AC-100-FLEX · 4 PZA', detalle: 'Hoy · 10:42 · D. Ríos', estado: 'PENDIENTE' },
+    { id: 'op-2', titulo: 'Conteo · B-02-05 · 14 PZA', detalle: 'Hoy · 10:38 · D. Ríos', estado: 'PENDIENTE' },
+    { id: 'op-3', titulo: 'Entrada · FL-084-NBR · 20 PZA', detalle: 'Hoy · 10:21 · D. Ríos', estado: 'PENDIENTE' },
+    { id: 'op-4', titulo: 'Conteo · A-01-03 · 8 PZA', detalle: 'Hoy · 09:54 · D. Ríos', estado: 'PENDIENTE' },
+  ],
+};
+
+let mvpState = structuredClone(INITIAL_MVP_STATE);
+
+async function cargarMvpStateDisco() {
+  try {
+    const raw = await readFile(mvpDbPath, 'utf-8');
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.productos)) {
+      mvpState = parsed;
+    }
+  } catch {
+    await guardarMvpStateDisco();
+  }
+}
+
+async function guardarMvpStateDisco() {
+  try {
+    await mkdir(join(repoRoot, 'database'), { recursive: true });
+    await writeFile(mvpDbPath, JSON.stringify(mvpState, null, 2), 'utf-8');
+  } catch {}
+}
+
+await cargarMvpStateDisco();
 
 const server = createServer(async (req, res) => {
   try {
@@ -2042,16 +2192,45 @@ const server = createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           status: 'ok',
-          estado: 'OPERATIVO',
-          version_api: 'v1.10.0',
+          estado: 'MVP_LISTO_PARA_PRUEBA_UAT',
+          version_api: 'v1.12.0-MVP',
           sistema: 'SGCI · Control de Inventarios',
           tenant_demo: 'Industrias Alfa S.A.S. (8f2a...c91d)',
           bodega_activa: 'ALM-CENTRAL-01 — Bodega Central Monterrey',
           pantallasOficialesSgci: 47,
-          tddBackend: { suites: 10, total: 36, aprobadas: 36, estado: 'VERDE' },
-          tddFrontend: { suites: 10, total: 28, aprobadas: 28, estado: 'VERDE' },
+          tddBackend: { suites: 11, total: 38, aprobadas: 38, estado: 'VERDE' },
+          tddFrontend: { suites: 11, total: 30, aprobadas: 30, estado: 'VERDE' },
         }),
       );
+      return;
+    }
+
+    if (url.pathname === '/api/v1/mvp/state' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ status: 'ok', state: mvpState }));
+      return;
+    }
+
+    if (url.pathname === '/api/v1/mvp/state' && req.method === 'POST') {
+      let body = '';
+      for await (const chunk of req) body += chunk;
+      const payload = JSON.parse(body || '{}');
+      if (Array.isArray(payload.productos)) mvpState.productos = payload.productos;
+      if (Array.isArray(payload.movimientosKardex)) mvpState.movimientosKardex = payload.movimientosKardex;
+      if (Array.isArray(payload.lotesFefo)) mvpState.lotesFefo = payload.lotesFefo;
+      if (Array.isArray(payload.ordenesCompra)) mvpState.ordenesCompra = payload.ordenesCompra;
+      if (Array.isArray(payload.colaOffline)) mvpState.colaOffline = payload.colaOffline;
+      await guardarMvpStateDisco();
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ status: 'saved', updated_at: new Date().toISOString() }));
+      return;
+    }
+
+    if (url.pathname === '/api/v1/mvp/reset' && req.method === 'POST') {
+      mvpState = structuredClone(INITIAL_MVP_STATE);
+      await guardarMvpStateDisco();
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ status: 'reset', state: mvpState }));
       return;
     }
 
