@@ -1,4 +1,24 @@
 {
+  "usuarios": [
+    {
+      "nombre": "Laura Mendoza",
+      "iniciales": "LM",
+      "email": "laura@industriasalfa.com",
+      "password": "AlfaInventario#2026",
+      "organizacion": "Industrias Alfa S.A.S.",
+      "codigoOrg": "IND-ALFA",
+      "rol": "JEFE_ALMACEN"
+    },
+    {
+      "nombre": "Carlos Morales",
+      "iniciales": "CM",
+      "email": "carlos@industriasalfa.com",
+      "password": "AlfaInventario#2026",
+      "organizacion": "Industrias Alfa S.A.S.",
+      "codigoOrg": "IND-ALFA",
+      "rol": "ADMIN_EMPRESA"
+    }
+  ],
   "productos": [
     {
       "sku": "AC-100-FLEX",

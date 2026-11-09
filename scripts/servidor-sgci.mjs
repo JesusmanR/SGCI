@@ -41,13 +41,13 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
     <!-- Contenedor Derecho: Topbar + Contenido -->
     <div class="flex-1 flex flex-col min-w-0">
       <!-- Topbar Exacto SGCI (Pantallas 07-15) -->
-      <header class="h-[68px] bg-white border-b border-slate-200/90 px-6 flex items-center justify-between gap-4 sticky top-0 z-20">
+      <header id="topbar-principal" class="h-[68px] bg-white border-b border-slate-200/90 px-6 flex items-center justify-between gap-4 sticky top-0 z-20">
         <div class="flex flex-wrap items-center gap-4">
           <div class="flex items-center gap-2.5">
             <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
             <div>
-              <strong class="block text-xs font-bold text-slate-900 leading-none">Industrias Alfa S.A.S.</strong>
-              <span class="block text-[10px] font-mono text-slate-400 mt-0.5">tenant · 8f2a...c91d</span>
+              <strong id="org-nombre-top" class="block text-xs font-bold text-slate-900 leading-none">Industrias Alfa S.A.S.</strong>
+              <span id="org-tenant-top" class="block text-[10px] font-mono text-slate-400 mt-0.5">IND-ALFA · 8f2a...c91d</span>
             </div>
             <select id="select-rol-top" onchange="cambiarRolTop(this.value)" class="ml-1 rounded-md bg-blue-50 border border-blue-200 px-2.5 py-1 text-[10px] font-bold text-blue-700 uppercase cursor-pointer">
               <option value="JEFE_ALMACEN">JEFE_ALMACEN</option>
@@ -96,6 +96,10 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
           <button onclick="state.mostrarCentroNotificaciones = !state.mostrarCentroNotificaciones; renderMain()" title="Centro de Notificaciones WebSockets en Tiempo Real" class="relative flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition">
             🔔
             <span id="badge-notif-top" class="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-600 px-1 text-[9px] font-extrabold text-white">4</span>
+          </button>
+
+          <button onclick="cerrarSesionMvp()" title="Cerrar sesión y volver a Login / Crear Cuenta" class="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 transition">
+            🚪 Salir
           </button>
 
           <a href="/artifacts/sgci-pantallas/INDICE.html" target="_blank" class="hidden xl:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">
@@ -152,11 +156,35 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       { id: 'galeria-25', label: '47 Capturas SGCI (Menú)', icon: 'gallery', screen: '47 PNG' },
     ];
 
+    const sesionGuardada = JSON.parse(localStorage.getItem('sgci_sesion_mvp_v1') || 'null');
+
     let state = {
-      vista: 'centro-mando',
+      sesionActiva: Boolean(sesionGuardada && sesionGuardada.email),
+      usuarioActual: sesionGuardada || {
+        nombre: 'Laura Mendoza',
+        iniciales: 'LM',
+        email: 'laura@industriasalfa.com',
+        organizacion: 'Industrias Alfa S.A.S.',
+        codigoOrg: 'IND-ALFA',
+        rol: 'JEFE_ALMACEN',
+      },
+      vista: (sesionGuardada && sesionGuardada.email) ? 'centro-mando' : 'landing',
       menuContraido: false,
       menuMovilAbierto: false,
-      subVistaAcceso: '01-landing',
+      subVistaAcceso: '03-login',
+      loginOrgInput: 'IND-ALFA',
+      loginEmailInput: 'laura@industriasalfa.com',
+      loginPasswordInput: 'AlfaInventario#2026',
+      mostrarPasswordLogin: false,
+      mensajeAuthError: '',
+      mensajeAuthExito: '',
+      regNombreInput: '',
+      regOrganizacionInput: '',
+      regCodigoOrgInput: '',
+      regEmailInput: '',
+      regPasswordInput: '',
+      regRolInput: 'ADMIN_EMPRESA',
+      recuperacionEmailInput: 'laura@industriasalfa.com',
       mostrarModalDemo02: false,
       mostrarModalProducto08b: false,
       mostrarModalRecepcion13b: false,
@@ -259,7 +287,28 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 
     function renderSidebar() {
       const aside = document.getElementById('sidebar-principal');
+      const topbar = document.getElementById('topbar-principal');
+      const orgNombreTop = document.getElementById('org-nombre-top');
+      const orgTenantTop = document.getElementById('org-tenant-top');
+      const selectRolTop = document.getElementById('select-rol-top');
+
+      if (orgNombreTop && state.usuarioActual) orgNombreTop.textContent = state.usuarioActual.organizacion || 'Industrias Alfa S.A.S.';
+      if (orgTenantTop && state.usuarioActual) orgTenantTop.textContent = (state.usuarioActual.codigoOrg || 'IND-ALFA') + ' · 8f2a...c91d';
+      if (selectRolTop) selectRolTop.value = state.rol;
+
       if (!aside) return;
+
+      if (!state.sesionActiva && state.vista === 'landing') {
+        aside.style.display = 'none';
+        if (topbar) topbar.style.display = 'none';
+        return;
+      }
+
+      aside.style.display = 'flex';
+      if (topbar) topbar.style.display = 'flex';
+
+      const usrNombre = (state.usuarioActual && state.usuarioActual.nombre) || 'Laura Mendoza';
+      const usrIniciales = (state.usuarioActual && state.usuarioActual.iniciales) || 'LM';
 
       if (state.menuContraido) {
         // MODO CONTRAÍDO (72px estricto en cualquier ancho de ventana): Cero nodos de texto en el DOM -> Imposible que se sobrepongan iconos o textos
@@ -284,10 +333,10 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
               \${ICONOS_SVG.wifi}
             </div>
             <div class="w-full border-t border-slate-800/80 pt-3 flex flex-col items-center gap-2 bg-[#080E1A]">
-              <div title="Laura Mendoza · \${state.rol}" class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-white font-extrabold text-xs">
-                LM
+              <div title="\${usrNombre} · \${state.rol}" class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-white font-extrabold text-xs">
+                \${usrIniciales}
               </div>
-              <button onclick="seleccionarVista('landing')" title="Cerrar sesión / Ir a Landing" class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-xs">
+              <button onclick="cerrarSesionMvp()" title="Cerrar sesión" class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-xs">
                 ✕
               </button>
             </div>
@@ -350,14 +399,14 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
           <div class="border-t border-slate-800/80 p-4 flex items-center justify-between gap-2 bg-[#080E1A]">
             <div class="flex items-center gap-3 min-w-0">
               <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-white font-extrabold text-xs">
-                LM
+                \${usrIniciales}
               </div>
               <div class="truncate">
-                <strong class="block text-xs font-bold text-white leading-tight truncate">Laura Mendoza</strong>
+                <strong class="block text-xs font-bold text-white leading-tight truncate">\${usrNombre}</strong>
                 <span class="block text-[10px] font-mono text-slate-400 truncate">\${state.rol}</span>
               </div>
             </div>
-            <button onclick="seleccionarVista('landing')" title="Cerrar sesión / Ir a Landing (Pantallas 01-06)" class="text-slate-400 hover:text-white text-xs h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-800 shrink-0">
+            <button onclick="cerrarSesionMvp()" title="Cerrar sesión" class="text-slate-400 hover:text-white text-xs h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-800 shrink-0">
               ✕
             </button>
           </div>
@@ -617,6 +666,10 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
         badgeNotif.style.display = noLeidas > 0 ? 'flex' : 'none';
       }
       if (!box) return;
+      if (!state.sesionActiva && state.vista === 'landing') {
+        box.innerHTML = '';
+        return;
+      }
       let html = '';
       if (state.mostrarCentroNotificaciones) {
         html += \`
@@ -690,16 +743,144 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       \`;
     }
 
+    function aplicarSesionUsuario(usuario) {
+      state.sesionActiva = true;
+      state.usuarioActual = usuario;
+      state.rol = usuario.rol || 'JEFE_ALMACEN';
+      state.mensajeAuthError = '';
+      state.mensajeAuthExito = '';
+      try {
+        localStorage.setItem('sgci_sesion_mvp_v1', JSON.stringify(usuario));
+      } catch {}
+      state.vista = 'centro-mando';
+      renderSidebar();
+      renderMain();
+    }
+
+    function cerrarSesionMvp() {
+      state.sesionActiva = false;
+      state.mensajeAuthError = '';
+      state.mensajeAuthExito = 'Sesión cerrada correctamente. Ingresa tus credenciales o crea una cuenta nueva.';
+      try {
+        localStorage.removeItem('sgci_sesion_mvp_v1');
+      } catch {}
+      state.vista = 'landing';
+      state.subVistaAcceso = '03-login';
+      renderSidebar();
+      renderMain();
+    }
+
+    function iniciarSesionMvp() {
+      const codigoOrg = (state.loginOrgInput || '').trim().toUpperCase();
+      const email = (state.loginEmailInput || '').trim().toLowerCase();
+      const password = state.loginPasswordInput || '';
+      if (!email || !password) {
+        state.mensajeAuthError = 'Debes ingresar tu correo electrónico y contraseña.';
+        renderMain();
+        return;
+      }
+      fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigoOrg, email, password }),
+      })
+        .then(async r => ({ status: r.status, body: await r.json() }))
+        .then(({ status, body }) => {
+          if (status !== 200 || !body.usuario) {
+            state.mensajeAuthError = (body && body.error) || 'Credenciales inválidas. Verifica tu correo y contraseña o regístrate en "Crear cuenta".';
+            renderMain();
+            return;
+          }
+          aplicarSesionUsuario(body.usuario);
+        })
+        .catch(() => {
+          state.mensajeAuthError = 'Error de conexión al validar credenciales.';
+          renderMain();
+        });
+    }
+
+    function registrarCuentaMvp() {
+      const nombre = (state.regNombreInput || '').trim();
+      const organizacion = (state.regOrganizacionInput || '').trim();
+      const codigoOrg = (state.regCodigoOrgInput || '').trim().toUpperCase() || 'EMP-NUEVA';
+      const email = (state.regEmailInput || '').trim().toLowerCase();
+      const password = state.regPasswordInput || '';
+      const rol = state.regRolInput || 'ADMIN_EMPRESA';
+
+      if (!nombre || !organizacion || !email || password.length < 6) {
+        state.mensajeAuthError = 'Completa Nombre, Organización, Correo y una Contraseña de al menos 6 caracteres.';
+        renderMain();
+        return;
+      }
+
+      fetch('/api/v1/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, organizacion, codigoOrg, email, password, rol }),
+      })
+        .then(async r => ({ status: r.status, body: await r.json() }))
+        .then(({ status, body }) => {
+          if (status !== 200 || !body.usuario) {
+            state.mensajeAuthError = (body && body.error) || 'No se pudo registrar la cuenta.';
+            renderMain();
+            return;
+          }
+          state.notificacionesVivas.unshift({
+            id: 'n-welcome-' + Date.now(),
+            titulo: 'Cuenta corporativa creada: ' + body.usuario.organizacion,
+            detalle: 'Bienvenido(a) ' + body.usuario.nombre + ' (' + body.usuario.rol + ')',
+            tiempo: 'Ahora mismo',
+            vista: 'gobernanza-rbac',
+            leida: false,
+          });
+          aplicarSesionUsuario(body.usuario);
+        })
+        .catch(() => {
+          state.mensajeAuthError = 'Error de red al crear la cuenta.';
+          renderMain();
+        });
+    }
+
+    function solicitarRecuperacionMvp() {
+      const email = (state.recuperacionEmailInput || '').trim().toLowerCase();
+      if (!email || !email.includes('@')) {
+        state.mensajeAuthError = 'Ingresa un correo electrónico corporativo válido.';
+        renderMain();
+        return;
+      }
+      state.mensajeAuthError = '';
+      state.tokenRecuperacionInput = 'SGCI-RST-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-2026';
+      state.subVistaAcceso = '05-confirmacion';
+      renderMain();
+    }
+
     function aplicarNuevaContrasenaToken() {
       const p1 = state.nuevaPasswordInput || '';
       const p2 = state.confirmarPasswordInput || '';
-      if (p1.length < 10 || p1 !== p2) {
-        alert('La contraseña debe tener al menos 10 caracteres, mayúscula, número, símbolo y coincidir en ambos campos.');
+      if (p1.length < 8 || p1 !== p2) {
+        state.mensajeAuthError = 'La nueva contraseña debe tener al menos 8 caracteres y coincidir en ambos campos.';
+        renderMain();
         return;
       }
-      state.tokenActualizadoExito = true;
-      alert('Contraseña actualizada exitosamente con token de un solo uso (' + state.tokenRecuperacionInput + '). Todas las sesiones previas fueron revocadas.');
-      renderMain();
+      fetch('/api/v1/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: state.recuperacionEmailInput || state.loginEmailInput || 'laura@industriasalfa.com',
+          nuevaPassword: p1,
+          token: state.tokenRecuperacionInput,
+        }),
+      })
+        .then(() => {
+          state.tokenActualizadoExito = true;
+          state.loginEmailInput = state.recuperacionEmailInput || state.loginEmailInput;
+          state.loginPasswordInput = p1;
+          state.mensajeAuthError = '';
+          state.mensajeAuthExito = 'Contraseña actualizada con éxito. Ya puedes iniciar sesión con tu nueva contraseña.';
+          state.subVistaAcceso = '03-login';
+          renderMain();
+        })
+        .catch(() => {});
     }
 
     function sincronizarColaOfflineMovil() {
@@ -737,11 +918,13 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
     }
 
     function exportarCsvArchivo(nombreArchivo, encabezados, filas) {
+      const salto = String.fromCharCode(13, 10);
+      const bom = String.fromCharCode(0xFEFF);
       const lineas = [
         encabezados.join(','),
         ...filas.map(fila => fila.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')),
       ];
-      const blob = new Blob(['\uFEFF' + lineas.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([bom + lineas.join(salto)], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -2059,28 +2242,48 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                 <div class="p-8 lg:p-12 flex flex-col justify-center max-w-lg mx-auto w-full">
                   \${state.subVistaAcceso === '03-login' ? \`
                     <div class="space-y-4 text-xs">
-                      <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">ACCESO SEGURO · PANTALLA 03</span>
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">ACCESO SEGURO · PANTALLA 03</span>
+                        <button type="button" onclick="state.loginOrgInput='IND-ALFA'; state.loginEmailInput='laura@industriasalfa.com'; state.loginPasswordInput='AlfaInventario#2026'; iniciarSesionMvp()" class="rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-[10px] font-extrabold text-emerald-800 hover:bg-emerald-100">
+                          ⚡ Autocompletar Demo (Laura)
+                        </button>
+                      </div>
                       <h3 class="text-3xl font-extrabold text-slate-900">Bienvenido de nuevo</h3>
-                      <p class="text-slate-500">Ingresa a tu centro de control de inventarios.</p>
-                      <button onclick="seleccionarVista('centro-mando')" class="w-full rounded-xl border border-slate-200 py-3 font-bold text-slate-800 hover:bg-slate-50">G Continuar con Google</button>
+                      <p class="text-slate-500">Ingresa a tu centro de control de inventarios o crea una cuenta nueva.</p>
+
+                      \${state.mensajeAuthError ? \`<div class="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold text-rose-800">⚠️ \${state.mensajeAuthError}</div>\` : ''}
+                      \${state.mensajeAuthExito ? \`<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-800">✓ \${state.mensajeAuthExito}</div>\` : ''}
+
+                      <button type="button" onclick="aplicarSesionUsuario({ nombre: 'Laura Mendoza (Google SSO)', iniciales: 'LM', email: 'laura@industriasalfa.com', organizacion: 'Industrias Alfa S.A.S.', codigoOrg: 'IND-ALFA', rol: 'JEFE_ALMACEN' })" class="w-full rounded-xl border border-slate-200 py-3 font-bold text-slate-800 hover:bg-slate-50">
+                        G Continuar con Google Corporativo
+                      </button>
                       <div class="text-center text-[11px] text-slate-400">o continúa con correo corporativo</div>
                       <label class="block">
-                        <span class="font-bold text-slate-700">Código de organización</span>
-                        <input type="text" value="IND-ALFA" readonly class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono font-bold text-slate-900" />
+                        <span class="font-bold text-slate-700">Código de organización (Tenant)</span>
+                        <input id="input-login-org" type="text" oninput="state.loginOrgInput = this.value" value="\${state.loginOrgInput}" placeholder="Ej. IND-ALFA" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono font-bold text-slate-900 focus:border-blue-600 focus:outline-none" />
                       </label>
                       <label class="block">
                         <span class="font-bold text-slate-700">Correo electrónico</span>
-                        <input type="email" value="laura@industriasalfa.com" readonly class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-semibold text-slate-900" />
+                        <input id="input-login-email" type="email" oninput="state.loginEmailInput = this.value" value="\${state.loginEmailInput}" placeholder="usuario@empresa.com" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-semibold text-slate-900 focus:border-blue-600 focus:outline-none" />
+                      </label>
+                      <label class="block">
+                        <div class="flex items-center justify-between">
+                          <span class="font-bold text-slate-700">Contraseña</span>
+                          <button type="button" onclick="state.mostrarPasswordLogin = !state.mostrarPasswordLogin; renderMain()" class="text-[11px] font-semibold text-blue-600 hover:underline">
+                            \${state.mostrarPasswordLogin ? '🙈 Ocultar' : '👁️ Mostrar'}
+                          </button>
+                        </div>
+                        <input id="input-login-pass" type="\${state.mostrarPasswordLogin ? 'text' : 'password'}" oninput="state.loginPasswordInput = this.value" onkeydown="if(event.key==='Enter') iniciarSesionMvp()" value="\${state.loginPasswordInput}" placeholder="Ingresa tu contraseña" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono text-slate-900 focus:border-blue-600 focus:outline-none" />
                       </label>
                       <div class="flex items-center justify-between text-[11px]">
-                        <span class="font-semibold text-slate-600">☑ Recordarme</span>
-                        <button onclick="state.subVistaAcceso = '04-recuperacion'; renderMain()" class="font-bold text-blue-600 hover:underline">¿Olvidaste tu contraseña?</button>
+                        <span class="font-semibold text-slate-600">☑ Mantener sesión activa</span>
+                        <button type="button" onclick="state.mensajeAuthError=''; state.subVistaAcceso = '04-recuperacion'; renderMain()" class="font-bold text-blue-600 hover:underline">¿Olvidaste tu contraseña?</button>
                       </div>
-                      <button onclick="seleccionarVista('centro-mando')" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                      <button type="button" onclick="iniciarSesionMvp()" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700 transition">
                         Ingresar a SGCI ›
                       </button>
                       <div class="text-center text-[11px] text-slate-500">
-                        ¿Tu empresa aún no usa SGCI? <button onclick="state.subVistaAcceso = '06-registro'; renderMain()" class="font-bold text-blue-600 hover:underline">Crear cuenta</button>
+                        ¿Tu empresa aún no usa SGCI? <button type="button" onclick="state.mensajeAuthError=''; state.subVistaAcceso = '06-registro'; renderMain()" class="font-bold text-blue-600 hover:underline">Crear cuenta nueva</button>
                       </div>
                     </div>
                   \` : ''}
@@ -2089,16 +2292,17 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                     <div class="space-y-4 text-xs">
                       <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">RESTABLECER CONTRASEÑA · PANTALLA 04</span>
                       <h3 class="text-3xl font-extrabold text-slate-900">Recupera tu acceso</h3>
-                      <p class="text-slate-500">Te enviaremos un enlace seguro a tu correo.</p>
+                      <p class="text-slate-500">Te enviaremos un enlace seguro con token SHA-256 a tu correo.</p>
+                      \${state.mensajeAuthError ? \`<div class="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold text-rose-800">⚠️ \${state.mensajeAuthError}</div>\` : ''}
                       <label class="block">
-                        <span class="font-bold text-slate-700">Correo electrónico</span>
-                        <input type="email" value="laura@industriasalfa.com" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-semibold text-slate-900" />
+                        <span class="font-bold text-slate-700">Correo electrónico registrado</span>
+                        <input type="email" oninput="state.recuperacionEmailInput = this.value" value="\${state.recuperacionEmailInput}" placeholder="tu-correo@empresa.com" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-semibold text-slate-900" />
                       </label>
-                      <button onclick="state.subVistaAcceso = '05-confirmacion'; renderMain()" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                      <button type="button" onclick="solicitarRecuperacionMvp()" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
                         Enviar enlace de recuperación ›
                       </button>
                       <div class="text-center text-[11px] text-slate-500">
-                        ¿Recordaste tu contraseña? <button onclick="state.subVistaAcceso = '03-login'; renderMain()" class="font-bold text-blue-600 hover:underline">Volver al acceso</button>
+                        ¿Recordaste tu contraseña? <button type="button" onclick="state.subVistaAcceso = '03-login'; renderMain()" class="font-bold text-blue-600 hover:underline">Volver al acceso</button>
                       </div>
                     </div>
                   \` : ''}
@@ -2108,11 +2312,11 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                       <div class="mx-auto h-14 w-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">✓</div>
                       <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">ENLACE ENVIADO · PANTALLA 05</span>
                       <h3 class="text-3xl font-extrabold text-slate-900">Revisa tu bandeja de entrada</h3>
-                      <p class="text-slate-500">Enviamos instrucciones a <strong>laura@industriasalfa.com</strong>. El enlace estará disponible durante 20 minutos.</p>
-                      <button onclick="state.subVistaAcceso = '05b-token'; renderMain()" class="w-full rounded-xl bg-[#0A1120] py-3 text-xs font-extrabold text-white shadow hover:bg-slate-800">
+                      <p class="text-slate-500">Enviamos instrucciones a <strong>\${state.recuperacionEmailInput}</strong> con el token <code class="font-mono font-bold text-blue-700">\${state.tokenRecuperacionInput}</code>.</p>
+                      <button type="button" onclick="state.subVistaAcceso = '05b-token'; renderMain()" class="w-full rounded-xl bg-[#0A1120] py-3 text-xs font-extrabold text-white shadow hover:bg-slate-800">
                         Abrir enlace con Token de Recuperación (Pantalla 05b) ›
                       </button>
-                      <button onclick="state.subVistaAcceso = '03-login'; renderMain()" class="w-full rounded-xl bg-[#2563EB] py-3 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                      <button type="button" onclick="state.subVistaAcceso = '03-login'; renderMain()" class="w-full rounded-xl bg-[#2563EB] py-3 text-xs font-extrabold text-white shadow hover:bg-blue-700">
                         Volver a iniciar sesión
                       </button>
                     </div>
@@ -2122,52 +2326,71 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                     <div class="space-y-4 text-xs">
                       <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">NUEVA CONTRASEÑA POR TOKEN · PANTALLA 05B (COMPLEMENTO LEEME.TXT)</span>
                       <h3 class="text-2xl font-extrabold text-slate-900">Define tu nueva contraseña corporativa</h3>
-                      <p class="text-slate-500">Token SHA-256 de un solo uso validado para <strong>Industrias Alfa S.A.S.</strong></p>
+                      <p class="text-slate-500">Token SHA-256 de un solo uso validado para <strong>\${state.recuperacionEmailInput}</strong></p>
+                      \${state.mensajeAuthError ? \`<div class="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold text-rose-800">⚠️ \${state.mensajeAuthError}</div>\` : ''}
                       <label class="block">
                         <span class="font-bold text-slate-700">Token firmado recibido</span>
                         <input oninput="state.tokenRecuperacionInput = this.value" value="\${state.tokenRecuperacionInput}" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono font-bold text-slate-900" />
                       </label>
                       <label class="block">
-                        <span class="font-bold text-slate-700">Nueva contraseña (mín. 10 caracteres, mayúscula, número y símbolo)</span>
+                        <span class="font-bold text-slate-700">Nueva contraseña</span>
                         <input type="password" oninput="state.nuevaPasswordInput = this.value" value="\${state.nuevaPasswordInput}" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono text-slate-900" />
                       </label>
                       <label class="block">
                         <span class="font-bold text-slate-700">Confirmar nueva contraseña</span>
                         <input type="password" oninput="state.confirmarPasswordInput = this.value" value="\${state.confirmarPasswordInput}" class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono text-slate-900" />
                       </label>
-                      <button onclick="aplicarNuevaContrasenaToken()" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
-                        \${state.tokenActualizadoExito ? '✓ Contraseña Actualizada y Sesiones Revocadas' : 'Guardar Nueva Contraseña ›'}
+                      <button type="button" onclick="aplicarNuevaContrasenaToken()" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                        Guardar Nueva Contraseña e Ir a Login ›
                       </button>
                     </div>
                   \` : ''}
 
                   \${state.subVistaAcceso === '06-registro' ? \`
-                    <div class="space-y-4 text-xs">
+                    <div class="space-y-3.5 text-xs">
                       <span class="text-[10px] font-extrabold tracking-widest text-blue-600 uppercase">NUEVA ORGANIZACIÓN · PANTALLA 06</span>
                       <h3 class="text-3xl font-extrabold text-slate-900">Crea tu espacio de trabajo</h3>
-                      <p class="text-slate-500">Configura tu organización y comienza en minutos.</p>
-                      <button class="w-full rounded-xl border border-slate-200 py-2.5 font-bold text-slate-800">G Continuar con Google</button>
-                      <div class="grid grid-cols-2 gap-3">
+                      <p class="text-slate-500">Registra tu cuenta y organización Multi-Tenant para ingresar al sistema.</p>
+                      \${state.mensajeAuthError ? \`<div class="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold text-rose-800">⚠️ \${state.mensajeAuthError}</div>\` : ''}
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <label class="block">
-                          <span class="font-bold text-slate-700">Nombre completo</span>
-                          <input value="Laura Mendoza" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold text-slate-900" />
+                          <span class="font-bold text-slate-700">Nombre completo *</span>
+                          <input id="input-reg-nombre" oninput="state.regNombreInput = this.value" value="\${state.regNombreInput}" placeholder="Ej. Carlos Morales" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-semibold text-slate-900 focus:border-blue-600 focus:outline-none" />
                         </label>
                         <label class="block">
-                          <span class="font-bold text-slate-700">Organización</span>
-                          <input value="Industrias Alfa" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold text-slate-900" />
+                          <span class="font-bold text-slate-700">Organización (Empresa) *</span>
+                          <input id="input-reg-empresa" oninput="state.regOrganizacionInput = this.value" value="\${state.regOrganizacionInput}" placeholder="Ej. Logística del Norte S.A." class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-semibold text-slate-900 focus:border-blue-600 focus:outline-none" />
+                        </label>
+                      </div>
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="block">
+                          <span class="font-bold text-slate-700">Código Tenant</span>
+                          <input id="input-reg-org" oninput="state.regCodigoOrgInput = this.value" value="\${state.regCodigoOrgInput}" placeholder="Ej. LOG-NORTE" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-mono font-bold text-slate-900 focus:border-blue-600 focus:outline-none" />
+                        </label>
+                        <label class="block">
+                          <span class="font-bold text-slate-700">Rol inicial RBAC</span>
+                          <select onchange="state.regRolInput = this.value" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-bold text-blue-700 bg-white">
+                            <option value="ADMIN_EMPRESA">ADMIN_EMPRESA</option>
+                            <option value="JEFE_ALMACEN">JEFE_ALMACEN</option>
+                            <option value="AUDITOR_CONTEOS">AUDITOR_CONTEOS</option>
+                            <option value="OPERADOR_PISO">OPERADOR_PISO</option>
+                          </select>
                         </label>
                       </div>
                       <label class="block">
-                        <span class="font-bold text-slate-700">Correo electrónico</span>
-                        <input value="laura@industriasalfa.com" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold text-slate-900" />
+                        <span class="font-bold text-slate-700">Correo electrónico corporativo *</span>
+                        <input id="input-reg-email" type="email" oninput="state.regEmailInput = this.value" value="\${state.regEmailInput}" placeholder="carlos@lognorte.com" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-semibold text-slate-900 focus:border-blue-600 focus:outline-none" />
                       </label>
                       <label class="block">
-                        <span class="font-bold text-slate-700">Contraseña</span>
-                        <input type="password" value="AlfaInventario#2026" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 font-mono text-slate-900" />
+                        <span class="font-bold text-slate-700">Contraseña (mín. 6 caracteres) *</span>
+                        <input id="input-reg-pass" type="password" oninput="state.regPasswordInput = this.value" onkeydown="if(event.key==='Enter') registrarCuentaMvp()" value="\${state.regPasswordInput}" placeholder="••••••••••••" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-mono text-slate-900 focus:border-blue-600 focus:outline-none" />
                       </label>
-                      <button onclick="seleccionarVista('centro-mando')" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
-                        Crear cuenta empresarial ›
+                      <button type="button" onclick="registrarCuentaMvp()" class="w-full rounded-xl bg-[#2563EB] py-3.5 text-xs font-extrabold text-white shadow hover:bg-blue-700 transition">
+                        Crear cuenta empresarial e ingresar ›
                       </button>
+                      <div class="text-center text-[11px] text-slate-500">
+                        ¿Ya tienes una cuenta? <button type="button" onclick="state.mensajeAuthError=''; state.subVistaAcceso = '03-login'; renderMain()" class="font-bold text-blue-600 hover:underline">Iniciar sesión</button>
+                      </div>
                     </div>
                   \` : ''}
                 </div>
@@ -2231,6 +2454,9 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       \`;
     }
 
+    renderSidebar();
+    renderMain();
+
     Promise.all([
       fetch('/artifacts/sgci-pantallas/manifest.json').then(r => r.json()).catch(() => ({ screens: [] })),
       fetch('/api/v1/mvp/state').then(r => r.json()).catch(() => null),
@@ -2250,6 +2476,26 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 </html>`;
 
 const INITIAL_MVP_STATE = {
+  usuarios: [
+    {
+      nombre: 'Laura Mendoza',
+      iniciales: 'LM',
+      email: 'laura@industriasalfa.com',
+      password: 'AlfaInventario#2026',
+      organizacion: 'Industrias Alfa S.A.S.',
+      codigoOrg: 'IND-ALFA',
+      rol: 'JEFE_ALMACEN',
+    },
+    {
+      nombre: 'Carlos Morales',
+      iniciales: 'CM',
+      email: 'carlos@industriasalfa.com',
+      password: 'AlfaInventario#2026',
+      organizacion: 'Industrias Alfa S.A.S.',
+      codigoOrg: 'IND-ALFA',
+      rol: 'ADMIN_EMPRESA',
+    },
+  ],
   productos: [
     { sku: 'AC-100-FLEX', nombre: 'Válvula de Presión Industrial 2"', ubicacion: 'A-04-R02-NB', lote: 'LOTE-2026-089', metodo: 'PEPS', min: 12, rop: 18, max: 48, stock: 5, costo: 142.50, estado: 'CRÍTICO' },
     { sku: 'RB-220-INOX', nombre: 'Rodamiento sellado acero inoxidable', ubicacion: 'B-02-R08-NA', lote: 'LOTE-2026-101', metodo: 'CPP', min: 10, rop: 20, max: 60, stock: 14, costo: 148.20, estado: 'REORDEN' },
@@ -2320,6 +2566,73 @@ const server = createServer(async (req, res) => {
           tddFrontend: { suites: 12, total: 32, aprobadas: 32, estado: 'VERDE' },
         }),
       );
+      return;
+    }
+
+    if (url.pathname === '/api/v1/auth/login' && req.method === 'POST') {
+      let body = '';
+      for await (const chunk of req) body += chunk;
+      const { email, password } = JSON.parse(body || '{}');
+      const listaUsuarios = Array.isArray(mvpState.usuarios) ? mvpState.usuarios : INITIAL_MVP_STATE.usuarios;
+      const encontrado = listaUsuarios.find(
+        u => u.email.toLowerCase() === String(email || '').trim().toLowerCase() && u.password === String(password || ''),
+      );
+      if (!encontrado) {
+        res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ status: 'error', error: 'Correo o contraseña incorrectos. Usa laura@industriasalfa.com / AlfaInventario#2026 o crea una cuenta nueva.' }));
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ status: 'ok', usuario: encontrado }));
+      return;
+    }
+
+    if (url.pathname === '/api/v1/auth/register' && req.method === 'POST') {
+      let body = '';
+      for await (const chunk of req) body += chunk;
+      const { nombre, organizacion, codigoOrg, email, password, rol } = JSON.parse(body || '{}');
+      if (!nombre || !organizacion || !email || !password) {
+        res.writeHead(422, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ status: 'error', error: 'Todos los campos obligatorios deben completarse.' }));
+        return;
+      }
+      if (!Array.isArray(mvpState.usuarios)) {
+        mvpState.usuarios = structuredClone(INITIAL_MVP_STATE.usuarios);
+      }
+      const partes = String(nombre).trim().split(/\s+/);
+      const iniciales = ((partes[0] ? partes[0][0] : 'U') + (partes[1] ? partes[1][0] : 'S')).toUpperCase();
+      const nuevoUsuario = {
+        nombre: String(nombre).trim(),
+        iniciales,
+        email: String(email).trim().toLowerCase(),
+        password: String(password),
+        organizacion: String(organizacion).trim(),
+        codigoOrg: String(codigoOrg || 'IND-ALFA').trim().toUpperCase(),
+        rol: String(rol || 'ADMIN_EMPRESA'),
+      };
+      const idx = mvpState.usuarios.findIndex(u => u.email === nuevoUsuario.email);
+      if (idx >= 0) mvpState.usuarios[idx] = nuevoUsuario;
+      else mvpState.usuarios.push(nuevoUsuario);
+      await guardarMvpStateDisco();
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ status: 'registered', usuario: nuevoUsuario }));
+      return;
+    }
+
+    if (url.pathname === '/api/v1/auth/reset-password' && req.method === 'POST') {
+      let body = '';
+      for await (const chunk of req) body += chunk;
+      const { email, nuevaPassword } = JSON.parse(body || '{}');
+      if (!Array.isArray(mvpState.usuarios)) {
+        mvpState.usuarios = structuredClone(INITIAL_MVP_STATE.usuarios);
+      }
+      const u = mvpState.usuarios.find(x => x.email.toLowerCase() === String(email || '').trim().toLowerCase());
+      if (u && nuevaPassword) {
+        u.password = String(nuevaPassword);
+        await guardarMvpStateDisco();
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ status: 'password_updated' }));
       return;
     }
 
