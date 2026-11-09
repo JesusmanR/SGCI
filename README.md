@@ -225,22 +225,31 @@ Todo componente, servicio, endpoint o estrategia debe desarrollarse siguiendo el
 
 ---
 
-## 6. Documentos del Proyecto y Ejecución en Vivo
+## 6. Documentos del Proyecto y Ejecución en Vivo del MVP (`v1.12.0-MVP`)
 
+- [Acta de Entrega del MVP y Guion de Pruebas UAT (docs/13-entrega-mvp-guia-pruebas-uat.md)](file:///C:/dev/SGCI/docs/13-entrega-mvp-guia-pruebas-uat.md)
+- [Checklist Ejecutivo de Validación del MVP para Stakeholders (docs/14-checklist-ejecutivo-validacion-mvp.md)](file:///C:/dev/SGCI/docs/14-checklist-ejecutivo-validacion-mvp.md)
+- [Auditoría de Cierre SOLID & Screaming Architecture (docs/10-auditoria-cierre-fase2-uat-mvp.md)](file:///C:/dev/SGCI/docs/10-auditoria-cierre-fase2-uat-mvp.md)
+- [Auditoría de Seguridad OWASP & Multi-Tenant (docs/06-auditoria-seguridad-multitenant.md)](file:///C:/dev/SGCI/docs/06-auditoria-seguridad-multitenant.md)
+- [Cierre Integral Fase III — 47 Pantallas Oficiales SGCI y Brechas LEEME.txt (docs/12-cierre-integral-fase-3-pantallas-sgci.md)](file:///C:/dev/SGCI/docs/12-cierre-integral-fase-3-pantallas-sgci.md)
 - [Especificación Operativa de Producto (PRODUCT.md)](file:///C:/dev/SGCI/PRODUCT.md)
-- [Estrategia de Producto, Módulos y Hoja de Ruta (docs/01-estrategia-producto-roadmap.md)](file:///C:/dev/SGCI/docs/01-estrategia-producto-roadmap.md)
 - [Arquitectura del Sistema y ADRs (docs/02-arquitectura-sistema-adr.md)](file:///C:/dev/SGCI/docs/02-arquitectura-sistema-adr.md)
-- [Cierre Integral Fase II — Sprints 8 al 10 (docs/11-cierre-integral-fase-2-sprints-8-10.md)](file:///C:/dev/SGCI/docs/11-cierre-integral-fase-2-sprints-8-10.md)
-- [Cierre Integral Fase III — 25 Pantallas Oficiales SGCI y Brechas LEEME.txt (docs/12-cierre-integral-fase-3-pantallas-sgci.md)](file:///C:/dev/SGCI/docs/12-cierre-integral-fase-3-pantallas-sgci.md)
 
-### Comandos de Verificación TDD y Servidor en Vivo
+### Comandos de Verificación TDD, E2E y Lanzador de 1 Clic del MVP
 ```powershell
-# 1. Ejecutar Suite TDD Backend (10 Suites · 36/36 pruebas en verde)
+# Opción A: Lanzador automático de 1 clic en Windows (Ejecuta pruebas + levanta servidor + abre navegador)
+C:\dev\SGCI\INICIAR-MVP-PRUEBA.bat
+
+# Opción B: Ejecución manual por consola
+# 1. Ejecutar Suite TDD Backend (12 Suites · 40/40 pruebas en verde)
 php C:\dev\SGCI\backend\scripts\ejecutar-pruebas-tdd.php
 
-# 2. Ejecutar Suite TDD Frontend (10 Suites · 28/28 pruebas en verde)
+# 2. Ejecutar Suite TDD Frontend (12 Suites · 32/32 pruebas en verde)
 node C:\dev\SGCI\frontend\scripts\ejecutar-pruebas-frontend.mjs
 
-# 3. Levantar Portal Interactivo SGCI con las 25 pantallas oficiales (http://127.0.0.1:4173)
+# 3. Levantar Portal Interactivo MVP SGCI con las 47 pantallas oficiales y API v1 (http://127.0.0.1:4173)
 node C:\dev\SGCI\scripts\servidor-sgci.mjs
+
+# 4. Ejecutar Verificador E2E contra el servidor en vivo
+node C:\dev\SGCI\scripts\probar-api-mvp-vivo.mjs
 ```

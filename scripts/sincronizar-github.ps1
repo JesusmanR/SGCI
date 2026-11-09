@@ -11,6 +11,11 @@
     de auditoría de cierre, y publica todo en GitHub.
 #>
 
+param(
+    [string]$MensajeCommit = "release(mvp-v1.12.0): entrega integral MVP UAT con 47 capturas oficiales, API v1 persistente y 72 pruebas TDD (40 Backend + 32 Frontend)",
+    [string]$RamaActiva = "feat/mvp-uat-v1.12.0"
+)
+
 $ErrorActionPreference = "Stop"
 Set-Location -Path "C:\dev\SGCI"
 
@@ -28,25 +33,29 @@ if ($remotoActual -notcontains "origin") {
 
 git checkout -B main
 git add -A
-git commit -m "feat(sgci-pantallas): integración de las 25 pantallas oficiales SGCI (15 escritorio 1440px + 10 móvil 390px), cierre de brechas LEEME.txt y TDD 100% verde (36/36 Backend, 28/28 Frontend)" --allow-empty
+git commit -m $MensajeCommit --allow-empty
+git tag -f v1.12.0-MVP
 
 foreach ($rama in @(
     "feat/admin-saas-reportes-ejecutivos",
     "feat/pwa-offline-indexeddb-sync",
     "feat/api-rest-docker-postgresql",
-    "feat/pantallas-oficiales-sgci-25"
+    "feat/pantallas-oficiales-sgci-25",
+    $RamaActiva
 )) {
     git branch -f $rama main
 }
 
 git checkout -B develop
-git merge --no-ff main -m "chore: sincronizar pantallas oficiales SGCI y cierre de brechas en develop" --allow-unrelated-histories
+git merge --no-ff main -m "chore: sincronizar release MVP v1.12.0 en develop" --allow-unrelated-histories
 
 git push -u origin main --force
 git push -u origin develop --force
+git push origin v1.12.0-MVP --force
 git push -u origin feat/admin-saas-reportes-ejecutivos --force
 git push -u origin feat/pwa-offline-indexeddb-sync --force
 git push -u origin feat/api-rest-docker-postgresql --force
 git push -u origin feat/pantallas-oficiales-sgci-25 --force
+git push -u origin $RamaActiva --force
 
-Write-Host "¡Sincronización completa de SGCI (25 Pantallas Oficiales + Sprints 1-12) con GitHub finalizada!" -ForegroundColor Green
+Write-Host "¡Sincronización completa de SGCI MVP v1.12.0 (47 Capturas + 72 Pruebas TDD + Tag v1.12.0-MVP) con GitHub finalizada!" -ForegroundColor Green
