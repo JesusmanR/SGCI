@@ -93,13 +93,18 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
             </div>
           </button>
 
+          <button onclick="state.mostrarCentroNotificaciones = !state.mostrarCentroNotificaciones; renderMain()" title="Centro de Notificaciones WebSockets en Tiempo Real" class="relative flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition">
+            🔔
+            <span id="badge-notif-top" class="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-600 px-1 text-[9px] font-extrabold text-white">4</span>
+          </button>
+
           <a href="/artifacts/sgci-pantallas/INDICE.html" target="_blank" class="hidden xl:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">
             🖼️ 47 PNGs ↗
           </a>
         </div>
       </header>
 
-      <!-- Panel Desplegable de Guía Interactiva UAT para Prueba del MVP -->
+      <!-- Panel Desplegable de Guía Interactiva UAT y Centro de Notificaciones WebSockets -->
       <div id="contenedor-guia-uat" class="max-w-[1440px] w-full mx-auto px-6 lg:px-8 pt-4 empty:hidden"></div>
 
       <!-- Área Principal Dinámica -->
@@ -158,7 +163,19 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
       mostrarModalTransferencia09b: false,
       mostrarSimuladorFefo11b: false,
       mostrarModalCicloConteo12b: false,
+      mostrarModalRbac15b: false,
+      mostrarCentroNotificaciones: false,
       mostrarGuiaUatMvp: true,
+      nuevoUsuarioRbacNombre: 'Sofía Cárdenas (s.cardenas@industriasalfa.com)',
+      nuevoUsuarioRbacRol: 'AUDITOR_CONTEOS',
+      nuevoUsuarioRbacBodega: 'ALM-NORTE-02 — Centro Logístico Saltillo',
+      usuariosRbacExtra: [],
+      notificacionesVivas: [
+        { id: 'n1', titulo: 'Stock por debajo del mínimo', detalle: 'AC-100-FLEX descendió a 5 PZA en Bodega Central', tiempo: 'Hace 2 min', vista: 'productos-rop', leida: false },
+        { id: 'n2', titulo: 'Transferencia en tránsito', detalle: 'TR-2026-0188 salió de Bodega Norte hacia Monterrey', tiempo: 'Hace 18 min', vista: 'almacenes', leida: false },
+        { id: 'n3', titulo: 'Recepción conciliada en Muelle 02', detalle: 'OC-2026-0118 · 20 bultos recibidos e ingresados a Kardex', tiempo: 'Hace 46 min', vista: 'abastecimiento', leida: false },
+        { id: 'n4', titulo: 'Conteo pendiente de 2ª firma', detalle: 'Ciclo CC-2026-028 · Zona B requiere autorización mancomunada', tiempo: 'Hace 1 h', vista: 'conteos-auditoria', leida: false },
+      ],
       cantidadDespachoFefo: 10,
       nuevoProdSku: 'VL-310-TITAN',
       nuevoProdNombre: 'Válvula direccional neumática 1/2"',
@@ -593,12 +610,47 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
 
     function renderGuiaUat() {
       const box = document.getElementById('contenedor-guia-uat');
+      const badgeNotif = document.getElementById('badge-notif-top');
+      if (badgeNotif) {
+        const noLeidas = (state.notificacionesVivas || []).filter(n => !n.leida).length;
+        badgeNotif.textContent = String(noLeidas);
+        badgeNotif.style.display = noLeidas > 0 ? 'flex' : 'none';
+      }
       if (!box) return;
+      let html = '';
+      if (state.mostrarCentroNotificaciones) {
+        html += \`
+          <div class="mb-4 rounded-2xl border-2 border-blue-600 bg-white p-5 shadow-lg space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-600">CENTRO DE ALERTAS WEBSOCKETS EN VIVO (REVERB / PUSHER)</span>
+                <h3 class="text-sm font-extrabold text-slate-900">Notificaciones Operativas Multi-Tenant · Industrias Alfa S.A.S.</h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="state.notificacionesVivas.forEach(n => n.leida = true); renderMain()" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-bold text-slate-700 hover:bg-slate-100">✓ Marcar todas como leídas</button>
+                <button onclick="state.mostrarCentroNotificaciones = false; renderMain()" class="rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-900">✕</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+              \${state.notificacionesVivas.map(n => \`
+                <div class="rounded-xl border \${n.leida ? 'border-slate-200 bg-slate-50/60 opacity-75' : 'border-blue-200 bg-blue-50/40'} p-3 flex items-center justify-between gap-3">
+                  <div>
+                    <strong class="text-slate-900 block">\${n.titulo}</strong>
+                    <span class="text-slate-600 block mt-0.5">\${n.detalle}</span>
+                    <span class="text-[10px] text-slate-400">\${n.tiempo}</span>
+                  </div>
+                  <button onclick="n = state.notificacionesVivas.find(x => x.id === '\${n.id}'); if(n) n.leida = true; state.mostrarCentroNotificaciones = false; seleccionarVista('\${n.vista}')" class="shrink-0 rounded-lg bg-[#2563EB] px-3 py-1.5 text-[11px] font-bold text-white hover:bg-blue-700">Ir ›</button>
+                </div>
+              \`).join('')}
+            </div>
+          </div>
+        \`;
+      }
       if (!state.mostrarGuiaUatMvp) {
-        box.innerHTML = '';
+        box.innerHTML = html;
         return;
       }
-      box.innerHTML = \`
+      box.innerHTML = html + \`
         <div class="rounded-2xl border-2 border-cyan-500/40 bg-[#0A1120] text-white p-5 shadow-lg space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
             <div>
@@ -879,7 +931,7 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                   </div>
                 </div>
 
-                <button onclick="seleccionarVista('conteos-auditoria')" class="w-full pt-3 border-t border-slate-100 text-center text-xs font-bold text-blue-600 hover:underline">
+                <button onclick="state.mostrarCentroNotificaciones = true; renderMain()" class="w-full pt-3 border-t border-slate-100 text-center text-xs font-bold text-blue-600 hover:underline">
                   Abrir centro de notificaciones ›
                 </button>
               </section>
@@ -1251,6 +1303,8 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                 <div class="flex flex-wrap items-center gap-2">
                   \${state.vista === 'almacenes' ? \`<button onclick="state.mostrarModalTransferencia09b = !state.mostrarModalTransferencia09b; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-3.5 py-1.5 text-[11px] font-bold hover:bg-slate-800">🚚 + Nueva Transferencia Inter-Almacén (2 Pasos)</button>\` : ''}
                   \${state.vista === 'lotes-fefo' ? \`<button onclick="state.mostrarSimuladorFefo11b = !state.mostrarSimuladorFefo11b; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-3.5 py-1.5 text-[11px] font-bold hover:bg-slate-800">⚡ Simulador Despacho FEFO Multi-Lote</button>\` : ''}
+                  \${state.vista === 'conteos-auditoria' ? \`<button onclick="state.mostrarModalCicloConteo12b = !state.mostrarModalCicloConteo12b; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-3.5 py-1.5 text-[11px] font-bold hover:bg-slate-800">📋 + Nuevo Conteo Ciego y Doble Firma (12b)</button>\` : ''}
+                  \${state.vista === 'gobernanza-rbac' ? \`<button onclick="state.mostrarModalRbac15b = !state.mostrarModalRbac15b; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-3.5 py-1.5 text-[11px] font-bold hover:bg-slate-800">🛡️ + Asignar Rol / Auditar TenantScope (15b)</button>\` : ''}
                   \${state.vista === 'abastecimiento' ? \`
                     <button onclick="ejecutarAccionEspecializadaModulo('emitir-oc-rop', 'AC-100-FLEX')" class="rounded-xl border border-blue-200 bg-blue-50 text-blue-700 px-3.5 py-1.5 text-[11px] font-bold hover:bg-blue-100">+ Emitir OC por ROP</button>
                     <button onclick="state.mostrarModalRecepcion13b = !state.mostrarModalRecepcion13b; renderMain()" class="rounded-xl bg-[#0A1120] text-white px-3.5 py-1.5 text-[11px] font-bold hover:bg-slate-800">📥 Ventana 13b · Recepción en Muelle</button>
@@ -1313,6 +1367,38 @@ const PORTAL_SGCI_HTML = `<!DOCTYPE html>
                     <input type="number" min="1" max="50" value="\${state.cantidadDespachoFefo}" oninput="state.cantidadDespachoFefo = this.value" class="w-24 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-bold text-slate-900" />
                     <button onclick="ejecutarAccionEspecializadaModulo('despacho-fefo', 'FEFO')" class="rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
                       ✓ Despachar por FEFO → Kardex
+                    </button>
+                  </div>
+                </div>
+              \` : ''}
+
+              \${state.vista === 'conteos-auditoria' && state.mostrarModalCicloConteo12b ? \`
+                <!-- Flujo Especializado 12b: Conciliación de Conteo Ciego y Doble Firma -->
+                <div class="rounded-2xl border-2 border-blue-600 bg-blue-50/40 p-5 flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-700">FLUJO ESPECIALIZADO 12B · DOBLE FIRMA MANCOMUNADA</span>
+                    <h3 class="text-sm font-extrabold text-slate-900 mt-0.5">Captura de Conteo Físico Ciego en Zona B (SKU RB-220-INOX · Stock Sistema: 14 PZA)</h3>
+                    <p class="text-xs text-slate-600">Ingresa la cantidad física contada y aplica la doble firma (AUDITOR_CONTEOS + JEFE_ALMACEN) hacia el Libro Kardex.</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <input type="number" min="0" max="200" value="\${state.conteoFisicoInput}" oninput="state.conteoFisicoInput = this.value" class="w-24 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-bold text-slate-900" />
+                    <button onclick="ejecutarAccionEspecializadaModulo('conteos-auditoria', 'CC-2026-028'); state.mostrarModalCicloConteo12b = false; renderMain()" class="rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-extrabold text-white shadow hover:bg-blue-700">
+                      ✓ Firmar y Asentar Ajuste en Kardex
+                    </button>
+                  </div>
+                </div>
+              \` : ''}
+
+              \${state.vista === 'gobernanza-rbac' && state.mostrarModalRbac15b ? \`
+                <!-- Flujo Especializado 15b: Asignación RBAC Multi-Tenant y Simulador Anti-IDOR -->
+                <div class="rounded-2xl border-2 border-blue-600 bg-blue-50/40 p-5 space-y-3">
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-700">FLUJO ESPECIALIZADO 15B · GOBERNANZA RBAC Y TENANTSCOPE</span>
+                      <h3 class="text-sm font-extrabold text-slate-900 mt-0.5">Auditoría de Aislamiento Multi-Tenant (tenant_id: 8f2a...c91d) y Matriz de 10 Roles</h3>
+                    </div>
+                    <button onclick="alert('BLINDAJE VERIFICADO (HTTP 403 FORBIDDEN): TenantScope e hash_equals(X-Tenant-ID) bloquearon satisfactoriamente el acceso cruzado hacia tenant_intruso_999.')" class="rounded-xl bg-[#0A1120] px-4 py-2 text-xs font-extrabold text-cyan-300 shadow hover:bg-slate-800">
+                      🔒 Simular Prueba de Intrusión Cross-Tenant (Anti-IDOR)
                     </button>
                   </div>
                 </div>
